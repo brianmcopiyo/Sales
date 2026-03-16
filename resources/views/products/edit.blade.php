@@ -25,8 +25,8 @@
                     @error('name')<p class="mt-1 text-sm text-red-600 font-medium">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label for="sku" class="block text-sm font-medium text-themeBody mb-1">SKU *</label>
-                    <input type="text" id="sku" name="sku" value="{{ old('sku', $product->sku) }}" required
+                    <label for="sku" class="block text-sm font-medium text-themeBody mb-1">SKU</label>
+                    <input type="text" id="sku" name="sku" value="{{ old('sku', $product->sku) }}"
                            class="w-full px-4 py-2.5 border border-themeBorder rounded-xl text-themeHeading placeholder-themeMuted focus:ring-2 focus:ring-primary/20 focus:border-primary transition @error('sku') border-red-300 @enderror">
                     @error('sku')<p class="mt-1 text-sm text-red-600 font-medium">{{ $message }}</p>@enderror
                 </div>

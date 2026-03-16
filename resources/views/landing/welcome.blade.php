@@ -8,9 +8,9 @@
             <div class="flex justify-between items-center h-18 min-h-[4.5rem]">
                 <a href="{{ url('/') }}"
                     class="nav-logo flex items-center shrink-0 transition-opacity duration-300 hover:opacity-90"
-                    aria-label="Stock Management - Home">
+                    aria-label="{{ config('app.name', 'TajaCore') }} - Home">
                     @php $logoUrl = file_exists(public_path('logo.jpg')) ? asset('logo.jpg') : asset('assets/img/logo.jpeg'); @endphp
-                    <img src="{{ $logoUrl }}" alt="Stock Management" class="h-9 w-auto max-h-9 object-contain block"
+                    <img src="{{ $logoUrl }}" alt="{{ config('app.name', 'TajaCore') }}" class="h-9 w-auto max-h-9 object-contain block"
                         loading="eager">
                 </a>
                 <div class="hidden md:flex items-center gap-10">
@@ -139,8 +139,7 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <p class="text-sm font-medium text-primary uppercase tracking-wider text-center mb-3">What we do</p>
             <h2 class="text-3xl sm:text-4xl font-semibold text-themeHeading mb-4 text-center tracking-tight">Our Services</h2>
-            <p class="text-themeBody text-center max-w-2xl mx-auto mb-16 leading-relaxed">We distribute phones and run
-                inventory, sales, and support across our network so you get what you need, when you need it.</p>
+            <p class="text-themeBody text-center max-w-2xl mx-auto mb-16 leading-relaxed">Manage inventory, sales, branches, and customer support in one place. Stay stocked, track orders, and serve your customers with clarity.</p>
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div
                     class="group p-8 rounded-2xl bg-themeCard border border-themeBorder shadow-card hover:shadow-card-hover hover:border-[#006F78]/30 transition-all duration-300 text-center">
@@ -152,8 +151,7 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-semibold text-primary mb-2">Inventory & Distribution</h3>
-                    <p class="text-themeBody text-sm leading-relaxed">We move stock from our hub to regional branches so
-                        your locations stay supplied.</p>
+                    <p class="text-themeBody text-sm leading-relaxed">Move stock from hub to branches so every location stays supplied and in sync.</p>
                 </div>
                 <div
                     class="group p-8 rounded-2xl bg-themeCard border border-themeBorder shadow-card hover:shadow-card-hover hover:border-[#006F78]/30 transition-all duration-300 text-center">
@@ -165,8 +163,7 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-semibold text-primary mb-2">Sales</h3>
-                    <p class="text-themeBody text-sm leading-relaxed">We sell devices with clear, region-based pricing and
-                        full visibility on orders and devices.</p>
+                    <p class="text-themeBody text-sm leading-relaxed">Sell products with clear, region-based pricing and full visibility on orders and stock.</p>
                 </div>
                 <div
                     class="group p-8 rounded-2xl bg-themeCard border border-themeBorder shadow-card hover:shadow-card-hover hover:border-[#006F78]/30 transition-all duration-300 text-center">
@@ -206,9 +203,8 @@
                 <path
                     d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
             </svg>
-            <blockquote class="text-xl sm:text-2xl font-medium leading-relaxed mb-6">"They keep our branches stocked and
-                our orders are always clear. Great to work with—we know exactly where we stand."</blockquote>
-            <cite class="text-white/80 text-sm font-medium not-italic">Partner, Regional Branch</cite>
+            <blockquote class="text-xl sm:text-2xl font-medium leading-relaxed mb-6">"Branches stay stocked, orders are clear, and we always know where we stand. Exactly what we needed."</blockquote>
+            <cite class="text-white/80 text-sm font-medium not-italic">— Team using {{ config('app.name', 'TajaCore') }}</cite>
         </div>
     </section>
 
@@ -219,12 +215,8 @@
                 <div>
                     <p class="text-sm font-medium text-primary uppercase tracking-wider mb-3">Who we are</p>
                     <h2 class="text-3xl sm:text-4xl font-semibold text-themeHeading mb-6 tracking-tight">About Us</h2>
-                    <p class="text-themeBody leading-relaxed mb-4">We are a phone distribution business. We move devices
-                        from our head location to regional branches, run sales with clear pricing, and support our customers
-                        through the full journey.</p>
-                    <p class="text-themeBody leading-relaxed mb-8">We keep branches supplied, handle sales and device
-                        tracking, work with field agents where needed, and respond to inquiries so you get reliable service
-                        and transparency.</p>
+                    <p class="text-themeBody leading-relaxed mb-4">{{ config('app.name', 'TajaCore') }} is a sales and inventory management platform. Manage stock across branches, run sales with clear pricing, and support your customers from order to delivery.</p>
+                    <p class="text-themeBody leading-relaxed mb-8">Keep branches supplied, track sales and stock, work with field agents and commissions, and handle support—all with one system built for clarity and control.</p>
                     <ul class="space-y-3">
                         <li class="flex items-start gap-3 text-themeBody">
                             <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></span>
@@ -236,7 +228,7 @@
                         </li>
                         <li class="flex items-start gap-3 text-themeBody">
                             <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></span>
-                            <span>Field agents and commission handling</span>
+                            <span>Field agents and commissions</span>
                         </li>
                         <li class="flex items-start gap-3 text-themeBody">
                             <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></span>
@@ -244,9 +236,11 @@
                         </li>
                     </ul>
                 </div>
-                <div
-                    class="bg-themeCard rounded-2xl border border-themeBorder shadow-soft h-96 flex items-center justify-center text-themeMuted text-sm font-medium">
-                    Placeholder for image or stats
+                <div class="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl border border-primary/20 shadow-soft h-96 flex items-center justify-center">
+                    <div class="text-center px-8">
+                        <div class="text-5xl font-bold text-primary mb-2">{{ config('app.name', 'TajaCore') }}</div>
+                        <p class="text-themeBody text-sm max-w-xs">Sales, stock, and support in one place.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -258,8 +252,7 @@
             <p class="text-sm font-medium text-primary uppercase tracking-wider text-center mb-3">Testimonials</p>
             <h2 class="text-3xl sm:text-4xl font-semibold text-themeHeading mb-4 text-center tracking-tight">What People Say
             </h2>
-            <p class="text-themeBody text-center max-w-xl mx-auto mb-14">Feedback from partners and customers we work with.
-            </p>
+            <p class="text-themeBody text-center max-w-xl mx-auto mb-14">What teams say about using the platform.</p>
             <div class="grid md:grid-cols-3 gap-8">
                 <div class="bg-surface border-l-4 border-primary p-8 rounded-r-2xl shadow-card">
                     <p class="text-themeBody leading-relaxed mb-6">"We always know what’s in stock and when the next
@@ -285,37 +278,14 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <p class="text-sm font-medium text-primary uppercase tracking-wider text-center mb-3">Contact</p>
             <h2 class="text-3xl sm:text-4xl font-semibold text-themeHeading mb-4 text-center tracking-tight">Get in Touch</h2>
-            <p class="text-themeBody text-center max-w-xl mx-auto mb-14">Questions about our distribution, sales, or
-                support? Reach out.</p>
+            <p class="text-themeBody text-center max-w-xl mx-auto mb-14">Questions about sales, inventory, or support? Get in touch.</p>
             <div class="max-w-lg mx-auto">
-                <form action="#" method="POST"
-                    class="space-y-6 bg-themeCard p-8 rounded-2xl border border-themeBorder shadow-soft">
-                    @csrf
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-themeBody mb-2">Name</label>
-                        <input type="text" id="name" name="name"
-                            class="w-full px-4 py-3 border border-themeBorder rounded-lg text-themeHeading placeholder-themeMuted focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
-                            placeholder="Your name">
-                    </div>
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-themeBody mb-2">Email</label>
-                        <input type="email" id="email" name="email"
-                            class="w-full px-4 py-3 border border-themeBorder rounded-lg text-themeHeading placeholder-themeMuted focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
-                            placeholder="you@example.com">
-                    </div>
-                    <div>
-                        <label for="message" class="block text-sm font-medium text-themeBody mb-2">Message</label>
-                        <textarea id="message" name="message" rows="4"
-                            class="w-full px-4 py-3 border border-themeBorder rounded-lg text-themeHeading placeholder-themeMuted focus:ring-2 focus:ring-primary/20 focus:border-primary transition resize-none"
-                            placeholder="Your message"></textarea>
-                    </div>
-                    <button type="submit"
-                        class="w-full sm:w-auto px-6 py-3 rounded-lg text-white font-medium bg-primary hover:bg-primary-dark shadow-soft hover:shadow-soft-lg transition-all duration-200">Send
-                        message</button>
-                </form>
-                <div class="mt-12 flex flex-wrap gap-10 justify-center text-themeBody text-sm">
-                    <span class="font-medium">Email: support@example.com</span>
-                    <span class="font-medium">Phone: +1 (000) 000-0000</span>
+                <div class="space-y-6 bg-themeCard p-8 rounded-2xl border border-themeBorder shadow-soft text-center">
+                    <p class="text-themeBody">Sign in to your account to manage sales, stock, and support. Need access? Contact your administrator.</p>
+                    <a href="{{ route('login') }}"
+                        class="inline-flex items-center px-6 py-3 rounded-lg text-white font-medium bg-primary hover:bg-primary-dark shadow-soft hover:shadow-soft-lg transition-all duration-200">
+                        Sign in
+                    </a>
                 </div>
             </div>
         </div>
@@ -325,7 +295,7 @@
     <footer class="bg-themeInput text-themeMuted py-14" data-nav-theme="dark">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center gap-8">
-                <div class="text-primary font-semibold text-lg tracking-tight">Stock Management</div>
+                <div class="text-primary font-semibold text-lg tracking-tight">{{ config('app.name', 'TajaCore') }}</div>
                 <nav class="flex flex-wrap justify-center gap-8 text-sm font-medium">
                     <a href="#services" class="hover:text-white transition-colors">Services</a>
                     <a href="#about" class="hover:text-white transition-colors">About</a>
@@ -334,8 +304,7 @@
                     <a href="{{ route('login') }}" class="hover:text-white transition-colors">Login</a>
                 </nav>
             </div>
-            <div class="mt-10 pt-8 border-t border-themeBorder text-center text-sm text-themeMuted">© {{ date('Y') }} Stock
-                Management. All rights reserved.</div>
+            <div class="mt-10 pt-8 border-t border-themeBorder text-center text-sm text-themeMuted">© {{ date('Y') }} {{ config('app.name', 'TajaCore') }}. All rights reserved.</div>
         </div>
     </footer>
 
@@ -344,20 +313,20 @@
             return {
                 active: 0,
                 slides: [{
-                        title: 'Phone Distribution You Can Rely On',
-                        subtitle: 'We distribute devices and manage inventory so your branches stay stocked and your customers are served.',
+                        title: 'Sales & Inventory, One Platform',
+                        subtitle: 'Manage stock across branches, run sales with clear pricing, and support your customers—all in one place.',
                         bgFrom: '#006F78',
                         bgTo: '#004d54'
                     },
                     {
                         title: 'Stock Where You Need It',
-                        subtitle: 'We move inventory from our hub to regional branches—so you have the right stock in the right place.',
+                        subtitle: 'Move inventory from hub to branches so the right products are in the right place when you need them.',
                         bgFrom: '#0d9488',
                         bgTo: '#006F78'
                     },
                     {
-                        title: 'Sales, Support & Transparency',
-                        subtitle: 'Clear pricing, straightforward sales, and support when you need it. We run our operations so you can run yours.',
+                        title: 'Clarity & Control',
+                        subtitle: 'Clear pricing, straightforward sales, and support when you need it. Run your operations with full visibility.',
                         bgFrom: '#0f766e',
                         bgTo: '#0d4f4f'
                     }
