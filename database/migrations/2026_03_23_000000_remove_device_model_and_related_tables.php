@@ -25,13 +25,15 @@ return new class extends Migration
             });
         }
 
-        // Drop device_id from customer_disbursements (unique index may exist)
+        // Drop device_id from customer_disbursements (drop FK first; unique index is used by FK)
         if (Schema::hasTable('customer_disbursements') && Schema::hasColumn('customer_disbursements', 'device_id')) {
+            Schema::table('customer_disbursements', function (Blueprint $table) {
+                $table->dropForeign(['device_id']);
+            });
             Schema::table('customer_disbursements', function (Blueprint $table) {
                 $table->dropUnique(['device_id']);
             });
             Schema::table('customer_disbursements', function (Blueprint $table) {
-                $table->dropForeign(['device_id']);
                 $table->dropColumn('device_id');
             });
         }
