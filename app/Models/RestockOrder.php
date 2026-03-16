@@ -75,11 +75,6 @@ class RestockOrder extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function devices()
-    {
-        return $this->hasMany(Device::class);
-    }
-
     public function rejectedBy()
     {
         return $this->belongsTo(User::class, 'rejected_by');

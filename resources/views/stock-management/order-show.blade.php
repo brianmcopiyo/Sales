@@ -111,47 +111,46 @@
 
         <!-- Transfer all to branch: when order has devices and there are child branches to send to -->
         <div id="transfer">
-            @if (
-                $restockOrder->devices->isNotEmpty() &&
-                    $childBranches->isNotEmpty() &&
-                    (auth()->user()->isAdmin() || auth()->user()->isHeadBranchManager()))
+            @php
+                $canTransferCatalog = $childBranches->isNotEmpty() && (auth()->user()->isAdmin() || auth()->user()->isHeadBranchManager());
+                $availableQty = \App\Models\BranchStock::where('branch_id', $restockOrder->branch_id)->where('product_id', $restockOrder->product_id)->value('quantity') ?? 0;
+            @endphp
+            @if ($canTransferCatalog)
                 <div
                     class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                     <h2 class="text-lg font-semibold text-primary tracking-tight mb-2">Transfer stock to branch</h2>
-                    <p class="text-sm text-themeBody mb-4">Send all <strong>{{ $restockOrder->devices->count() }}</strong>
-                        device(s) from this order to a recipient branch. Devices will be moved together in one transfer.</p>
+                    <p class="text-sm text-themeBody mb-4">Send quantity of <strong>{{ $restockOrder->product->name ?? 'product' }}</strong> to a child branch. Available at this branch: <strong>{{ $availableQty }}</strong>.</p>
                     <form action="{{ route('stock-management.orders.transfer-catalog', $restockOrder) }}" method="POST"
                         class="flex flex-wrap items-end gap-3"
-                        onsubmit="return confirm('Transfer all {{ $restockOrder->devices->count() }} device(s) to the selected branch?');">
+                        onsubmit="return confirm('Transfer the entered quantity to the selected branch?');">
                         @csrf
-                        @foreach ($restockOrder->devices as $d)
-                            <input type="hidden" name="device_ids[]" value="{{ $d->id }}">
-                        @endforeach
+                        <div class="min-w-[120px]">
+                            <label for="transfer_quantity" class="block text-sm font-medium text-themeBody mb-1">Quantity</label>
+                            <input type="number" name="quantity" id="transfer_quantity" required min="1" max="{{ max(1, $availableQty) }}" value="1"
+                                class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">
+                        </div>
                         <div class="min-w-[220px]">
-                            <label for="transfer_all_branch_id"
-                                class="block text-sm font-medium text-themeBody mb-1">Recipient branch</label>
+                            <label for="transfer_all_branch_id" class="block text-sm font-medium text-themeBody mb-1">Recipient branch</label>
                             <select name="target_branch_id" id="transfer_all_branch_id" required
                                 class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">
                                 <option value="">Select branch</option>
                                 @foreach ($childBranches as $branch)
-                                    <option value="{{ $branch->id }}">
-                                        {{ $branch->name }}{{ $branch->code ? ' (' . $branch->code . ')' : '' }}</option>
+                                    <option value="{{ $branch->id }}">{{ $branch->name }}{{ $branch->code ? ' (' . $branch->code . ')' : '' }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <button type="submit"
                             class="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-medium hover:bg-primary-dark transition shadow-sm">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
                             </svg>
-                            <span>Transfer all to branch</span>
+                            <span>Transfer to branch</span>
                         </button>
                     </form>
                     @error('target_branch_id')
                         <p class="mt-2 text-sm font-medium text-red-600">{{ $message }}</p>
                     @enderror
-                    @error('device_ids')
+                    @error('quantity')
                         <p class="mt-2 text-sm font-medium text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -161,10 +160,7 @@
                         class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                         <h2 class="text-lg font-semibold text-primary tracking-tight mb-2">Transfer stock to branch</h2>
                         <p class="text-sm text-themeBody">
-                            @if ($restockOrder->devices->isEmpty())
-                                Record devices (IMEIs) for this order first using Receive or Approve, then you can transfer
-                                them to a child branch here.
-                            @elseif ($childBranches->isEmpty())
+                            @if ($childBranches->isEmpty())
                                 No child branches are set up for {{ $restockOrder->branch->name }}. Add child branches to
                                 enable transfers.
                             @else
@@ -656,197 +652,6 @@
                 </dl>
             </div>
 
-            <!-- Devices: single list; when transfer is available, table has checkboxes and transfer form -->
-            @if ($restockOrder->devices->isNotEmpty())
-                @php
-                    $canTransferCatalog =
-                        $childBranches->isNotEmpty() &&
-                        (auth()->user()->isAdmin() || auth()->user()->isHeadBranchManager());
-                @endphp
-                <div
-                    class="bg-themeCard rounded-2xl border border-themeBorder overflow-hidden shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                    <div class="px-6 py-4 border-b border-themeBorder">
-                        <h2 class="text-lg font-semibold text-primary tracking-tight">Devices
-                            ({{ $restockOrder->devices->count() }})</h2>
-                        <p class="text-sm text-themeMuted mt-1">IMEIs recorded for this order
-                            @if ($canTransferCatalog)
-                                . Select devices and use the form below to transfer to a child branch.
-                            @endif
-                        </p>
-                    </div>
-                    @if ($canTransferCatalog)
-                        <form id="transfer-catalog-form"
-                            action="{{ route('stock-management.orders.transfer-catalog', $restockOrder) }}"
-                            method="POST" class="block">
-                            @csrf
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-themeBorder">
-                                    <thead class="bg-themeInput/80">
-                                        <tr>
-                                            <th class="px-4 py-3 text-left w-10">
-                                                <label class="inline-flex items-center gap-2 cursor-pointer">
-                                                    <input type="checkbox" id="transfer_select_all"
-                                                        class="h-4 w-4 rounded border-themeBorder text-primary focus:ring-primary"
-                                                        aria-label="Select all devices">
-                                                    <span
-                                                        class="text-xs font-semibold text-themeMuted uppercase tracking-wider">Select</span>
-                                                </label>
-                                            </th>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
-                                                IMEI</th>
-                                            <th
-                                                class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
-                                                Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-themeCard divide-y divide-themeBorder">
-                                        @foreach ($restockOrder->devices as $device)
-                                            <tr class="hover:bg-themeInput/50">
-                                                <td class="px-4 py-3 whitespace-nowrap">
-                                                    <input type="checkbox" name="device_ids[]"
-                                                        value="{{ $device->id }}"
-                                                        class="transfer-device-cb h-4 w-4 rounded border-themeBorder text-primary focus:ring-primary">
-                                                </td>
-                                                <td
-                                                    class="px-6 py-3 whitespace-nowrap text-sm font-medium text-themeHeading font-mono">
-                                                    {{ $device->imei }}</td>
-                                                <td class="px-6 py-3 whitespace-nowrap">
-                                                    <span
-                                                        class="px-2.5 py-1 text-xs font-medium rounded-lg
-                                                    @if ($device->status === 'available') bg-emerald-100 text-emerald-800
-                                                    @elseif ($device->status === 'assigned') bg-sky-100 text-sky-800
-                                                    @else bg-amber-100 text-amber-800 @endif">
-                                                        {{ ucfirst($device->status) }}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="px-6 py-4 border-t border-themeBorder flex flex-wrap items-end gap-3">
-                                <span class="text-xs text-themeMuted mr-2" id="transfer_selected_count">0 selected</span>
-                                <div class="min-w-[200px]">
-                                    <label for="target_branch_id"
-                                        class="block text-sm font-medium text-themeBody mb-1">Child
-                                        branch</label>
-                                    <select name="target_branch_id" id="target_branch_id" required
-                                        class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">
-                                        <option value="">Select branch</option>
-                                        @foreach ($childBranches as $branch)
-                                            <option value="{{ $branch->id }}">
-                                                {{ $branch->name }}{{ $branch->code ? ' (' . $branch->code . ')' : '' }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <button type="submit"
-                                    class="bg-primary text-white px-4 py-2.5 rounded-xl font-medium hover:bg-primary-dark transition shadow-sm flex items-center space-x-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                                    </svg>
-                                    <span>Transfer selected</span>
-                                </button>
-                            </div>
-                        </form>
-                        <script>
-                            (function() {
-                                var form = document.getElementById('transfer-catalog-form');
-                                if (!form) return;
-                                var selectAll = document.getElementById('transfer_select_all');
-                                var checkboxes = document.querySelectorAll('.transfer-device-cb');
-                                var countEl = document.getElementById('transfer_selected_count');
-                                var total = checkboxes.length;
-
-                                function updateCount() {
-                                    var n = Array.prototype.filter.call(checkboxes, function(c) {
-                                        return c.checked;
-                                    }).length;
-                                    countEl.textContent = n + ' selected';
-                                    selectAll.checked = n === total && total > 0;
-                                    selectAll.indeterminate = n > 0 && n < total;
-                                }
-
-                                selectAll.addEventListener('change', function() {
-                                    checkboxes.forEach(function(cb) {
-                                        cb.checked = selectAll.checked;
-                                    });
-                                    updateCount();
-                                });
-
-                                checkboxes.forEach(function(cb) {
-                                    cb.addEventListener('change', updateCount);
-                                });
-
-                                form.addEventListener('submit', function(e) {
-                                    var n = Array.prototype.filter.call(checkboxes, function(c) {
-                                        return c.checked;
-                                    }).length;
-                                    if (n === 0) {
-                                        e.preventDefault();
-                                        alert('Please select at least one device to transfer.');
-                                        return false;
-                                    }
-                                    if (!confirm('Transfer ' + n + ' device(s) to the selected branch?')) {
-                                        e.preventDefault();
-                                        return false;
-                                    }
-                                });
-
-                                updateCount();
-                            })();
-                        </script>
-                        @error('target_branch_id')
-                            <p class="px-6 pb-2 text-sm font-medium text-red-600">{{ $message }}</p>
-                        @enderror
-                        @error('device_ids')
-                            <p class="px-6 pb-2 text-sm font-medium text-red-600">{{ $message }}</p>
-                        @enderror
-                    @else
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-themeBorder">
-                                <thead class="bg-themeInput/80">
-                                    <tr>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
-                                            IMEI</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
-                                            Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-themeCard divide-y divide-themeBorder">
-                                    @foreach ($restockOrder->devices as $device)
-                                        <tr class="hover:bg-themeInput/50">
-                                            <td
-                                                class="px-6 py-3 whitespace-nowrap text-sm font-medium text-themeHeading font-mono">
-                                                {{ $device->imei }}</td>
-                                            <td class="px-6 py-3 whitespace-nowrap">
-                                                <span
-                                                    class="px-2.5 py-1 text-xs font-medium rounded-lg
-                                                @if ($device->status === 'available') bg-emerald-100 text-emerald-800
-                                                @elseif ($device->status === 'assigned') bg-sky-100 text-sky-800
-                                                @else bg-amber-100 text-amber-800 @endif">
-                                                    {{ ucfirst($device->status) }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
-                </div>
-            @endif
-            @if ($restockOrder->devices->isEmpty())
-                <div
-                    class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                    <h2 class="text-lg font-semibold text-primary tracking-tight mb-2">Devices</h2>
-                    <p class="text-sm text-themeMuted">No IMEIs were recorded for this order.</p>
-                </div>
-            @endif
         @endif
     </div>
 

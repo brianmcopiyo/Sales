@@ -61,9 +61,6 @@ class TicketsExport implements FromQuery, WithHeadings, WithMapping
         if ($this->request->filled('branch_id')) {
             $query->where('branch_id', $this->request->branch_id);
         }
-        if ($this->request->filled('device_id')) {
-            $query->where('device_id', $this->request->device_id);
-        }
         if ($this->request->filled('product_id')) {
             $query->where('product_id', $this->request->product_id);
         }

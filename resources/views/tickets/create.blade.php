@@ -195,24 +195,6 @@
                         </select>
                     </div>
 
-                    @if ($devices->count() > 0)
-                        <div>
-                            <label for="device_id" class="block text-themeBody font-light mb-2">Related Device</label>
-                            <select id="device_id" name="device_id"
-                                class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">
-                                <option value="">None</option>
-                                @foreach ($devices as $device)
-                                    <option value="{{ $device->id }}"
-                                        {{ old('device_id') == $device->id ? 'selected' : '' }}>
-                                        IMEI: {{ $device->imei }} - {{ $device->product->name ?? 'Unknown Product' }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <p class="text-xs text-themeMuted font-light mt-1">Select if this ticket is about a specific
-                                device</p>
-                        </div>
-                    @endif
-
                     @if (!auth()->user()->isCustomer() && $products->count() > 0)
                         <div>
                             <label class="block text-sm font-medium text-themeBody mb-2">Related Product</label>

@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\AgentStockRequest;
 use App\Models\BranchStock;
-use App\Models\Device;
 use App\Models\FieldAgentStock;
 use App\Models\InventoryAlert;
 use App\Models\InventoryMovement;
@@ -24,11 +23,11 @@ class ProductMergeService
 {
     /**
      * Merge one or more source products into a target (recipient) product.
-     * Transfers all devices, sales, branch stock, and related data to the target, then deletes the source products.
+     * Transfers all sales, branch stock, and related data to the target, then deletes the source products.
      *
      * @param array<string> $sourceIds UUIDs of products to merge from (will be removed)
      * @param string $targetId UUID of the product to keep and receive all data
-     * @return array{devices: int, sale_items: int, branch_stocks_merged: int, messages: string[]}
+     * @return array{sale_items: int, branch_stocks_merged: int, messages: string[]}
      */
     public function merge(array $sourceIds, string $targetId): array
     {
@@ -43,13 +42,10 @@ class ProductMergeService
             throw new \InvalidArgumentException('One or more source products not found.');
         }
 
-        $stats = ['devices' => 0, 'sale_items' => 0, 'branch_stocks_merged' => 0, 'messages' => []];
+        $stats = ['sale_items' => 0, 'branch_stocks_merged' => 0, 'messages' => []];
 
         DB::transaction(function () use ($sourceIds, $targetId, &$stats) {
-            // 1. Reassign devices to target
-            $stats['devices'] = Device::whereIn('product_id', $sourceIds)->update(['product_id' => $targetId]);
-
-            // 2. Reassign sale items (sales) to target
+            // 1. Reassign sale items (sales) to target
             $stats['sale_items'] = SaleItem::whereIn('product_id', $sourceIds)->update(['product_id' => $targetId]);
 
             // 3. Merge branch stocks: per (branch_id) sum quantity and reserved_quantity into target row
@@ -129,7 +125,7 @@ class ProductMergeService
             }
         });
 
-        $stats['messages'][] = "Merged " . count($sourceIds) . " product(s) into {$target->name}. Transferred: {$stats['devices']} devices, {$stats['sale_items']} sale line items.";
+        $stats['messages'][] = "Merged " . count($sourceIds) . " product(s) into {$target->name}. Transferred: {$stats['sale_items']} sale line items.";
 
         return $stats;
     }

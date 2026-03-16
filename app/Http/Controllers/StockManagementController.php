@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\BranchStock;
-use App\Models\Device;
 use App\Models\RestockOrder;
 use App\Models\StockTransfer;
 use App\Models\StockTransferItem;
@@ -245,43 +244,6 @@ class StockManagementController extends Controller
     }
 
     /**
-     * Set current branch stock to the count of available (non-sold) devices per branch/product.
-     */
-    public function syncStockFromDevices(Request $request)
-    {
-        $validated = $request->validate([
-            'branch' => 'nullable|string',
-            'product' => 'nullable|string',
-        ]);
-        $branchParam = $validated['branch'] ?? null;
-        $productParam = $validated['product'] ?? null;
-
-        $service = app(StockReconciliationService::class);
-        $result = $service->syncStockFromDeviceCount(
-            $branchParam ?: null,
-            $productParam ?: null,
-            auth()->check() ? (string) auth()->id() : null
-        );
-
-        $message = sprintf(
-            'Stock synced from devices: %d branch stock row(s) updated, %d new row(s) created. Current stock now reflects available device count per branch/product.',
-            $result['updated'],
-            $result['created']
-        );
-
-        if ($request->input('from') === 'reconciliation') {
-            $query = array_filter([
-                'branch' => $branchParam,
-                'product' => $productParam,
-                'date' => $request->input('redirect_date', 'today'),
-            ]);
-            return redirect()->route('stock-management.reconciliation', $query)->with('success', $message);
-        }
-
-        return redirect()->route('branch-stocks.index')->with('success', $message);
-    }
-
-    /**
      * Restock wizard (progressive web app style) for creating new stock orders step by step.
      */
     public function restockWizard()
@@ -346,11 +308,11 @@ class StockManagementController extends Controller
             abort(403, 'You do not have access to this order.');
         }
 
-        $restockOrder->load(['product', 'branch', 'creator', 'rejectedBy', 'devices']);
+        $restockOrder->load(['product', 'branch', 'creator', 'rejectedBy']);
 
         $batchOrders = collect();
         if ($restockOrder->order_batch) {
-            $batchOrders = RestockOrder::with(['product', 'branch', 'creator', 'rejectedBy', 'devices'])
+            $batchOrders = RestockOrder::with(['product', 'branch', 'creator', 'rejectedBy'])
                 ->where('order_batch', $restockOrder->order_batch)
                 ->orderBy('order_number')
                 ->get();
@@ -365,8 +327,7 @@ class StockManagementController extends Controller
     }
 
     /**
-     * Create a stock transfer from this order's catalog (selected devices). Uses same StockTransfer model;
-     * recipient receives via normal stock transfer receive flow.
+     * Create a stock transfer from this order (quantity). Recipient receives via normal stock transfer receive flow.
      */
     public function transferCatalogToBranch(Request $request, RestockOrder $restockOrder)
     {
@@ -380,11 +341,10 @@ class StockManagementController extends Controller
 
         $validated = $request->validate([
             'target_branch_id' => 'required|exists:branches,id',
-            'device_ids' => 'required|array',
-            'device_ids.*' => 'uuid|exists:devices,id',
+            'quantity' => 'required|integer|min:1|max:99999',
         ]);
         $targetBranchId = $validated['target_branch_id'];
-        $deviceIds = array_values(array_unique($validated['device_ids']));
+        $quantity = (int) $validated['quantity'];
 
         $sourceBranchId = $restockOrder->branch_id;
         $childBranchIds = Branch::where('head_branch_id', $sourceBranchId)->pluck('id')->all();
@@ -395,24 +355,14 @@ class StockManagementController extends Controller
             return back()->withErrors(['target_branch_id' => 'Target branch must be different from the order branch.']);
         }
 
-        $orderDeviceIds = $restockOrder->devices()->pluck('devices.id')->all();
-        $invalid = array_diff($deviceIds, $orderDeviceIds);
-        if (!empty($invalid)) {
-            return back()->withErrors(['device_ids' => 'All selected devices must belong to this order.']);
-        }
-        if (empty($deviceIds)) {
-            return back()->withErrors(['device_ids' => 'Select at least one device.']);
-        }
-
         $productId = $restockOrder->product_id;
-        $quantity = count($deviceIds);
         $fromStock = BranchStock::where('branch_id', $sourceBranchId)->where('product_id', $productId)->first();
         if (!$fromStock || $fromStock->quantity < $quantity) {
             return back()->withErrors(['catalog' => 'Insufficient branch stock for this quantity.']);
         }
 
         $transfer = null;
-        DB::transaction(function () use ($restockOrder, $deviceIds, $sourceBranchId, $targetBranchId, $productId, $quantity, $user, &$transfer) {
+        DB::transaction(function () use ($restockOrder, $sourceBranchId, $targetBranchId, $productId, $quantity, $user, &$transfer) {
             $transfer = StockTransfer::create([
                 'from_branch_id' => $sourceBranchId,
                 'to_branch_id' => $targetBranchId,
@@ -431,9 +381,6 @@ class StockManagementController extends Controller
             ]);
 
             InventoryMovementService::recordTransferOut($sourceBranchId, $productId, $quantity, $transfer->id, $user->id);
-            foreach ($deviceIds as $deviceId) {
-                $transfer->transferDevices()->attach($deviceId, ['received_at' => null]);
-            }
         });
 
         $users = $transfer->getNotificationUsers();
@@ -648,13 +595,9 @@ class StockManagementController extends Controller
                 return back()->withErrors(['imeis' => $msg]);
             }
             $imeis = $validation['valid'];
-            $existing = Device::whereIn('imei', $imeis)->pluck('imei')->all();
-            if (!empty($existing)) {
-                return back()->withErrors(['imeis' => 'These IMEIs are already registered: ' . implode(', ', array_slice($existing, 0, 5)) . (count($existing) > 5 ? '…' : '')]);
-            }
         }
 
-        DB::transaction(function () use ($restockOrder, $qty, $validated, $imeis, $markComplete, $user) {
+        DB::transaction(function () use ($restockOrder, $qty, $validated, $markComplete, $user) {
             $branchId = $restockOrder->branch_id;
             $productId = $restockOrder->product_id;
             $newReceived = $restockOrder->quantity_received + $qty;
@@ -668,19 +611,6 @@ class StockManagementController extends Controller
                 $validated['notes'] ?? null,
                 $user->id
             );
-
-            // Optional: create devices for IMEIs (associated with this order for auditing)
-            // Mark as stock_counted to prevent stock adjustment (restock already increased stock)
-            foreach ($imeis as $imei) {
-                Device::create([
-                    'imei' => $imei,
-                    'product_id' => $restockOrder->product_id,
-                    'branch_id' => $restockOrder->branch_id,
-                    'restock_order_id' => $restockOrder->id,
-                    'status' => 'available',
-                    'stock_counted' => true, // Mark as counted since restock already adjusted stock
-                ]);
-            }
 
             // Complete order only if user checked the box or received full quantity
             $status = ($markComplete || $orderFullyReceived)
@@ -758,13 +688,9 @@ class StockManagementController extends Controller
                 return back()->withErrors(['imeis' => $msg]);
             }
             $imeis = $validation['valid'];
-            $existing = Device::whereIn('imei', $imeis)->pluck('imei')->all();
-            if (!empty($existing)) {
-                return back()->withErrors(['imeis' => 'These IMEIs are already registered: ' . implode(', ', array_slice($existing, 0, 5)) . (count($existing) > 5 ? '…' : '')]);
-            }
         }
 
-        DB::transaction(function () use ($restockOrder, $qty, $imeis, $user) {
+        DB::transaction(function () use ($restockOrder, $qty, $user) {
             $branchId = $restockOrder->branch_id;
             $productId = $restockOrder->product_id;
             $newReceived = $restockOrder->quantity_received + $qty;
@@ -777,17 +703,6 @@ class StockManagementController extends Controller
                 'Full approval',
                 $user->id
             );
-
-            foreach ($imeis as $imei) {
-                Device::create([
-                    'imei' => $imei,
-                    'product_id' => $productId,
-                    'branch_id' => $branchId,
-                    'restock_order_id' => $restockOrder->id,
-                    'status' => 'available',
-                    'stock_counted' => true, // Mark as counted since restock already adjusted stock
-                ]);
-            }
 
             $restockOrder->update([
                 'quantity_received' => $newReceived,

@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\CustomerDisbursement;
 use App\Models\Customer;
 use App\Models\Sale;
-use App\Models\Device;
 use App\Models\Branch;
 use App\Models\User;
 use App\Models\ActivityLog;
@@ -31,11 +30,8 @@ class CustomerDisbursementController extends Controller
     {
         $allowedBranchIds = $this->allowedBranchIds();
 
-        $query = CustomerDisbursement::with(['customer', 'sale', 'device', 'disbursedBy' => fn($q) => $q->with('branch')])
-            ->when($allowedBranchIds !== null, fn($q) => $q->where(function ($q) use ($allowedBranchIds) {
-                $q->whereHas('disbursedBy', fn($u) => $u->whereIn('branch_id', $allowedBranchIds))
-                    ->orWhereHas('device', fn($d) => $d->whereIn('branch_id', $allowedBranchIds));
-            }))
+        $query = CustomerDisbursement::with(['customer', 'sale', 'disbursedBy' => fn($q) => $q->with('branch')])
+            ->when($allowedBranchIds !== null, fn($q) => $q->whereHas('disbursedBy', fn($u) => $u->whereIn('branch_id', $allowedBranchIds)))
             ->latest();
 
         if ($request->filled('customer_id')) {
@@ -109,7 +105,7 @@ class CustomerDisbursementController extends Controller
 
     public function export(Request $request)
     {
-        $query = $this->buildDisbursementsQuery($request)->with('device.product');
+        $query = $this->buildDisbursementsQuery($request);
         $filename = 'customer-disbursements-' . now()->format('Y-m-d-His') . '.xlsx';
         return Excel::download(new CustomerDisbursementsExport($query), $filename, \Maatwebsite\Excel\Excel::XLSX);
     }
@@ -133,45 +129,15 @@ class CustomerDisbursementController extends Controller
             $customerId = $sale->customer_id;
         }
 
-        // Get customer phone for default value
         $defaultPhone = null;
-        $devices = collect();
-
         if ($customerId) {
             $customer = Customer::find($customerId);
             $defaultPhone = $customer?->phone;
-            // Devices that haven't received disbursement and don't have a pending/approved disbursement (scope to user's branches)
-            $devices = Device::where('customer_id', $customerId)
-                ->when($allowedBranchIds !== null, fn($q) => $q->whereIn('branch_id', $allowedBranchIds))
-                ->where('has_received_disbursement', false)
-                ->whereNotExists(function ($q) {
-                    $q->select(DB::raw(1))
-                        ->from('customer_disbursements')
-                        ->whereColumn('customer_disbursements.device_id', 'devices.id')
-                        ->whereIn('customer_disbursements.status', [CustomerDisbursement::STATUS_PENDING, CustomerDisbursement::STATUS_APPROVED]);
-                })
-                ->with('product')
-                ->orderBy('imei')
-                ->get();
         } elseif ($sale && $sale->customer) {
             $defaultPhone = $sale->customer->phone;
-            $devices = Device::where('sale_id', $sale->id)
-                ->when($allowedBranchIds !== null, fn($q) => $q->whereIn('branch_id', $allowedBranchIds))
-                ->where('has_received_disbursement', false)
-                ->whereNotExists(function ($q) {
-                    $q->select(DB::raw(1))
-                        ->from('customer_disbursements')
-                        ->whereColumn('customer_disbursements.device_id', 'devices.id')
-                        ->whereIn('customer_disbursements.status', [CustomerDisbursement::STATUS_PENDING, CustomerDisbursement::STATUS_APPROVED]);
-                })
-                ->with('product')
-                ->orderBy('imei')
-                ->get();
         }
 
-        $defaultDeviceId = ($sale && $devices->isNotEmpty()) ? $devices->first()->id : null;
-
-        return view('customer-disbursements.create', compact('customers', 'customerId', 'sale', 'saleId', 'defaultPhone', 'devices', 'defaultDeviceId'));
+        return view('customer-disbursements.create', compact('customers', 'customerId', 'sale', 'saleId', 'defaultPhone'));
     }
 
     /**
@@ -182,7 +148,6 @@ class CustomerDisbursementController extends Controller
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'sale_id' => 'required|exists:sales,id',
-            'device_id' => 'nullable|exists:devices,id',
             'amount' => 'required|numeric|min:0.01',
             'disbursement_phone' => 'required|string|max:255',
             'notes' => 'nullable|string|max:1000',
@@ -191,45 +156,9 @@ class CustomerDisbursementController extends Controller
         ]);
 
         $saleId = $validated['sale_id'];
-        $deviceId = $validated['device_id'] ?? null;
-
-        if (!$deviceId) {
-            $device = Device::where('sale_id', $saleId)
-                ->where('customer_id', $validated['customer_id'])
-                ->first();
-            if (!$device) {
-                $deviceIds = \App\Models\SaleItem::where('sale_id', $saleId)->pluck('device_id')->filter()->values()->all();
-                if (!empty($deviceIds)) {
-                    $device = Device::whereIn('id', $deviceIds)
-                        ->where('customer_id', $validated['customer_id'])
-                        ->first();
-                }
-            }
-            if (!$device) {
-                return back()->withErrors(['sale_id' => 'No device found for this sale and customer. Ensure the sale has a device attached and the customer matches.'])->withInput();
-            }
-            $deviceId = $device->id;
-        }
-
-        $device = Device::findOrFail($deviceId);
-        if ($device->customer_id !== $validated['customer_id']) {
-            return back()->withErrors(['device_id' => 'Selected device does not belong to the selected customer.'])->withInput();
-        }
-        if ((string) $device->sale_id !== (string) $saleId) {
-            return back()->withErrors(['sale_id' => 'Selected device is not linked to this sale.'])->withInput();
-        }
-
-        $validated['device_id'] = $deviceId;
-
-        // One disbursement per device (enforced by DB unique); update existing instead of creating a second
-        $existing = CustomerDisbursement::where('device_id', $deviceId)->first();
-
-        if ($existing) {
-            if ($existing->isApproved() || $existing->isRejected()) {
-                return back()->withErrors(['sale_id' => 'This sale already has an approved or rejected disbursement for this device.'])->withInput();
-            }
-        } elseif ($device->has_received_disbursement) {
-            return back()->withErrors(['device_id' => 'This device has already received a disbursement.'])->withInput();
+        $existing = CustomerDisbursement::where('sale_id', $saleId)->first();
+        if ($existing && $existing->isApproved()) {
+            return back()->withErrors(['sale_id' => 'This sale already has an approved disbursement.'])->withInput();
         }
 
         DB::transaction(function () use ($validated, $existing, $saleId) {
@@ -243,7 +172,7 @@ class CustomerDisbursementController extends Controller
                 'disbursed_by' => Auth::id(),
             ];
             if ($existing) {
-                $existing->update($data);
+                $existing->update(array_merge($data, ['status' => CustomerDisbursement::STATUS_PENDING]));
                 $disbursement = $existing;
                 ActivityLog::log(
                     Auth::id(),
@@ -257,7 +186,6 @@ class CustomerDisbursementController extends Controller
                 $disbursement = CustomerDisbursement::create([
                     'customer_id' => $validated['customer_id'],
                     'sale_id' => $saleId,
-                    'device_id' => $validated['device_id'],
                     'amount' => $validated['amount'],
                     'disbursement_phone' => $validated['disbursement_phone'],
                     'notes' => $validated['notes'] ?? null,
@@ -286,7 +214,7 @@ class CustomerDisbursementController extends Controller
      */
     public function show(CustomerDisbursement $customerDisbursement)
     {
-        $customerDisbursement->load(['customer', 'sale', 'device', 'disbursedBy' => fn($q) => $q->with('branch'), 'approvedBy', 'rejectedBy']);
+        $customerDisbursement->load(['customer', 'sale', 'disbursedBy' => fn($q) => $q->with('branch'), 'approvedBy', 'rejectedBy']);
         /** @var User|null $user */
         $user = Auth::user();
         if ($user) {
@@ -319,9 +247,6 @@ class CustomerDisbursementController extends Controller
                 'approved_by' => Auth::id(),
             ]);
             $customerDisbursement->customer->increment('total_disbursed', $customerDisbursement->amount);
-            if ($customerDisbursement->device_id) {
-                $customerDisbursement->device->update(['has_received_disbursement' => true]);
-            }
             ActivityLog::log(
                 Auth::id(),
                 'customer_disbursement_approved',
@@ -355,20 +280,18 @@ class CustomerDisbursementController extends Controller
         $validated = $request->validate(['rejection_reason' => 'nullable|string|max:1000']);
 
         DB::transaction(function () use ($customerDisbursement, $validated, $user) {
-            // Keep the record for bookkeeping; free the device by clearing device_id so a new disbursement can be issued
             $customerDisbursement->update([
                 'status' => CustomerDisbursement::STATUS_REJECTED,
                 'rejected_at' => now(),
                 'rejected_by' => $user?->id,
                 'rejection_reason' => $validated['rejection_reason'] ?? null,
-                'device_id' => null,
             ]);
 
-            // Treat the entire sale as rejected: cancel it whether it was pending or completed
             $sale = $customerDisbursement->sale;
             if ($sale) {
                 $sale->update(['status' => 'cancelled']);
-                $sale->freeDevicesForResale($user?->id);
+                $sale->load('items');
+                $sale->returnStockOnCancel($user?->id);
                 ActivityLog::log(
                     $user?->id,
                     'sale_cancelled',
@@ -399,7 +322,7 @@ class CustomerDisbursementController extends Controller
     public function customerDisbursements(Customer $customer)
     {
         $disbursements = CustomerDisbursement::where('customer_id', $customer->id)
-            ->with(['sale', 'device', 'disbursedBy'])
+            ->with(['sale', 'disbursedBy'])
             ->latest()
             ->paginate(15);
 

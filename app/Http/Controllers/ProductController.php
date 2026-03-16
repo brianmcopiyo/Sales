@@ -201,7 +201,7 @@ class ProductController extends Controller
         }
         try {
             $mergeService->merge($sourceIds, $targetId);
-            return redirect()->route('products.index')->with('success', 'Products merged successfully. All devices and sales have been transferred to the selected product.');
+            return redirect()->route('products.index')->with('success', 'Products merged successfully. All sales have been transferred to the selected product.');
         } catch (\InvalidArgumentException $e) {
             return redirect()->route('products.index')->with('error', $e->getMessage());
         }

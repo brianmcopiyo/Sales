@@ -75,8 +75,7 @@ class SalesExport implements FromQuery, WithHeadings, WithMapping
             'Branch',
             'Sold By',
             'Field Agent',
-            'IMEI',
-            'Device',
+            'Product',
             'Brand',
             'Total (TSh)',
             'Buying price (TSh)',
@@ -91,8 +90,7 @@ class SalesExport implements FromQuery, WithHeadings, WithMapping
 
     public function map($sale): array
     {
-        $imeis = $sale->items->pluck('device.imei')->filter()->unique()->implode(', ');
-        $devices = $sale->items->pluck('product.name')->filter()->unique()->implode(', ');
+        $products = $sale->items->pluck('product.name')->filter()->unique()->implode(', ');
         $brands = $sale->items->pluck('product.brand.name')->filter()->unique()->implode(', ');
         $fieldAgent = $sale->items->first()?->fieldAgent?->name ?? '-';
 
@@ -108,8 +106,7 @@ class SalesExport implements FromQuery, WithHeadings, WithMapping
             $sale->branch?->name ?? '',
             $sale->soldBy?->name ?? '',
             $fieldAgent,
-            $imeis ?: '-',
-            $devices ?: '-',
+            $products ?: '-',
             $brands ?: '-',
             number_format((float) $sale->total, 2),
             number_format($buyingPrice, 2),

@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasUuid;
-use App\Models\Device;
 use App\Services\InventoryMovementService;
 
 class Sale extends Model
@@ -141,45 +140,32 @@ class Sale extends Model
         return $this->customerDisbursements()->where('status', CustomerDisbursement::STATUS_PENDING)->exists();
     }
 
-    /**
-     * When a sale is cancelled: free all devices (IMEIs) linked to this sale so they can be sold again.
-     * Resets device sale_id, customer_id, status to available; restores branch stock; records inventory movement.
-     */
-    public function freeDevicesForResale(?string $userId = null): void
-    {
-        $devices = Device::where('sale_id', $this->id)->get();
-        $userId = $userId ?? auth()->id();
-
-        foreach ($devices as $device) {
-            $branchId = $device->branch_id;
-            $productId = $device->product_id;
-
-            $device->update([
-                'sale_id' => null,
-                'customer_id' => null,
-                'status' => 'available',
-                'sold_by_user_id' => null,
-                'has_received_disbursement' => false,
-            ]);
-
-            InventoryMovementService::recordSaleCancellation(
-                $branchId,
-                $productId,
-                1,
-                $this->id,
-                $userId
-            );
-        }
-    }
-
     public function evidence()
     {
         return $this->hasMany(SaleAttachment::class, 'sale_id');
     }
 
-    public function deviceReplacements()
+    /**
+     * When a sale is cancelled: return product stock (inventory) for each item.
+     */
+    public function returnStockOnCancel(?string $userId = null): void
     {
-        return $this->hasMany(DeviceReplacement::class);
+        $userId = $userId ?? auth()->id();
+        foreach ($this->items as $item) {
+            if ($item->product_id && $this->branch_id) {
+                $branchId = $this->branch_id;
+                $qty = (int) $item->quantity;
+                for ($i = 0; $i < $qty; $i++) {
+                    InventoryMovementService::recordSaleCancellation(
+                        $branchId,
+                        $item->product_id,
+                        1,
+                        $this->id,
+                        $userId
+                    );
+                }
+            }
+        }
     }
 
     protected static function boot()

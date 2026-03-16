@@ -128,13 +128,12 @@ class CustomerController extends Controller
             }
         } elseif ($user->branch_id) {
             $branchIds = Branch::selfAndDescendantIds($user->branch_id);
-            $hasAccess = $customer->devices()->whereIn('branch_id', $branchIds)->exists()
-                || $customer->sales()->whereIn('branch_id', $branchIds)->exists();
+            $hasAccess = $customer->sales()->whereIn('branch_id', $branchIds)->exists();
             if (!$hasAccess) {
                 abort(403, 'You do not have access to this customer.');
             }
         }
-        $customer->load(['devices.product', 'sales.items.product', 'tickets']);
+        $customer->load(['sales.items.product', 'tickets']);
         $saleIds = $customer->sales->pluck('id')->all();
         $revenue = $customer->sales->sum('total');
         $totalBuyingPrice = \App\Models\Sale::totalBuyingPriceForSaleIds($saleIds);
@@ -153,8 +152,7 @@ class CustomerController extends Controller
         $user = Auth::user();
         if ($user->branch_id) {
             $branchIds = Branch::selfAndDescendantIds($user->branch_id);
-            $hasAccess = $customer->devices()->whereIn('branch_id', $branchIds)->exists()
-                || $customer->sales()->whereIn('branch_id', $branchIds)->exists();
+            $hasAccess = $customer->sales()->whereIn('branch_id', $branchIds)->exists();
             if (!$hasAccess) {
                 abort(403, 'You do not have access to this customer.');
             }
@@ -167,8 +165,7 @@ class CustomerController extends Controller
         $user = Auth::user();
         if ($user->branch_id) {
             $branchIds = Branch::selfAndDescendantIds($user->branch_id);
-            $hasAccess = $customer->devices()->whereIn('branch_id', $branchIds)->exists()
-                || $customer->sales()->whereIn('branch_id', $branchIds)->exists();
+            $hasAccess = $customer->sales()->whereIn('branch_id', $branchIds)->exists();
             if (!$hasAccess) {
                 abort(403, 'You do not have access to this customer.');
             }
@@ -194,8 +191,7 @@ class CustomerController extends Controller
         $user = Auth::user();
         if ($user->branch_id) {
             $branchIds = Branch::selfAndDescendantIds($user->branch_id);
-            $hasAccess = $customer->devices()->whereIn('branch_id', $branchIds)->exists()
-                || $customer->sales()->whereIn('branch_id', $branchIds)->exists();
+            $hasAccess = $customer->sales()->whereIn('branch_id', $branchIds)->exists();
             if (!$hasAccess) {
                 abort(403, 'You do not have access to this customer.');
             }

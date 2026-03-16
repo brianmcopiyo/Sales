@@ -127,7 +127,7 @@
             </div>
         </div>
 
-        {{-- Best performing products (devices) --}}
+        {{-- Best performing products --}}
         <div class="bg-themeCard rounded-2xl border border-themeBorder overflow-hidden shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
             <div class="px-6 py-4 border-b border-themeBorder">
                 <h2 class="text-lg font-semibold text-primary tracking-tight">Best performing products (by sales)</h2>

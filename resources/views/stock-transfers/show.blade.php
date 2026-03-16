@@ -3,7 +3,7 @@
 @section('title', 'Stock Transfer Details')
 
 @section('content')
-    <div class="w-full space-y-6" x-data="{ partialModalOpen: false, rejectModalOpen: false, receiveModalOpen: false, attachImeiModalOpen: false, previewOpen: false, previewSrc: '', previewName: '', previewDownloadUrl: '' }">
+    <div class="w-full space-y-6" x-data="{ partialModalOpen: false, rejectModalOpen: false, receiveModalOpen: false, previewOpen: false, previewSrc: '', previewName: '', previewDownloadUrl: '' }">
         <div class="flex justify-between items-center">
             <div>
                 <h1 class="text-3xl font-semibold text-primary tracking-tight">Stock Transfer Details</h1>
@@ -237,32 +237,6 @@
                     </div>
                 @endif
 
-                @if ($stockTransfer->transferDevices && $stockTransfer->transferDevices->isNotEmpty())
-                    <div
-                        class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                        <h2 class="text-lg font-semibold text-primary tracking-tight mb-4">Devices transferred</h2>
-                        <p class="text-sm text-themeMuted mb-3">IMEIs recorded for this transfer. Devices have been moved from {{ $stockTransfer->fromBranch->name }} to {{ $stockTransfer->toBranch->name }}.</p>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm">
-                                <thead>
-                                    <tr class="border-b border-themeBorder">
-                                        <th class="text-left py-2 font-medium text-themeMuted">IMEI</th>
-                                        <th class="text-left py-2 font-medium text-themeMuted">Current branch</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($stockTransfer->transferDevices as $device)
-                                        <tr class="border-b border-themeBorder/50">
-                                            <td class="py-2 font-medium text-themeHeading">{{ $device->imei }}</td>
-                                            <td class="py-2 text-themeBody">{{ $device->branch->name ?? '-' }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                @endif
-
                 <!-- Actions Card -->
                 @if (in_array($stockTransfer->status, ['pending', 'in_transit']))
                     <div
@@ -271,7 +245,7 @@
                         <div class="flex flex-wrap gap-3">
                             @if (auth()->user()->branch_id == $stockTransfer->to_branch_id &&
                                     auth()->user()?->hasPermission('stock-transfers.receive'))
-                                {{-- 1. Receive (full, opens modal with optional IMEI upload) --}}
+                                {{-- 1. Receive (full) --}}
                                 <button type="button" @click="receiveModalOpen = true"
                                     class="inline-flex items-center space-x-2 bg-primary text-white px-6 py-2.5 rounded-xl font-medium hover:bg-primary-dark transition shadow-sm">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -303,14 +277,6 @@
                             @endif
 
                             @if (auth()->user()->branch_id == $stockTransfer->from_branch_id)
-                                <button type="button" @click="attachImeiModalOpen = true"
-                                    class="inline-flex items-center space-x-2 bg-sky-500 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-sky-600 transition shadow-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 4v16m8-8H4"></path>
-                                    </svg>
-                                    <span>Attach IMEIs</span>
-                                </button>
                                 <form method="POST" action="{{ route('stock-transfers.cancel', $stockTransfer) }}"
                                     class="inline"
                                     onsubmit="return confirm('Are you sure you want to cancel this transfer?')">
@@ -513,71 +479,6 @@
                             </div>
                         </div>
                     @endif
-                @endif
-
-                {{-- Sender: Attach IMEIs (devices being sent) --}}
-                @if (auth()->user()->branch_id == $stockTransfer->from_branch_id &&
-                        in_array($stockTransfer->status, ['pending', 'in_transit']))
-                    <div x-show="attachImeiModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-modal="true">
-                        <div class="flex min-h-full items-center justify-center p-4">
-                            <div x-show="attachImeiModalOpen" x-transition:enter="ease-out duration-200"
-                                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                                class="fixed inset-0 bg-themeInput/75" @click="attachImeiModalOpen = false"></div>
-                            <div x-show="attachImeiModalOpen" x-transition:enter="ease-out duration-200"
-                                x-transition:enter-start="opacity-0 scale-95"
-                                x-transition:enter-end="opacity-100 scale-100"
-                                class="relative bg-themeCard rounded-2xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
-                                <button type="button" @click="attachImeiModalOpen = false" class="absolute top-4 right-4 p-1 rounded-lg text-themeMuted hover:bg-themeHover hover:text-themeBody transition" aria-label="Close">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                </button>
-                                <h3 class="text-lg font-semibold text-primary mb-2 pr-8">Attach IMEIs (devices being sent)</h3>
-                                <p class="text-sm text-themeBody mb-4">Record which devices (by IMEI) you are sending. Only devices at your branch ({{ $stockTransfer->fromBranch->name }}) for the selected product can be attached. They will be moved to {{ $stockTransfer->toBranch->name }} when the transfer is received.</p>
-                                <form method="POST" action="{{ route('stock-transfers.attach-devices', $stockTransfer) }}"
-                                    enctype="multipart/form-data">
-                                    @csrf
-                                    <div class="space-y-4">
-                                        @if ($stockTransfer->items && $stockTransfer->items->count() > 1)
-                                            <div>
-                                                <label for="attach_product_id" class="block text-sm font-medium text-themeBody mb-1">Product *</label>
-                                                <select id="attach_product_id" name="product_id" required
-                                                    class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                                                    @foreach ($stockTransfer->items as $item)
-                                                        @php
-                                                            $alreadyAttached = $stockTransfer->transferDevices->where('product_id', $item->product_id)->count();
-                                                            $maxNew = max(0, $item->quantity - $alreadyAttached);
-                                                        @endphp
-                                                        <option value="{{ $item->product_id }}" {{ old('product_id') == $item->product_id ? 'selected' : '' }}>
-                                                            {{ $item->product->name ?? $item->product_id }} (max {{ $maxNew }} device(s) to attach)
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        @endif
-                                        <div>
-                                            <label for="attach_imeis" class="block text-sm font-medium text-themeBody mb-1">IMEIs *</label>
-                                            <textarea id="attach_imeis" name="imeis" rows="4" maxlength="2000"
-                                                class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                                placeholder="One IMEI per line or comma-separated">{{ old('imeis') }}</textarea>
-                                            <label for="attach_imei_file" class="block text-xs font-medium text-themeBody mt-1">Or upload file (CSV/Excel)</label>
-                                            <input type="file" id="attach_imei_file" name="imei_file" accept=".csv,.xlsx,.xls"
-                                                class="w-full px-4 py-2 border border-themeBorder rounded-xl text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-themeHover file:text-themeBody mt-1">
-                                            <p class="mt-1 text-xs text-themeMuted"><a href="{{ asset('sample_imei_upload.csv') }}" download class="text-primary hover:underline font-medium">Download sample CSV</a> — one IMEI per row, header: <code class="text-themeBody">imei</code>.</p>
-                                            <p class="text-xs text-themeMuted mt-1">Devices must already exist at your branch for the selected product.</p>
-                                            @error('imeis')
-                                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                                            @enderror
-                                        </div>
-                                        <div class="flex gap-3">
-                                            <button type="submit"
-                                                class="flex-1 bg-sky-500 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-sky-600">Attach devices</button>
-                                            <button type="button" @click="attachImeiModalOpen = false"
-                                                class="flex-1 bg-themeHover text-themeBody px-4 py-2.5 rounded-xl font-medium hover:bg-themeBorder">Cancel</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                 @endif
 
                 <!-- Sender: Confirm partial reception (when status is pending_sender_confirmation) -->

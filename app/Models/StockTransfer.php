@@ -103,16 +103,6 @@ class StockTransfer extends Model
         return $this->quantity_received;
     }
 
-    /**
-     * Devices linked to this transfer (catalog transfers). Pivot received_at set when transfer is received.
-     */
-    public function transferDevices()
-    {
-        return $this->belongsToMany(Device::class, 'stock_transfer_devices', 'stock_transfer_id', 'device_id')
-            ->withPivot('received_at')
-            ->withTimestamps();
-    }
-
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

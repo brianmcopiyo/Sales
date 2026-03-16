@@ -20,8 +20,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StockManagementController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DealershipController;
-use App\Http\Controllers\DeviceController;
-use App\Http\Controllers\DeviceRequestController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BrandController;
@@ -88,7 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/stock-operations', [HubController::class, 'stockOperations'])->name('stock-operations.index')
         ->middleware('permission:stock-takes.view|stock-adjustments.view|stock-transfers.view');
     Route::get('/catalog', [HubController::class, 'catalog'])->name('catalog.index')
-        ->middleware('permission:products.view|brands.view|devices.view|products.pricing');
+        ->middleware('permission:products.view|brands.view|products.pricing');
     Route::get('/locations', [HubController::class, 'locations'])->name('locations.index')
         ->middleware('permission:branches.view|regions.view');
     Route::get('/sales-transactions', [HubController::class, 'salesTransactions'])->name('sales-transactions.index')
@@ -140,9 +138,6 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:stock-management.view');
     Route::post('/stock-management/reconciliation/fix', [StockManagementController::class, 'applyReconciliationFix'])
         ->name('stock-management.reconciliation.fix')
-        ->middleware('permission:stock-management.view');
-    Route::post('/stock-management/sync-stock-from-devices', [StockManagementController::class, 'syncStockFromDevices'])
-        ->name('stock-management.sync-stock-from-devices')
         ->middleware('permission:stock-management.view');
     Route::get('/stock-management/restock-wizard', [StockManagementController::class, 'restockWizard'])
         ->name('stock-management.restock-wizard')
@@ -332,9 +327,6 @@ Route::middleware('auth')->group(function () {
     Route::post('stock-transfers/{stockTransfer}/receive', [StockTransferController::class, 'receive'])
         ->name('stock-transfers.receive')
         ->middleware('permission:stock-transfers.receive');
-    Route::post('stock-transfers/{stockTransfer}/attach-devices', [StockTransferController::class, 'attachDevices'])
-        ->name('stock-transfers.attach-devices')
-        ->middleware('permission:stock-transfers.view');
     Route::post('stock-transfers/{stockTransfer}/cancel', [StockTransferController::class, 'cancel'])
         ->name('stock-transfers.cancel')
         ->middleware('permission:stock-transfers.cancel');
@@ -489,27 +481,6 @@ Route::middleware('auth')->group(function () {
     Route::post('sales/{sale}/cancel', [SaleController::class, 'cancel'])
         ->name('sales.cancel')
         ->middleware('permission:sales.view');
-    Route::post('sales/{sale}/replace-device', [SaleController::class, 'replaceDevice'])
-        ->name('sales.replace-device')
-        ->middleware('permission:sales.view');
-
-    // Device requests (request device from another branch; host branch approves)
-    Route::get('device-requests', [DeviceRequestController::class, 'index'])
-        ->name('device-requests.index')
-        ->middleware('permission:stock-requests.view|sales.view');
-    Route::post('device-requests', [DeviceRequestController::class, 'store'])
-        ->name('device-requests.store')
-        ->middleware('permission:stock-requests.create|sales.create');
-    Route::get('device-requests/{deviceRequest}', [DeviceRequestController::class, 'show'])
-        ->name('device-requests.show')
-        ->middleware('permission:stock-requests.view|sales.view');
-    Route::post('device-requests/{deviceRequest}/approve', [DeviceRequestController::class, 'approve'])
-        ->name('device-requests.approve')
-        ->middleware('permission:stock-requests.view|sales.view');
-    Route::post('device-requests/{deviceRequest}/reject', [DeviceRequestController::class, 'reject'])
-        ->name('device-requests.reject')
-        ->middleware('permission:stock-requests.view|sales.view');
-
     // Transactions
     Route::get('transactions', [TransactionController::class, 'index'])
         ->name('transactions.index')
@@ -624,26 +595,6 @@ Route::middleware('auth')->group(function () {
             ->get(['id', 'sale_number', 'total', 'created_at']);
         return response()->json($sales);
     })->middleware('permission:customers.view|customer-disbursements.create');
-
-    // API route for customer devices (that haven't received disbursement)
-    Route::get('api/customers/{customer}/devices', function ($customer) {
-        $devices = \App\Models\Device::where('customer_id', $customer)
-            ->where('has_received_disbursement', false)
-            ->with('product:id,name')
-            ->latest()
-            ->get(['id', 'imei', 'product_id']);
-        return response()->json($devices);
-    })->middleware('permission:customers.view');
-
-    // API route for sale devices (that haven't received disbursement)
-    Route::get('api/sales/{sale}/devices', function (\App\Models\Sale $sale) {
-        $devices = \App\Models\Device::where('sale_id', $sale->id)
-            ->where('has_received_disbursement', false)
-            ->with('product:id,name')
-            ->latest()
-            ->get(['id', 'imei', 'product_id']);
-        return response()->json($devices);
-    })->middleware('permission:sales.view|customer-disbursements.create');
 
     // Customer Disbursements
     Route::get('customer-disbursements', [CustomerDisbursementController::class, 'index'])
@@ -830,65 +781,6 @@ Route::middleware('auth')->group(function () {
     Route::get('bills/attachments/{attachment}/download', [BillController::class, 'downloadAttachment'])
         ->name('bills.attachments.download')
         ->middleware('permission:bills.view');
-
-    // Devices
-    Route::get('devices', [DeviceController::class, 'index'])
-        ->name('devices.index')
-        ->middleware('permission:devices.view');
-    Route::get('devices/overstayed', [DeviceController::class, 'overstayed'])
-        ->name('devices.overstayed')
-        ->middleware('permission:devices.view');
-    Route::get('devices/overstayed/export', [DeviceController::class, 'exportOverstayed'])
-        ->name('devices.overstayed.export')
-        ->middleware('permission:devices.view');
-    Route::get('devices/export', [DeviceController::class, 'export'])
-        ->name('devices.export')
-        ->middleware('permission:devices.view');
-    Route::post('devices/reconcile-imei', [DeviceController::class, 'reconcileImei'])
-        ->name('devices.reconcile-imei')
-        ->middleware('permission:devices.view');
-    Route::get('devices/reconcile-imei/sample', [DeviceController::class, 'downloadReconcileImeiSample'])
-        ->name('devices.reconcile-imei.sample')
-        ->middleware('permission:devices.view');
-    Route::get('devices/import', [DeviceController::class, 'importForm'])
-        ->name('devices.import')
-        ->middleware('permission:devices.create');
-    Route::post('devices/import', [DeviceController::class, 'importSubmit'])
-        ->name('devices.import.submit')
-        ->middleware('permission:devices.create');
-    Route::get('devices/import/sample', [DeviceController::class, 'downloadSampleCsv'])
-        ->name('devices.import.sample')
-        ->middleware('permission:devices.create');
-    Route::get('devices/import/sample-full', [DeviceController::class, 'downloadFullSampleCsv'])
-        ->name('devices.import.sample-full')
-        ->middleware('permission:devices.create');
-    Route::get('devices/create', [DeviceController::class, 'create'])
-        ->name('devices.create')
-        ->middleware('permission:devices.create');
-    Route::post('devices', [DeviceController::class, 'store'])
-        ->name('devices.store')
-        ->middleware('permission:devices.create');
-    Route::get('devices/{device}', [DeviceController::class, 'show'])
-        ->name('devices.show')
-        ->middleware('permission:devices.view');
-    Route::get('devices/{device}/edit', [DeviceController::class, 'edit'])
-        ->name('devices.edit')
-        ->middleware('permission:devices.update');
-    Route::put('devices/{device}', [DeviceController::class, 'update'])
-        ->name('devices.update')
-        ->middleware('permission:devices.update');
-    Route::post('devices/{device}/status', [DeviceController::class, 'updateStatus'])
-        ->name('devices.status.update')
-        ->middleware('permission:devices.update');
-    Route::get('devices/{device}/mark-sold', [DeviceController::class, 'markSoldForm'])
-        ->name('devices.mark-sold.form')
-        ->middleware('permission:devices.update');
-    Route::post('devices/{device}/mark-sold', [DeviceController::class, 'markSoldSubmit'])
-        ->name('devices.mark-sold.submit')
-        ->middleware('permission:devices.update');
-    Route::delete('devices/{device}', [DeviceController::class, 'destroy'])
-        ->name('devices.delete')
-        ->middleware('permission:devices.delete');
 
     // Users
     Route::get('users', [UserController::class, 'index'])

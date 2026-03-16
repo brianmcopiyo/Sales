@@ -13,7 +13,6 @@ class SaleItem extends Model
     protected $fillable = [
         'sale_id',
         'product_id',
-        'device_id',
         'field_agent_id',
         'quantity',
         'unit_price',
@@ -42,11 +41,6 @@ class SaleItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
-    }
-
-    public function device()
-    {
-        return $this->belongsTo(Device::class);
     }
 
     /** Seller user (field_agent_id stores users.id – commission is tied to user, not field agent). */

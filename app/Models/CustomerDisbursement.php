@@ -15,13 +15,12 @@ class CustomerDisbursement extends Model
     public const STATUS_REJECTED = 'rejected';
 
     /**
-     * Every disbursement must be linked to a sale. One disbursement per device (enforced by DB unique on device_id).
+     * Every disbursement must be linked to a sale.
      * Branch for display is the requesting user's branch (disbursedBy->branch), not stored on the disbursement.
      */
     protected $fillable = [
         'customer_id',
         'sale_id',
-        'device_id',
         'amount',
         'disbursement_phone',
         'notes',
@@ -79,11 +78,6 @@ class CustomerDisbursement extends Model
     public function disbursedBy()
     {
         return $this->belongsTo(User::class, 'disbursed_by');
-    }
-
-    public function device()
-    {
-        return $this->belongsTo(Device::class);
     }
 
     public function approvedBy()

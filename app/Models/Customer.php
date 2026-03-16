@@ -44,11 +44,6 @@ class Customer extends Model
         return $this->belongsTo(Branch::class);
     }
 
-    public function devices()
-    {
-        return $this->hasMany(Device::class);
-    }
-
     public function sales()
     {
         return $this->hasMany(Sale::class, 'customer_id');
@@ -65,16 +60,13 @@ class Customer extends Model
     }
 
     /**
-     * Scope to customers that have at least one device or sale in the given branch IDs.
+     * Scope to customers that have at least one sale in the given branch IDs.
      */
     public function scopeVisibleToBranches($query, array $branchIds)
     {
         if (empty($branchIds)) {
             return $query->whereRaw('1 = 0');
         }
-        return $query->where(function ($q) use ($branchIds) {
-            $q->whereHas('devices', fn($d) => $d->whereIn('branch_id', $branchIds))
-                ->orWhereHas('sales', fn($s) => $s->whereIn('branch_id', $branchIds));
-        });
+        return $query->whereHas('sales', fn($s) => $s->whereIn('branch_id', $branchIds));
     }
 }

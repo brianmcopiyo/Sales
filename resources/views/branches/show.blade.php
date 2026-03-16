@@ -227,54 +227,6 @@
                         </div>
                     @endif
                 </div>
-
-                {{-- Devices at this branch (by IMEI) --}}
-                <div
-                    class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-lg font-semibold text-primary tracking-tight">Devices (by IMEI)</h2>
-                        <a href="{{ route('devices.index') }}?branch={{ $branch->id }}"
-                            class="text-sm font-medium text-primary hover:text-primary-dark transition">View all devices</a>
-                    </div>
-                    @if (isset($devices) && $devices->isNotEmpty())
-                        <div class="overflow-x-auto rounded-xl border border-themeBorder">
-                            <table class="min-w-full divide-y divide-themeBorder">
-                                <thead class="bg-themeInput/80">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">IMEI</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">Product</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">Status</th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold text-themeMuted uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-themeCard divide-y divide-themeBorder">
-                                    @foreach ($devices as $device)
-                                        <tr class="hover:bg-themeInput/50">
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-themeHeading font-mono">{{ $device->imei }}</td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-themeBody">{{ $device->product?->name ?? '-' }}</td>
-                                            <td class="px-4 py-3 whitespace-nowrap">
-                                                <span class="px-2.5 py-1 text-xs font-medium rounded-lg {{ $device->status === 'available' ? 'bg-emerald-100 text-emerald-800' : ($device->status === 'assigned' ? 'bg-sky-100 text-sky-800' : ($device->status === 'sold' ? 'bg-amber-100 text-amber-800' : 'bg-themeHover text-themeBody')) }}">
-                                                    {{ ucfirst($device->status ?? 'available') }}
-                                                </span>
-                                            </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-right text-sm">
-                                                <a href="{{ route('devices.show', $device) }}" class="font-medium text-primary hover:text-primary-dark transition">View</a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        @if ($devices->count() >= 50)
-                            <p class="mt-2 text-xs text-themeMuted">Showing first 50 devices. <a href="{{ route('devices.index') }}?branch={{ $branch->id }}" class="text-primary hover:text-primary-dark">View all</a></p>
-                        @endif
-                    @else
-                        <div class="text-center py-8">
-                            <p class="text-sm font-medium text-themeMuted">No devices at this branch</p>
-                            <a href="{{ route('devices.index') }}?branch={{ $branch->id }}" class="mt-2 inline-block text-sm font-medium text-primary hover:text-primary-dark">View devices</a>
-                        </div>
-                    @endif
-                </div>
             </div>
 
             <div class="space-y-6">

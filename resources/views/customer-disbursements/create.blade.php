@@ -43,28 +43,6 @@
                     @enderror
                 </div>
 
-                <div id="device_field_wrapper" class="{{ $sale ? 'hidden' : '' }}">
-                    <label for="device_id" class="block text-sm font-medium text-themeBody mb-2">Device (IMEI) <span id="device_required_star" class="{{ $sale ? 'hidden' : '' }}">*</span></label>
-                    <select id="device_id" name="device_id"
-                        class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading"
-                        {{ !$customerId && !$sale ? 'disabled' : '' }}
-                        {{ $sale ? 'disabled' : '' }}
-                        {{ !$sale ? 'required' : '' }}>
-                        <option value="">Select Device</option>
-                        @foreach ($devices as $device)
-                            <option value="{{ $device->id }}" {{ old('device_id', $defaultDeviceId ?? null) == $device->id ? 'selected' : '' }}>
-                                {{ $device->imei }} - {{ $device->product->name ?? 'N/A' }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <p class="text-xs text-themeMuted font-light mt-1" id="device_field_hint">
-                        {{ !$customerId && !$sale ? 'Select a customer above to see their devices.' : 'Select the device (IMEI) that will receive this disbursement.' }}
-                    </p>
-                    @error('device_id')
-                        <p class="text-red-500 text-sm font-light mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
                 @if ($sale)
                     <div class="p-4 bg-sky-50 border border-sky-100 rounded-xl">
                         <div class="text-sm font-medium text-sky-800">
@@ -98,7 +76,7 @@
                             @endif
                         </select>
                         <p class="text-xs text-themeMuted font-light mt-1">
-                            {{ !$customerId ? 'Select a customer above to see their sales.' : 'Every disbursement must be linked to a sale. Select the sale for this device.' }}
+                            {{ !$customerId ? 'Select a customer above to see their sales.' : 'Every disbursement must be linked to a sale. Select the sale for this disbursement.' }}
                         </p>
                         @error('sale_id')
                             <p class="text-red-500 text-sm font-light mt-1">{{ $message }}</p>
@@ -169,53 +147,11 @@
                     return [$customer->id => $customer->phone];
                 }));
 
-            function loadDevices(customerId, saleId = null) {
-                const deviceSelect = document.getElementById('device_id');
-                const url = saleId ?
-                    `/api/sales/${saleId}/devices` :
-                    `/api/customers/${customerId}/devices`;
-
-                fetch(url)
-                    .then(response => {
-                        if (!response.ok) throw new Error('Failed to load devices');
-                        return response.json();
-                    })
-                    .then(data => {
-                        const list = Array.isArray(data) ? data : [];
-                        const hintEl = document.getElementById('device_field_hint');
-                        deviceSelect.innerHTML = '<option value="">Select Device</option>';
-                        list.forEach(device => {
-                            const option = document.createElement('option');
-                            option.value = device.id;
-                            option.textContent = `${device.imei} - ${device.product?.name || 'N/A'}`;
-                            deviceSelect.appendChild(option);
-                        });
-                        if (list.length > 0) {
-                            deviceSelect.value = list[0].id;
-                            if (hintEl) hintEl.textContent = 'Select the device (IMEI) that will receive this disbursement.';
-                        } else if (saleId && hintEl) {
-                            hintEl.textContent = 'No devices from this sale are eligible (they may have already received a disbursement).';
-                        } else if (hintEl) {
-                            hintEl.textContent = list.length === 0 && !saleId ? 'Select a customer (and optionally a sale) to see devices.' : 'Select the device (IMEI) that will receive this disbursement.';
-                        }
-                        deviceSelect.disabled = false;
-                    })
-                    .catch(error => {
-                        console.error('Error fetching devices:', error);
-                        deviceSelect.innerHTML = '<option value="">Error loading devices</option>';
-                        deviceSelect.disabled = false;
-                    });
-            }
-
             document.getElementById('customer_id').addEventListener('change', function() {
                 const customerId = this.value;
                 const saleSelect = document.getElementById('sale_id');
-                const deviceSelect = document.getElementById('device_id');
                 const phoneInput = document.getElementById('disbursement_phone');
 
-                toggleDeviceField(false);
-
-                // Update phone field with customer's phone
                 if (customerId && customers[customerId]) {
                     phoneInput.value = customers[customerId];
                 }
@@ -223,15 +159,9 @@
                 if (!customerId) {
                     saleSelect.innerHTML = '<option value="">Select customer first</option>';
                     saleSelect.disabled = true;
-                    deviceSelect.innerHTML = '<option value="">Select customer first</option>';
-                    deviceSelect.disabled = true;
                     return;
                 }
 
-                // Load devices for the customer
-                loadDevices(customerId);
-
-                // Fetch sales for the selected customer
                 fetch(`/api/customers/${customerId}/sales`)
                     .then(response => response.json())
                     .then(data => {
@@ -249,49 +179,6 @@
                         console.error('Error fetching sales:', error);
                         saleSelect.innerHTML = '<option value="">Error loading sales</option>';
                     });
-            });
-
-            // When a sale is linked, hide the device field (backend will resolve device from sale)
-            function toggleDeviceField(saleSelected) {
-                const wrapper = document.getElementById('device_field_wrapper');
-                const deviceSelect = document.getElementById('device_id');
-                const star = document.getElementById('device_required_star');
-                if (!wrapper || !deviceSelect) return;
-                if (saleSelected) {
-                    wrapper.classList.add('hidden');
-                    deviceSelect.disabled = true;
-                    deviceSelect.removeAttribute('required');
-                    if (star) star.classList.add('hidden');
-                } else {
-                    wrapper.classList.remove('hidden');
-                    deviceSelect.disabled = !document.getElementById('customer_id')?.value;
-                    deviceSelect.setAttribute('required', 'required');
-                    if (star) star.classList.remove('hidden');
-                }
-            }
-
-            // Update devices when sale is selected; hide device field when sale is linked
-            document.getElementById('sale_id')?.addEventListener('change', function() {
-                const saleId = this.value;
-                const customerId = document.getElementById('customer_id').value;
-                toggleDeviceField(!!saleId);
-                if (saleId && customerId) {
-                    loadDevices(customerId, saleId);
-                } else if (customerId) {
-                    loadDevices(customerId);
-                }
-            });
-
-            // When page loads with customer and sale already selected, hide device field and load sale's devices
-            document.addEventListener('DOMContentLoaded', function() {
-                const customerId = document.getElementById('customer_id')?.value;
-                const saleId = document.getElementById('sale_id')?.value;
-                toggleDeviceField(!!saleId);
-                if (saleId && customerId) {
-                    loadDevices(customerId, saleId);
-                } else if (customerId) {
-                    loadDevices(customerId);
-                }
             });
         </script>
     @endif

@@ -29,19 +29,6 @@
                 <div class="text-2xl font-semibold text-violet-600 mt-1">{{ $stats['brands_total'] }}</div>
                 <div class="text-xs font-medium text-themeMuted mt-0.5">{{ $stats['brands_active'] }} active</div>
             </a>
-            <a href="{{ route('devices.index') }}" 
-                class="filter-card bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] cursor-pointer transition-all hover:shadow-lg hover:border-primary/30">
-                <div class="text-xs font-medium text-themeMuted uppercase tracking-wider">Devices</div>
-                <div class="text-2xl font-semibold text-violet-600 mt-1">{{ $stats['devices_total'] }}</div>
-            </a>
-            @if (auth()->user()?->hasPermission('devices.view'))
-                <a href="{{ route('devices.overstayed') }}" 
-                    class="filter-card bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] cursor-pointer transition-all hover:shadow-lg hover:border-primary/30">
-                    <div class="text-xs font-medium text-themeMuted uppercase tracking-wider">Overstayed</div>
-                    <div class="text-2xl font-semibold text-amber-600 mt-1">{{ $stats['devices_overstayed'] ?? 0 }}</div>
-                    <div class="text-xs font-medium text-themeMuted mt-0.5">in stock 30+ days</div>
-                </a>
-            @endif
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -60,20 +47,6 @@
                     'description' => 'Product brands and categories',
                     'icon' =>
                         'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z',
-                ])
-            @endif
-            @if (auth()->user()?->hasPermission('devices.view'))
-                @include('hubs._hub-card', [
-                    'href' => route('devices.index'),
-                    'title' => 'Devices',
-                    'description' => 'Device registry and status',
-                    'icon' => 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z',
-                ])
-                @include('hubs._hub-card', [
-                    'href' => route('devices.overstayed'),
-                    'title' => 'Overstayed Devices',
-                    'description' => 'Devices in stock 30+ days by IMEI',
-                    'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
                 ])
             @endif
             @if (auth()->user()?->hasPermission('products.pricing'))
@@ -131,27 +104,6 @@
                                     <span
                                         class="shrink-0 px-2.5 py-0.5 rounded-lg text-xs font-medium {{ $brand->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-themeHover text-themeBody' }}">{{ $brand->is_active ? 'Active' : 'Inactive' }}</span>
                                 </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-            @if (auth()->user()?->hasPermission('devices.view') && isset($recentOverstayedDevices) && $recentOverstayedDevices->isNotEmpty())
-                <div
-                    class="bg-themeCard rounded-2xl border border-themeBorder overflow-hidden shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                    <div class="px-6 py-4 border-b border-themeBorder flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-primary tracking-tight">Overstayed Devices</h2>
-                        <a href="{{ route('devices.overstayed') }}"
-                            class="text-sm font-medium text-primary hover:text-primary-dark">View all</a>
-                    </div>
-                    <ul class="divide-y divide-themeBorder">
-                        @foreach ($recentOverstayedDevices as $device)
-                            <li class="px-6 py-3 hover:bg-themeHover/50 transition">
-                                <a href="{{ route('devices.show', $device) }}" class="flex justify-between items-center gap-2">
-                                    <span class="text-sm font-medium text-themeHeading truncate">{{ $device->imei }}</span>
-                                    <span class="shrink-0 px-2.5 py-0.5 rounded-lg text-xs font-medium bg-amber-100 text-amber-800">{{ (int) $device->created_at->diffInDays(now()) }} days</span>
-                                </a>
-                                <div class="text-xs font-medium text-themeMuted mt-0.5">{{ $device->product?->name ?? '—' }} · {{ $device->branch?->name ?? '—' }}</div>
                             </li>
                         @endforeach
                     </ul>

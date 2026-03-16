@@ -296,7 +296,7 @@
                                     @endif
                                 </div>
                                 <div class="text-right text-sm">
-                                    <span class="font-medium text-themeHeading">{{ number_format($item->devices_sold ?? 0) }} sold</span>
+                                    <span class="font-medium text-themeHeading">{{ number_format($item->items_sold ?? 0) }} sold</span>
                                     <span class="text-themeMuted"> · </span>
                                     <span class="text-emerald-600 font-medium">TSh {{ number_format($item->revenue ?? 0, 2) }}</span>
                                 </div>

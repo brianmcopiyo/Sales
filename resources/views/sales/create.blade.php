@@ -7,7 +7,7 @@
         <div class="flex justify-between items-center">
             <div>
                 <h1 class="text-3xl font-semibold text-primary tracking-tight">Create Sale</h1>
-                <p class="text-sm font-medium text-themeMuted mt-1">Record a new sale with device and customer details</p>
+                <p class="text-sm font-medium text-themeMuted mt-1">Record a new sale with product and customer details</p>
             </div>
             <a href="{{ route('sales.index') }}"
                 class="bg-themeHover text-themeBody px-5 py-2.5 rounded-xl font-medium hover:bg-themeBorder transition flex items-center space-x-2">
@@ -21,27 +21,6 @@
 
         <div
             class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-            {{-- Device request is outside the sale form so "Request device" submits only the request, not the sale (no nested forms). --}}
-            @if (session('device_request'))
-                @php $dr = session('device_request'); @endphp
-                <div class="rounded-xl border border-primary/30 bg-primary/5 px-4 py-4 mb-6">
-                    <p class="text-sm font-medium text-themeBody mb-2">Request this device from the host branch</p>
-                    <p class="text-sm text-themeMuted mb-3">IMEI <strong>{{ $dr['imei'] ?? '' }}</strong> is at <strong>{{ $dr['host_branch_name'] ?? 'another branch' }}</strong>. Request it and a user there can approve; the device will then move to your branch.</p>
-                    <form action="{{ route('device-requests.store') }}" method="post" class="flex flex-wrap items-end gap-3">
-                        @csrf
-                        <input type="hidden" name="device_id" value="{{ $dr['device_id'] ?? '' }}">
-                        <div class="flex-1 min-w-[200px]">
-                            <label for="device_request_notes" class="block text-xs font-medium text-themeMuted mb-1">Notes (optional)</label>
-                            <input type="text" id="device_request_notes" name="notes" placeholder="e.g. Needed for sale"
-                                class="w-full px-3 py-2 border border-themeBorder rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                        </div>
-                        <button type="submit" class="bg-primary text-white px-4 py-2 rounded-xl font-medium hover:bg-primary-dark transition text-sm">
-                            Request device from {{ $dr['host_branch_name'] ?? 'host branch' }}
-                        </button>
-                    </form>
-                </div>
-            @endif
-
             <form method="POST" action="{{ route('sales.store') }}" id="saleForm" class="space-y-6" enctype="multipart/form-data">
                 @csrf
 
@@ -196,34 +175,12 @@
                                     </div>
                                     <div id="stock-status-0" class="mt-2 text-sm font-medium"></div>
                                 </div>
-                                <div class="relative">
-                                    <label class="block text-sm font-medium text-themeBody mb-2">Device IMEI *</label>
-                                    <input type="text" id="device-imei-input-0"
-                                        placeholder="Type IMEI number (15 digits)..." autocomplete="off" maxlength="15"
-                                        pattern="[0-9]{15}"
-                                        class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading device-imei-input"
-                                        disabled>
-                                    <input type="hidden" name="items[0][device_id]" id="device-id-input-0">
-                                    <input type="hidden" name="items[0][device_imei]" id="device-imei-hidden-0">
-                                    <!-- Suggestions dropdown -->
-                                    <div id="device-suggestions-0"
-                                        class="absolute z-50 w-full mt-1 bg-themeCard border border-themeBorder rounded-xl shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] max-h-60 overflow-y-auto hidden"
-                                        style="display: none; top: 100%;">
-                                        <!-- Suggestions will be populated here -->
-                                    </div>
-                                    <div id="device-status-0" class="mt-2 text-sm font-medium"></div>
-                                    @error('device')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-themeBody mb-2">Quantity</label>
-                                    <input type="hidden" name="items[0][quantity]" value="1">
-                                    <input type="number" value="1" disabled
-                                        class="w-full px-4 py-2.5 border border-themeBorder rounded-xl bg-themeInput text-themeMuted font-medium">
-                                    <p class="text-xs font-medium text-themeMuted mt-1">One device per customer per sale</p>
+                                    <label class="block text-sm font-medium text-themeBody mb-2">Quantity *</label>
+                                    <input type="number" name="items[0][quantity]" value="{{ old('items.0.quantity', 1) }}" min="1" required
+                                        class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading quantity-input">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-themeBody mb-2">Unit Price *</label>
@@ -296,7 +253,6 @@
 
 
     <script>
-        window.__canCreateDevice = @json($canCreateDevice ?? false);
         // Expose searchable dropdown components on window so x-data="customerSearchable({...})" resolves and receives config
         (function() {
             const config = (c) => c || {};
@@ -402,21 +358,12 @@
             };
         })();
 
-        // Device data from backend
-        const availableDevices = @json($availableDevices);
-        const allAvailableDevices = @json($allAvailableDevices);
-
         let currentProductId = null;
-        let filteredDevices = [];
 
         function attachEventListeners() {
             const productSelect = document.getElementById('product-select-0');
-            const deviceImeiInput = document.getElementById('device-imei-input-0');
-            const deviceIdInput = document.getElementById('device-id-input-0');
-            const deviceSuggestions = document.getElementById('device-suggestions-0');
             const priceInput = document.querySelector('.price-input');
             const stockStatus = document.getElementById('stock-status-0');
-            const deviceStatus = document.getElementById('device-status-0');
             const customerSelect = document.getElementById('customer_id');
             const newCustomerFields = document.getElementById('new-customer-fields');
 
@@ -483,341 +430,28 @@
                     }
                 }
 
-                // Filter devices by product
-                if (productId) {
-                    filteredDevices = allAvailableDevices.filter(device => device.product_id == productId);
-                    deviceImeiInput.disabled = false;
-
-                    if (deviceStatus) {
-                        if (filteredDevices.length > 0) {
-                            deviceStatus.innerHTML = '<span class="text-green-600">✓ ' + filteredDevices.length +
-                                ' device(s) available</span>';
-                        } else {
-                            deviceStatus.innerHTML = '<span class="text-red-600">✗ No devices available</span>';
-                        }
-                    }
-                } else {
-                    filteredDevices = [];
-                    deviceImeiInput.disabled = true;
-                    deviceImeiInput.value = '';
-                    deviceIdInput.value = '';
-                    deviceSuggestions.classList.add('hidden');
-                    if (deviceStatus) {
-                        deviceStatus.innerHTML = '';
-                    }
-                }
-
                 calculateTotal();
             });
 
-            // IMEI input - only allow numbers with autocomplete
-            deviceImeiInput.addEventListener('input', function(e) {
-                // Remove any non-numeric characters
-                let value = this.value.replace(/[^0-9]/g, '');
-
-                // Limit to 15 digits (IMEI standard length)
-                if (value.length > 15) {
-                    value = value.substring(0, 15);
-                }
-
-                this.value = value;
-
-                const query = value.trim();
-                const previousDeviceId = deviceIdInput.value;
-
-                // Clear device ID when IMEI changes (user is typing/editing)
-                deviceIdInput.value = '';
-                selectedSuggestionIndex = -1; // Reset selection when typing
-
-                // Clear status message initially
-                if (deviceStatus) {
-                    deviceStatus.innerHTML = '';
-                }
-
-                // If user had a device selected and is now typing, hide suggestions until they type enough
-                if (previousDeviceId && query.length < 2) {
-                    deviceSuggestions.classList.add('hidden');
-                    return;
-                }
-
-                // Show suggestions as user types (minimum 2 digits)
-                if (!query || !currentProductId || query.length < 2) {
-                    deviceSuggestions.classList.add('hidden');
-                    // Show validation message only if user has typed something
-                    if (query.length > 0 && query.length < 15) {
-                        if (deviceStatus) {
-                            deviceStatus.innerHTML =
-                                '<span class="text-themeMuted">Type at least 2 digits to see suggestions</span>';
-                        }
-                    }
-                    return;
-                }
-
-                // Don't show suggestions if a device is already selected
-                if (deviceIdInput.value) {
-                    deviceSuggestions.classList.add('hidden');
-                    deviceSuggestions.style.display = 'none';
-                    return;
-                }
-
-                // Filter devices by IMEI query (starts with or contains)
-                const matches = filteredDevices.filter(device =>
-                    device.imei.startsWith(query)
-                ).slice(0, 10); // Limit to 10 suggestions
-
-                // Store matches globally for keyboard navigation
-                window.currentDeviceMatches = matches;
-
-                if (matches.length > 0) {
-                    deviceSuggestions.innerHTML = '';
-                    matches.forEach((device, index) => {
-                        const suggestionItem = document.createElement('div');
-                        suggestionItem.className =
-                            'px-4 py-2 hover:bg-primary hover:text-white cursor-pointer font-light border-b border-themeBorder last:border-0 transition-colors';
-
-                        // Highlight matching part of IMEI
-                        const matchedPart = device.imei.substring(0, query.length);
-                        const remainingPart = device.imei.substring(query.length);
-
-                        const branchPart = device.branch_name ? ` • ${device.branch_name}` : '';
-                        suggestionItem.innerHTML = `
-                            <div class="flex items-center justify-between">
-                                <div class="text-themeHeading hover:text-white">
-                                    <span class="font-semibold text-primary hover:text-white">${matchedPart}</span><span class="text-themeBody hover:text-white">${remainingPart}</span>
-                                </div>
-                                <div class="text-xs text-themeMuted hover:text-themeMuted ml-2">${device.product_name}${branchPart}</div>
-                            </div>
-                        `;
-                        // Store device data on the element for easy access
-                        suggestionItem.dataset.deviceImei = device.imei;
-                        suggestionItem.dataset.deviceId = device.id;
-                        suggestionItem.addEventListener('mousedown', function(e) {
-                            e.preventDefault(); // Prevent input from losing focus
-                            const selectedImei = this.dataset.deviceImei;
-                            const selectedId = this.dataset.deviceId;
-                            if (selectedImei && selectedId) {
-                                deviceImeiInput.value = selectedImei;
-                                deviceIdInput.value = selectedId;
-                                deviceSuggestions.classList.add('hidden');
-                                deviceSuggestions.style.display = 'none';
-                                selectedSuggestionIndex = -1;
-                                if (deviceStatus) {
-                                    deviceStatus.innerHTML =
-                                        '<span class="text-green-600">✓ Device selected: ' +
-                                        selectedImei + '</span>';
-                                }
-                                calculateTotal();
-                                // Keep focus on input to prevent blur issues
-                                deviceImeiInput.focus();
-                            }
-                        });
-                        deviceSuggestions.appendChild(suggestionItem);
-                    });
-                    deviceSuggestions.classList.remove('hidden');
-                    deviceSuggestions.style.display = 'block';
-
-                    // Update status message
-                    if (deviceStatus) {
-                        if (query.length === 15) {
-                            if (matches.length === 1 && matches[0].imei === query) {
-                                deviceStatus.innerHTML = '<span class="text-green-600">✓ Exact match found</span>';
-                            } else {
-                                deviceStatus.innerHTML = '<span class="text-blue-600">ℹ ' + matches.length +
-                                    ' matching device(s) found</span>';
-                            }
-                        } else {
-                            deviceStatus.innerHTML = '<span class="text-blue-600">ℹ ' + matches.length +
-                                ' matching device(s) - ' + (15 - query.length) + ' digits remaining</span>';
-                        }
-                    }
-                } else {
-                    deviceSuggestions.classList.add('hidden');
-                    if (deviceStatus) {
-                        if (query.length === 15) {
-                            deviceIdInput.value = '';
-                            document.getElementById('device-imei-hidden-0').value = query;
-                            if (window.__canCreateDevice) {
-                                deviceStatus.innerHTML =
-                                    '<span class="text-amber-700 font-medium">This IMEI is not in the system. </span>' +
-                                    '<button type="button" id="confirm-create-device-0" class="ml-1 text-primary font-semibold underline hover:no-underline focus:outline-none">Create new device with this IMEI</button>' +
-                                    '<span class="text-amber-700 font-medium"> when you complete the sale below.</span>';
-                                const confirmBtn = document.getElementById('confirm-create-device-0');
-                                if (confirmBtn) {
-                                    confirmBtn.addEventListener('click', function() {
-                                        deviceStatus.innerHTML =
-                                            '<span class="text-green-600">✓ New device will be created for IMEI ' +
-                                            query + ' when you complete the sale.</span>';
-                                    });
-                                }
-                            } else {
-                                deviceStatus.innerHTML =
-                                    '<span class="text-amber-700 font-medium">This IMEI is not in the system. You do not have permission to create devices.</span>';
-                            }
-                        } else {
-                            deviceStatus.innerHTML =
-                                '<span class="text-orange-600">⚠ No matching device found. Enter full 15-digit IMEI to create a new device.</span>';
-                        }
-                    }
-                }
-            });
-
-            // Keyboard navigation for autocomplete
-            let selectedSuggestionIndex = -1;
-            deviceImeiInput.addEventListener('keydown', function(e) {
-                // Don't show suggestions if a device is already selected (unless user is editing)
-                if (deviceIdInput.value && (e.key !== 'Backspace' && e.key !== 'Delete' && !e.key.startsWith(
-                        'Arrow'))) {
-                    return;
-                }
-
-                const suggestions = deviceSuggestions.querySelectorAll('div');
-
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (deviceSuggestions.classList.contains('hidden')) return;
-                    selectedSuggestionIndex = Math.min(selectedSuggestionIndex + 1, suggestions.length - 1);
-                    updateSuggestionSelection(suggestions);
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (deviceSuggestions.classList.contains('hidden')) return;
-                    selectedSuggestionIndex = Math.max(selectedSuggestionIndex - 1, -1);
-                    updateSuggestionSelection(suggestions);
-                } else if (e.key === 'Enter' && selectedSuggestionIndex >= 0 && suggestions[
-                        selectedSuggestionIndex]) {
-                    e.preventDefault();
-                    const selectedSuggestion = suggestions[selectedSuggestionIndex];
-                    const selectedImei = selectedSuggestion.dataset.deviceImei;
-                    const selectedId = selectedSuggestion.dataset.deviceId;
-                    if (selectedImei && selectedId) {
-                        deviceImeiInput.value = selectedImei;
-                        deviceIdInput.value = selectedId;
-                        deviceSuggestions.classList.add('hidden');
-                        deviceSuggestions.style.display = 'none';
-                        selectedSuggestionIndex = -1;
-                        if (deviceStatus) {
-                            deviceStatus.innerHTML =
-                                '<span class="text-green-600">✓ Device selected: ' + selectedImei + '</span>';
-                        }
-                        calculateTotal();
-                    }
-                } else if (e.key === 'Escape') {
-                    deviceSuggestions.classList.add('hidden');
-                    deviceSuggestions.style.display = 'none';
-                    selectedSuggestionIndex = -1;
-                } else if (e.key === 'Backspace' || e.key === 'Delete') {
-                    // Clear device selection when user deletes
-                    deviceIdInput.value = '';
-                } else {
-                    selectedSuggestionIndex = -1;
-                }
-            });
-
-            function updateSuggestionSelection(suggestions) {
-                suggestions.forEach((item, index) => {
-                    if (index === selectedSuggestionIndex) {
-                        item.classList.add('bg-primary', 'text-white');
-                        item.classList.remove('hover:bg-primary');
-                    } else {
-                        item.classList.remove('bg-primary', 'text-white');
-                        item.classList.add('hover:bg-primary');
-                    }
+            const quantityInput = document.querySelector('.quantity-input');
+            if (quantityInput) {
+                quantityInput.addEventListener('input', function() {
+                    calculateTotal();
                 });
             }
 
-            // Validate IMEI on blur
-            deviceImeiInput.addEventListener('blur', function() {
-                // Delay to allow click events on suggestions to complete first
-                setTimeout(() => {
-                    // Only hide if a device wasn't just selected
-                    if (!deviceIdInput.value) {
-                        deviceSuggestions.classList.add('hidden');
-                        deviceSuggestions.style.display = 'none';
-                    }
-                    selectedSuggestionIndex = -1;
-                }, 200);
-
-                const imei = this.value.trim();
-                const deviceImeiHidden = document.getElementById('device-imei-hidden-0');
-
-                // Validate IMEI format
-                if (imei && imei.length !== 15) {
-                    deviceIdInput.value = '';
-                    deviceImeiHidden.value = '';
-                    if (deviceStatus) {
-                        deviceStatus.innerHTML =
-                            '<span class="text-red-600">✗ IMEI must be exactly 15 digits</span>';
-                    }
-                    return;
-                }
-
-                if (imei && currentProductId) {
-                    const device = filteredDevices.find(d => d.imei === imei);
-                    if (device) {
-                        deviceIdInput.value = device.id;
-                        deviceImeiHidden.value = ''; // Clear IMEI if device exists
-                        if (deviceStatus) {
-                            deviceStatus.innerHTML = '<span class="text-green-600">✓ Device selected</span>';
-                        }
-                    } else {
-                        deviceIdInput.value = ''; // Clear device ID
-                        deviceImeiHidden.value = imei; // Store IMEI for creation
-                        if (deviceStatus) {
-                            if (window.__canCreateDevice) {
-                                deviceStatus.innerHTML =
-                                    '<span class="text-amber-700 font-medium">IMEI not in system. </span>' +
-                                    '<button type="button" class="text-primary font-semibold underline hover:no-underline focus:outline-none create-device-prompt-btn">Create new device with this IMEI</button>' +
-                                    '<span class="text-amber-700 font-medium"> when you complete the sale.</span>';
-                                const btn = deviceStatus.querySelector('.create-device-prompt-btn');
-                                if (btn) btn.addEventListener('click', function() {
-                                    deviceStatus.innerHTML =
-                                        '<span class="text-green-600">✓ New device will be created for IMEI ' +
-                                        imei + ' when you complete the sale.</span>';
-                                });
-                            } else {
-                                deviceStatus.innerHTML =
-                                    '<span class="text-amber-700 font-medium">This IMEI is not in the system. You do not have permission to create devices.</span>';
-                            }
-                        }
-                    }
-                } else if (imei && !currentProductId) {
-                    deviceIdInput.value = '';
-                    deviceImeiHidden.value = '';
-                    if (deviceStatus) {
-                        deviceStatus.innerHTML =
-                            '<span class="text-red-600">✗ Please select a product first</span>';
-                    }
-                } else {
-                    deviceIdInput.value = '';
-                    deviceImeiHidden.value = '';
-                }
-            });
-
-            // Prevent paste of non-numeric characters
-            deviceImeiInput.addEventListener('paste', function(e) {
-                e.preventDefault();
-                const paste = (e.clipboardData || window.clipboardData).getData('text');
-                const numbersOnly = paste.replace(/[^0-9]/g, '').substring(0, 15);
-                this.value = numbersOnly;
-                this.dispatchEvent(new Event('input'));
-            });
-
-            // Hide suggestions when clicking outside
-            document.addEventListener('click', function(e) {
-                const deviceContainer = deviceImeiInput.closest('.relative');
-                if (deviceContainer && !deviceContainer.contains(e.target)) {
-                    deviceSuggestions.classList.add('hidden');
-                }
-            });
-
-            document.querySelectorAll('.price-input').forEach(input => {
-                input.addEventListener('input', calculateTotal);
-            });
+            if (priceInput) {
+                priceInput.addEventListener('input', function() {
+                    calculateTotal();
+                });
+            }
         }
 
         function calculateTotal() {
             let subtotal = 0;
             document.querySelectorAll('.item-row').forEach(row => {
-                const quantity = 1; // Always 1 device per customer
+                const qtyInput = row.querySelector('.quantity-input');
+                const quantity = qtyInput ? (parseInt(qtyInput.value, 10) || 0) : 1;
                 const price = parseFloat(row.querySelector('.price-input').value) || 0;
                 subtotal += quantity * price;
             });
@@ -825,24 +459,12 @@
             const tax = parseFloat(document.getElementById('tax').value) || 0;
             const total = subtotal + tax;
 
-            document.getElementById('total-display').textContent = 'TSh ' + total.toFixed(2);
+            const totalEl = document.getElementById('total-display');
+            if (totalEl) totalEl.textContent = 'TSh ' + total.toFixed(2);
         }
 
-        document.getElementById('tax').addEventListener('input', calculateTotal);
-
-        // Prompt to create new device on submit when IMEI is not in system
-        document.getElementById('saleForm').addEventListener('submit', function(e) {
-            const deviceImeiHidden = document.getElementById('device-imei-hidden-0');
-            const deviceIdInput = document.getElementById('device-id-input-0');
-            const imei = (deviceImeiHidden && deviceImeiHidden.value) ? deviceImeiHidden.value.trim() : '';
-            if (imei && imei.length === 15 && (!deviceIdInput || !deviceIdInput.value)) {
-                if (!confirm('IMEI ' + imei +
-                        ' is not in the system. A new device will be created when you complete this sale. Continue?'
-                    )) {
-                    e.preventDefault();
-                }
-            }
-        });
+        const taxEl = document.getElementById('tax');
+        if (taxEl) taxEl.addEventListener('input', calculateTotal);
 
         attachEventListeners();
     </script>

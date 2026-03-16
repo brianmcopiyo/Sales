@@ -14,13 +14,6 @@
                 <p class="text-sm font-medium text-themeMuted mt-1">Record and manage sales</p>
             </div>
             <div class="flex items-center gap-2">
-                <a href="{{ route('device-requests.index') }}"
-                    class="bg-themeHover text-themeBody px-5 py-2.5 rounded-xl font-medium hover:bg-themeBorder transition shadow-sm flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                    </svg>
-                    <span>Device Requests</span>
-                </a>
                 <a href="{{ route('sales.export') . (isset($exportQuery) && $exportQuery ? '?' . http_build_query($exportQuery) : '') }}"
                     class="bg-themeHover text-themeBody px-5 py-2.5 rounded-xl font-medium hover:bg-themeBorder transition shadow-sm flex items-center space-x-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,9 +193,7 @@
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
                                 Field Agent</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
-                                IMEI</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
-                                Device</th>
+                                Product</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
                                 Brand</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
@@ -242,12 +233,6 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-themeBody">
                                         {{ $sale->items->first()?->fieldAgent?->name ?? '-' }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-themeBody max-w-[140px] truncate"
-                                        title="{{ $sale->items->pluck('device.imei')->filter()->unique()->implode(', ') ?: '—' }}">
-                                        {{ $sale->items->pluck('device.imei')->filter()->unique()->implode(', ') ?: '—' }}
-                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-themeBody max-w-[160px] truncate"

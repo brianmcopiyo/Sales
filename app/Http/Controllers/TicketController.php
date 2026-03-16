@@ -14,7 +14,6 @@ use App\Models\TicketEscalation;
 use App\Models\User;
 use App\Models\Customer;
 use App\Models\Sale;
-use App\Models\Device;
 use App\Models\Product;
 use App\Models\Branch;
 use App\Models\CustomerDisbursement;
@@ -36,14 +35,14 @@ class TicketController extends Controller
                 ->first();
 
             if ($customer) {
-                $query = Ticket::with(['customer', 'assignedTo', 'sale', 'device.product', 'product', 'branch', 'tags'])
+                $query = Ticket::with(['customer', 'assignedTo', 'sale', 'product', 'branch', 'tags'])
                     ->where('customer_id', $customer->id);
             } else {
                 $query = Ticket::whereRaw('1 = 0');
             }
         } else {
             $isFieldAgent = $user->fieldAgentProfile && $user->branch_id;
-            $query = Ticket::with(['customer', 'assignedTo', 'sale', 'device.product', 'product', 'branch', 'tags']);
+            $query = Ticket::with(['customer', 'assignedTo', 'sale', 'product', 'branch', 'tags']);
             if ($isFieldAgent) {
                 $query->where('assigned_to', $user->id);
             } else {
@@ -84,10 +83,6 @@ class TicketController extends Controller
             } else {
                 $query->where('assigned_to', $request->assigned_to);
             }
-        }
-
-        if ($request->filled('device_id')) {
-            $query->where('device_id', $request->device_id);
         }
 
         if ($request->filled('product_id')) {
@@ -172,7 +167,6 @@ class TicketController extends Controller
             // Staff/admin creating ticket for a customer
             $customer = Customer::findOrFail($customerId);
             $sales = $customer->sales()->latest()->get();
-            $devices = $customer->devices()->with('product')->latest()->get();
         } elseif ($user->isCustomer()) {
             // Customer creating their own ticket
             $customer = Customer::where('email', $user->email)
@@ -180,7 +174,6 @@ class TicketController extends Controller
                 ->first();
             if ($customer) {
                 $sales = $customer->sales()->latest()->get();
-                $devices = $customer->devices()->with('product')->latest()->get();
             }
         }
 
@@ -209,7 +202,6 @@ class TicketController extends Controller
             'priority' => 'required|in:low,medium,high,urgent',
             'category' => 'required|in:technical,billing,sales,general,order,promise,complaint,unsuccessful,credit',
             'sale_id' => 'nullable|exists:sales,id',
-            'device_id' => 'nullable|exists:devices,id',
             'product_id' => 'nullable|exists:products,id',
             'assigned_to' => 'nullable|exists:users,id',
             'customer_id' => $createNewCustomer ? 'nullable' : 'nullable|exists:customers,id',
@@ -345,9 +337,6 @@ class TicketController extends Controller
             'customer',
             'assignedTo',
             'sale.items.product',
-            'sale.items.device',
-            'device.product',
-            'device.branch',
             'product.brand',
             'branch',
             'disbursement',
@@ -369,19 +358,11 @@ class TicketController extends Controller
         $tags = TicketTag::orderBy('name')->get();
 
         // Get customer's related data for context
-        $customerDevices = $ticket->customer->devices()->with('product')->latest()->get();
         $customerSales = $ticket->customer->sales()->latest()->take(10)->get();
         $customerTickets = $ticket->customer->tickets()->where('id', '!=', $ticket->id)->latest()->take(5)->get();
         $customerDisbursements = $ticket->customer->disbursements()->latest()->take(5)->get();
 
-        // Get devices for disbursement (that haven't received disbursement)
-        $availableDevices = Device::where('customer_id', $ticket->customer_id)
-            ->where('has_received_disbursement', false)
-            ->with('product')
-            ->orderBy('imei')
-            ->get();
-
-        return view('tickets.show', compact('ticket', 'staff', 'tags', 'customerDevices', 'customerSales', 'customerTickets', 'customerDisbursements', 'availableDevices'));
+        return view('tickets.show', compact('ticket', 'staff', 'tags', 'customerSales', 'customerTickets', 'customerDisbursements'));
     }
 
     public function update(Request $request, Ticket $ticket)
@@ -554,38 +535,28 @@ class TicketController extends Controller
     public function createDisbursement(Request $request, Ticket $ticket)
     {
         $validated = $request->validate([
-            'device_id' => 'required|exists:devices,id',
+            'sale_id' => 'required|exists:sales,id',
             'amount' => 'required|numeric|min:0.01',
             'disbursement_phone' => 'required|string|max:255',
             'notes' => 'nullable|string|max:1000',
         ]);
 
-        // Validate device belongs to ticket's customer
-        $device = Device::findOrFail($validated['device_id']);
-        if ($device->customer_id !== $ticket->customer_id) {
-            return back()->withErrors(['device_id' => 'Selected device does not belong to the ticket customer.'])->withInput();
+        $saleId = $validated['sale_id'];
+        $sale = Sale::findOrFail($saleId);
+        if ((string) $sale->customer_id !== (string) $ticket->customer_id) {
+            return back()->withErrors(['sale_id' => 'Selected sale does not belong to the ticket customer.'])->withInput();
         }
 
-        // Every disbursement must have a sale (use ticket's sale or device's sale)
-        $saleId = $ticket->sale_id ?? $device->sale_id;
-        if ($saleId === null) {
-            return back()->withErrors(['device_id' => 'This device is not linked to a sale. Link the ticket to a sale first, or choose a device that was sold in a sale.'])->withInput();
-        }
-
-        // One disbursement per device (DB unique); update existing or create
-        $existing = CustomerDisbursement::where('device_id', $validated['device_id'])->first();
-        if ($existing && ($existing->isApproved() || $existing->isRejected())) {
-            return back()->withErrors(['device_id' => 'This device already has an approved or rejected disbursement.'])->withInput();
-        }
-        if (!$existing && $device->has_received_disbursement) {
-            return back()->withErrors(['device_id' => 'This device has already received a disbursement.'])->withInput();
+        // One disbursement per sale (avoid duplicates)
+        $existing = CustomerDisbursement::where('sale_id', $saleId)->whereIn('status', [CustomerDisbursement::STATUS_APPROVED, CustomerDisbursement::STATUS_PENDING])->first();
+        if ($existing) {
+            return back()->withErrors(['sale_id' => 'This sale already has a disbursement request.'])->withInput();
         }
 
         $notes = ($validated['notes'] ?? '') . "\n\nCreated from ticket: {$ticket->ticket_number}";
         $data = [
             'customer_id' => $ticket->customer_id,
             'sale_id' => $saleId,
-            'device_id' => $validated['device_id'],
             'amount' => $validated['amount'],
             'disbursement_phone' => $validated['disbursement_phone'],
             'notes' => $notes,

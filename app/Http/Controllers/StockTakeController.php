@@ -10,7 +10,6 @@ use App\Models\StockAdjustment;
 use App\Models\Branch;
 use App\Models\Product;
 use App\Models\Region;
-use App\Models\Device;
 use App\Models\ActivityLog;
 use App\Services\InventoryMovementService;
 use App\Exports\StockTakesExport;
@@ -403,43 +402,13 @@ class StockTakeController extends Controller
         $item->variance = $item->calculateVariance();
         $item->save();
 
-        // Optional: attach IMEI numbers – register devices that don't exist (confirm at this branch)
         $imeis = $this->collectImeisFromRequest($request);
-        $branchId = $stockTake->branch_id;
-        $productId = $item->product_id;
-        $registered = 0;
-        $errors = [];
-        foreach ($imeis as $imei) {
-            if (Device::where('imei', $imei)->exists()) {
-                continue; // already registered – confirm only, no duplicate
-            }
-            try {
-                $deviceData = [
-                    'imei' => $imei,
-                    'product_id' => $productId,
-                    'branch_id' => $branchId,
-                    'status' => 'available',
-                ];
-                if (Schema::hasColumn('devices', 'stock_counted')) {
-                    $deviceData['stock_counted'] = true;
-                }
-                Device::create($deviceData);
-                $registered++;
-            } catch (\Throwable $e) {
-                $errors[] = "IMEI {$imei}: " . $e->getMessage();
-            }
-        }
-        if (!empty($errors)) {
-            return back()->withErrors(['imeis' => implode(' ', array_slice($errors, 0, 3))])->with('success', 'Count saved.' . ($registered ? " {$registered} device(s) registered." : ''));
-        }
-
         $existingImeis = $item->submitted_imeis ?? [];
-        $item->update(['submitted_imeis' => array_values(array_unique(array_merge($existingImeis, $imeis)))]);
+        if (!empty($imeis)) {
+            $item->update(['submitted_imeis' => array_values(array_unique(array_merge($existingImeis, $imeis)))]);
+        }
 
         $message = 'Count updated successfully.';
-        if ($registered > 0) {
-            $message .= " {$registered} device(s) registered.";
-        }
 
         ActivityLog::log(
             $user->id,
@@ -523,33 +492,14 @@ class StockTakeController extends Controller
                     $item->variance = $item->calculateVariance();
                     $item->save();
 
-                    // Optional IMEIs for this item – from textarea and/or uploaded file (same as restock)
+                    // IMEIs stored on item for audit only (device model removed)
                     $imeiText = $itemData['imeis'] ?? '';
                     $imeiFile = $request->file("items.{$index}.imei_file");
                     $imeis = $this->collectImeisFromTextAndFile($imeiText, $imeiFile);
-                    $branchId = $stockTake->branch_id;
-                    $productId = $item->product_id;
-                    foreach ($imeis as $imei) {
-                        if (Device::where('imei', $imei)->exists()) {
-                            continue;
-                        }
-                        try {
-                            $deviceData = [
-                                'imei' => $imei,
-                                'product_id' => $productId,
-                                'branch_id' => $branchId,
-                                'status' => 'available',
-                            ];
-                            if (Schema::hasColumn('devices', 'stock_counted')) {
-                                $deviceData['stock_counted'] = true;
-                            }
-                            Device::create($deviceData);
-                        } catch (\Throwable $e) {
-                            // continue with other IMEIs
-                        }
+                    if (!empty($imeis)) {
+                        $existingImeis = $item->submitted_imeis ?? [];
+                        $item->update(['submitted_imeis' => array_values(array_unique(array_merge($existingImeis, $imeis)))]);
                     }
-                    $existingImeis = $item->submitted_imeis ?? [];
-                    $item->update(['submitted_imeis' => array_values(array_unique(array_merge($existingImeis, $imeis)))]);
 
                     ActivityLog::log(
                         $user->id,
@@ -617,51 +567,7 @@ class StockTakeController extends Controller
 
             $targetBranchId = $stockTake->branch_id;
 
-            // Query 1: IMEI transfers – move each device to this branch so device.branch_id matches physical location, then record movements
-            $itemsForTransfers = StockTakeItem::where('stock_take_id', $stockTake->id)->get();
-            foreach ($itemsForTransfers as $item) {
-                $imeis = $item->submitted_imeis ?? [];
-                if (empty($imeis) || !is_array($imeis)) {
-                    continue;
-                }
-                $productId = $item->product_id;
-                foreach ($imeis as $imei) {
-                    $imei = preg_replace('/\D/', '', (string) $imei);
-                    if ($imei === '' || strlen($imei) !== 15) {
-                        continue;
-                    }
-                    $device = Device::where('imei', $imei)->first();
-                    if (!$device || (string) $device->branch_id === (string) $targetBranchId) {
-                        continue;
-                    }
-                    $fromBranchId = $device->branch_id;
-                    $device->update(['branch_id' => $targetBranchId]);
-                    InventoryMovementService::record(
-                        (string) $fromBranchId,
-                        (string) $productId,
-                        'transfer',
-                        -1,
-                        StockTake::class,
-                        (string) $stockTake->id,
-                        "Stock take #{$stockTake->stock_take_number} – device transferred out",
-                        null,
-                        $user->id ? (string) $user->id : null
-                    );
-                    InventoryMovementService::record(
-                        (string) $targetBranchId,
-                        (string) $productId,
-                        'transfer',
-                        1,
-                        StockTake::class,
-                        (string) $stockTake->id,
-                        "Stock take #{$stockTake->stock_take_number} – device transferred in",
-                        null,
-                        $user->id ? (string) $user->id : null
-                    );
-                }
-            }
-
-            // Query 2: items for branch stock adjustment (independent query, no shared state with above)
+            // Query: items for branch stock adjustment (independent query, no shared state with above)
             $itemsForAdjustment = StockTakeItem::where('stock_take_id', $stockTake->id)->get();
             foreach ($itemsForAdjustment as $item) {
                 if ($item->physical_quantity === null) {
@@ -672,7 +578,7 @@ class StockTakeController extends Controller
                     ['branch_id' => $stockTake->branch_id, 'product_id' => $item->product_id],
                     ['quantity' => 0, 'reserved_quantity' => 0]
                 );
-                $branchStock->refresh(); // latest from DB (e.g. after IMEI transfers in this transaction)
+                $branchStock->refresh();
 
                 $quantityBefore = (int) $branchStock->quantity;
                 $quantityAfter = (int) $item->physical_quantity;
@@ -971,27 +877,7 @@ class StockTakeController extends Controller
                 $neverRecorded++;
                 continue;
             }
-            if (Device::where('imei', $imei)->exists()) {
-                $alreadyExisting++;
-                $validProcessed[] = $imei;
-                continue;
-            }
-            try {
-                $deviceData = [
-                    'imei' => $imei,
-                    'product_id' => $productId,
-                    'branch_id' => $branchId,
-                    'status' => 'available',
-                ];
-                if (Schema::hasColumn('devices', 'stock_counted')) {
-                    $deviceData['stock_counted'] = true;
-                }
-                Device::create($deviceData);
-                $uploaded++;
-                $validProcessed[] = $imei;
-            } catch (\Throwable $e) {
-                $neverRecorded++;
-            }
+            $validProcessed[] = $imei;
         }
 
         $existingSubmitted = $item->submitted_imeis ?? [];

@@ -9,7 +9,6 @@ use App\Models\StockTransferItem;
 use App\Models\Branch;
 use App\Models\Product;
 use App\Models\BranchStock;
-use App\Models\Device;
 use App\Models\User;
 use App\Helpers\ImeiHelper;
 use Maatwebsite\Excel\Facades\Excel;
@@ -238,12 +237,6 @@ class StockRequestController extends Controller
             if (count($imeis) > $quantityFulfilling) {
                 return back()->withErrors(['imeis' => 'Number of IMEIs (' . count($imeis) . ') cannot exceed quantity to send (' . $quantityFulfilling . ').']);
             }
-            foreach ($imeis as $imeiDigits) {
-                $device = Device::where('imei', $imeiDigits)->first();
-                if ($device && ((string) $device->branch_id !== (string) $fromBranchId || (string) $device->product_id !== (string) $productId)) {
-                    return back()->withErrors(['imeis' => 'IMEI ' . $imeiDigits . ' is at another branch or is a different product. Only devices at your branch for this product can be attached.']);
-                }
-            }
         }
 
         // Each fulfillment (full or partial) creates a separate transfer; all are linked to the same request via stock_request_id.
@@ -289,23 +282,6 @@ class StockRequestController extends Controller
                 $update['approved_at'] = now();
             }
             $stockRequest->update($update);
-
-            // Attach IMEIs (devices) to the transfer; auto-register any not yet in the system (stock_counted to avoid double-adjusting)
-            foreach ($imeis as $imeiDigits) {
-                $device = Device::firstOrCreate(
-                    ['imei' => $imeiDigits],
-                    [
-                        'product_id' => $productId,
-                        'branch_id' => $fromBranchId,
-                        'status' => 'available',
-                        'stock_counted' => true,
-                    ]
-                );
-                if ((string) $device->branch_id !== (string) $fromBranchId || (string) $device->product_id !== (string) $productId) {
-                    $device->update(['branch_id' => $fromBranchId, 'product_id' => $productId, 'stock_counted' => true]);
-                }
-                $transfer->transferDevices()->syncWithoutDetaching([$device->id => ['received_at' => null]]);
-            }
         });
 
         if (!$transfer) {

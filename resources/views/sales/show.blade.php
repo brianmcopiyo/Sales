@@ -29,7 +29,7 @@
                     </button>
                     @if ($canCancelSale ?? false)
                         <form action="{{ route('sales.cancel', $sale) }}" method="post" class="inline"
-                            onsubmit="return confirm('Cancel this pending sale? Devices will be returned to stock.');">
+                            onsubmit="return confirm('Cancel this pending sale? Stock will be returned.');">
                             @csrf
                             <button type="submit"
                                 class="bg-red-100 text-red-800 px-5 py-2.5 rounded-xl font-medium hover:bg-red-200 transition flex items-center space-x-2">
@@ -155,10 +155,6 @@
                                     @if ((float) ($item->unit_license_cost ?? 0) > 0)
                                         <div class="text-sm font-medium text-themeBody mt-1">Cost to sell: TSh {{ number_format($item->total_license_cost, 2) }}</div>
                                     @endif
-                                    @if ($item->device)
-                                        <div class="text-sm font-medium text-themeBody mt-1">IMEI: {{ $item->device->imei }}
-                                        </div>
-                                    @endif
                                     @if ($item->fieldAgent)
                                         <div class="text-sm font-medium text-themeBody mt-1">
                                             Field Agent: {{ $item->fieldAgent->name }} (Commission: TSh
@@ -171,95 +167,6 @@
                         @endforeach
                     </div>
                 </div>
-
-                @if ($canReplaceDevice ?? false)
-                    <div class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                        @if ($sale->status === 'pending')
-                            <h2 class="text-lg font-semibold text-primary tracking-tight mb-2">Change device (before completion)</h2>
-                            <p class="text-sm text-themeMuted mb-4">Swap a device on this sale before it is completed (e.g. wrong device selected or issue found). Select the device to remove from the sale and the replacement (same product). The sale number stays the same.</p>
-                        @else
-                            <h2 class="text-lg font-semibold text-primary tracking-tight mb-2">Replace device (from this sale)</h2>
-                            <p class="text-sm text-themeMuted mb-4">Process a replacement from this sale details page: customer returns a defective device and receives a replacement (same product). The sale number stays the same; the returned device goes back to stock and the replacement is linked to this sale. Document the reason for genuine cases (e.g. manufacturing defect).</p>
-                        @endif
-                        <form action="{{ route('sales.replace-device', $sale) }}" method="post" class="space-y-4" onsubmit="return confirm('{{ $sale->status === 'pending' ? 'Change the device? The current device will go back to stock and the selected device will be linked to this sale.' : 'Process this replacement? The returned device will go back to stock and the selected device will be linked to this sale.' }}');">
-                            @csrf
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label for="original_device_id" class="block text-sm font-medium text-themeBody mb-1">{{ $sale->status === 'pending' ? 'Device to remove from sale' : 'Device returned by customer' }}</label>
-                                    <select id="original_device_id" name="original_device_id" required
-                                        class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">
-                                        <option value="">— Select device —</option>
-                                        @foreach ($sale->items as $item)
-                                            @if ($item->device)
-                                                <option value="{{ $item->device->id }}" {{ old('original_device_id') == $item->device->id ? 'selected' : '' }}>
-                                                    {{ $item->device->imei }} ({{ $item->product->name ?? '—' }})
-                                                </option>
-                                            @endif
-                                        @endforeach
-                                    </select>
-                                    @error('original_device_id')
-                                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                <div>
-                                    <label for="replacement_device_id" class="block text-sm font-medium text-themeBody mb-1">{{ $sale->status === 'pending' ? 'New device for this sale' : 'Replacement device' }}</label>
-                                    <select id="replacement_device_id" name="replacement_device_id" required
-                                        class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">
-                                        <option value="">— Select device —</option>
-                                        @foreach ($availableDevicesForReplacement ?? [] as $dev)
-                                            <option value="{{ $dev->id }}" {{ old('replacement_device_id') == $dev->id ? 'selected' : '' }}>
-                                                {{ $dev->imei }} – {{ $dev->product->name ?? '—' }} ({{ $dev->branch->name ?? '—' }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('replacement_device_id')
-                                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div>
-                                <label for="reason" class="block text-sm font-medium text-themeBody mb-1">{{ $sale->status === 'pending' ? 'Reason (optional)' : 'Reason (recommended for genuine cases)' }}</label>
-                                <textarea id="reason" name="reason" rows="2" maxlength="2000" placeholder="{{ $sale->status === 'pending' ? 'e.g. Wrong device selected, defect found before handover' : 'e.g. Screen defect, battery issue, manufacturing fault' }}"
-                                    class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">{{ old('reason') }}</textarea>
-                                @error('reason')
-                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <button type="submit" class="bg-primary text-white px-5 py-2.5 rounded-xl font-medium hover:bg-primary-dark transition shadow-sm inline-flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                </svg>
-                                {{ $sale->status === 'pending' ? 'Change device' : 'Process replacement' }}
-                            </button>
-                        </form>
-                    </div>
-                @endif
-
-                @if ($sale->deviceReplacements && $sale->deviceReplacements->isNotEmpty())
-                    <div class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                        <h2 class="text-lg font-semibold text-primary tracking-tight mb-4">Replacement history</h2>
-                        <ul class="space-y-3">
-                            @foreach ($sale->deviceReplacements as $rep)
-                                <li class="flex flex-wrap items-start justify-between gap-2 py-3 border-b border-themeBorder last:border-0 last:pb-0">
-                                    <div class="text-sm">
-                                        <span class="font-medium text-themeBody">Returned:</span> {{ $rep->originalDevice->imei ?? '—' }}
-                                        <span class="text-themeMuted mx-1">→</span>
-                                        <span class="font-medium text-themeBody">Replacement:</span> {{ $rep->replacementDevice->imei ?? '—' }}
-                                        @if ($rep->reason)
-                                            <div class="text-themeMuted mt-1">{{ Str::limit($rep->reason, 120) }}</div>
-                                        @endif
-                                    </div>
-                                    <div class="text-xs text-themeMuted">
-                                        {{ $rep->created_at->format('M d, Y H:i') }}
-                                        @if ($rep->replacedByUser)
-                                            · {{ $rep->replacedByUser->name }}
-                                        @endif
-                                    </div>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
 
                 <!-- Summary Card -->
                 <div

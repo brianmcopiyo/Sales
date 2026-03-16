@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\Models\Branch;
 use App\Models\BranchStock;
-use App\Models\Device;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Models\StockAdjustment;
@@ -321,84 +320,16 @@ class StockReconciliationService
             ]);
         }
 
-        // Reconciliation prioritises final devices in the system: set stock from device count per branch/product
-        // for every branch×product in scope (including 0 where there are no devices), not from actual stock level.
-        $branchStocksAlignedToDevices = 0;
-        $adjustmentUserId = $userId ?? (auth()->check() ? (string) auth()->id() : null);
-        $pairs = collect($branchIds)->crossJoin($productIds)->map(fn ($p) => (object)['branch_id' => $p[0], 'product_id' => $p[1]]);
-        foreach ($pairs as $pair) {
-            $branchId = $pair->branch_id;
-            $productId = $pair->product_id;
-            $deviceCount = Device::query()
-                ->where('branch_id', $branchId)
-                ->where('product_id', $productId)
-                ->where('status', '!=', 'sold')
-                ->count();
-            $currentQtyRaw = BranchStock::query()
-                ->where('branch_id', $branchId)
-                ->where('product_id', $productId)
-                ->value('quantity');
-            $currentQty = $currentQtyRaw === null ? 0 : (int) $currentQtyRaw;
-            $rowExists = $currentQtyRaw !== null;
-            if ($deviceCount !== $currentQty) {
-                $adjustmentAmount = $deviceCount - $currentQty;
-                $reason = sprintf(
-                    'Stock reconciliation: stock set to device count (%d) for this branch/product (was %d).',
-                    $deviceCount,
-                    $currentQty
-                );
-                if ($adjustmentUserId !== null) {
-                    $adjustment = StockAdjustment::create([
-                        'branch_id' => $branchId,
-                        'product_id' => $productId,
-                        'stock_take_id' => null,
-                        'adjustment_type' => 'reconciliation',
-                        'quantity_before' => $currentQty,
-                        'quantity_after' => $deviceCount,
-                        'adjustment_amount' => $adjustmentAmount,
-                        'reason' => $reason,
-                        'adjusted_by' => $adjustmentUserId,
-                        'approved_by' => $adjustmentUserId,
-                        'approved_at' => now(),
-                    ]);
-                    InventoryMovementService::recordAdjustment(
-                        (string) $branchId,
-                        (string) $productId,
-                        $adjustmentAmount,
-                        (string) $adjustment->id,
-                        $reason,
-                        $adjustmentUserId
-                    );
-                } else {
-                    BranchStock::updateOrCreate(
-                        ['branch_id' => $branchId, 'product_id' => $productId],
-                        ['quantity' => $deviceCount]
-                    );
-                }
-                $branchStocksAlignedToDevices++;
-            } elseif (! $rowExists) {
-                // Ensure record exists when missing (e.g. 0 devices, no row yet)
-                BranchStock::updateOrCreate(
-                    ['branch_id' => $branchId, 'product_id' => $productId],
-                    ['quantity' => $deviceCount]
-                );
-            }
-        }
-
         return [
             'movements_updated' => count($movementFixes),
-            'branch_stocks_updated' => $branchStocksAlignedToDevices,
-            'branch_stocks_raised_by_devices' => $branchStocksAlignedToDevices,
+            'branch_stocks_updated' => 0,
+            'branch_stocks_raised_by_devices' => 0,
         ];
     }
 
     /**
-     * Set current stock to the count of available (non-sold) devices per branch/product.
-     * Use this to align all branch stock with device counts in one go.
+     * No-op: device model removed. Kept for API compatibility.
      *
-     * @param  string|null  $branchIdOrCode  Optional branch scope (null = all)
-     * @param  string|null  $productIdOrSku  Optional product scope (null = all)
-     * @param  string|null  $userId  User ID for adjustments (null = no adjustment/movement records)
      * @return array{updated: int, created: int}
      */
     public function syncStockFromDeviceCount(
@@ -406,98 +337,7 @@ class StockReconciliationService
         ?string $productIdOrSku = null,
         ?string $userId = null
     ): array {
-        $branchQuery = Branch::query();
-        if ($branchIdOrCode) {
-            $branchQuery->where(function ($q) use ($branchIdOrCode) {
-                $q->where('id', $branchIdOrCode)
-                    ->orWhereRaw('LOWER(code) = ?', [strtolower($branchIdOrCode)])
-                    ->orWhereRaw('LOWER(name) = ?', [strtolower($branchIdOrCode)]);
-            });
-        }
-        $branches = $branchQuery->get();
-        if ($branches->isEmpty()) {
-            return ['updated' => 0, 'created' => 0];
-        }
-
-        $productQuery = Product::query();
-        if ($productIdOrSku) {
-            $productQuery->where('id', $productIdOrSku)
-                ->orWhere('sku', $productIdOrSku);
-        }
-        $products = $productQuery->get();
-        if ($products->isEmpty()) {
-            return ['updated' => 0, 'created' => 0];
-        }
-
-        $branchIds = $branches->pluck('id')->all();
-        $productIds = $products->pluck('id')->all();
-        $adjustmentUserId = $userId ?? (auth()->check() ? (string) auth()->id() : null);
-        $pairs = collect($branchIds)->crossJoin($productIds)->map(fn ($p) => (object)['branch_id' => $p[0], 'product_id' => $p[1]]);
-
-        $updated = 0;
-        $created = 0;
-
-        foreach ($pairs as $pair) {
-            $branchId = $pair->branch_id;
-            $productId = $pair->product_id;
-            $deviceCount = Device::query()
-                ->where('branch_id', $branchId)
-                ->where('product_id', $productId)
-                ->where('status', '!=', 'sold')
-                ->count();
-            $currentQtyRaw = BranchStock::query()
-                ->where('branch_id', $branchId)
-                ->where('product_id', $productId)
-                ->value('quantity');
-            $currentQty = $currentQtyRaw === null ? 0 : (int) $currentQtyRaw;
-            $rowExists = $currentQtyRaw !== null;
-
-            if ($deviceCount !== $currentQty) {
-                $adjustmentAmount = $deviceCount - $currentQty;
-                $reason = sprintf(
-                    'Sync stock from devices: current stock set to available device count (%d) for this branch/product (was %d).',
-                    $deviceCount,
-                    $currentQty
-                );
-                if ($adjustmentUserId !== null) {
-                    $adjustment = StockAdjustment::create([
-                        'branch_id' => $branchId,
-                        'product_id' => $productId,
-                        'stock_take_id' => null,
-                        'adjustment_type' => 'reconciliation',
-                        'quantity_before' => $currentQty,
-                        'quantity_after' => $deviceCount,
-                        'adjustment_amount' => $adjustmentAmount,
-                        'reason' => $reason,
-                        'adjusted_by' => $adjustmentUserId,
-                        'approved_by' => $adjustmentUserId,
-                        'approved_at' => now(),
-                    ]);
-                    InventoryMovementService::recordAdjustment(
-                        (string) $branchId,
-                        (string) $productId,
-                        $adjustmentAmount,
-                        (string) $adjustment->id,
-                        $reason,
-                        $adjustmentUserId
-                    );
-                } else {
-                    BranchStock::updateOrCreate(
-                        ['branch_id' => $branchId, 'product_id' => $productId],
-                        ['quantity' => $deviceCount]
-                    );
-                }
-                $updated++;
-            } elseif (! $rowExists) {
-                BranchStock::updateOrCreate(
-                    ['branch_id' => $branchId, 'product_id' => $productId],
-                    ['quantity' => $deviceCount]
-                );
-                $created++;
-            }
-        }
-
-        return ['updated' => $updated, 'created' => $created];
+        return ['updated' => 0, 'created' => 0];
     }
 
     private function formatReference(InventoryMovement $movement): string

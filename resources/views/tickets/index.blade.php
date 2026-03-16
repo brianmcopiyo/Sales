@@ -296,10 +296,6 @@
                                     <div class="text-sm font-medium text-themeHeading">{{ $ticket->subject }}</div>
                                     <div class="text-xs font-medium text-themeMuted">{{ ucfirst($ticket->category) }}
                                     </div>
-                                    @if ($ticket->device)
-                                        <div class="text-xs font-medium text-themeMuted mt-1"><span
-                                                class="text-primary">Device:</span> {{ $ticket->device->imei }}</div>
-                                    @endif
                                     @if ($ticket->product)
                                         <div class="text-xs font-medium text-themeMuted mt-1"><span
                                                 class="text-primary">Product:</span> {{ $ticket->product->name }}</div>

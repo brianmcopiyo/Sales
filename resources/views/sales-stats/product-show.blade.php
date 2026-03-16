@@ -52,7 +52,6 @@
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">Branch</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">Qty</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">Subtotal</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">Device (IMEI)</th>
                             <th class="px-6 py-3 text-right text-xs font-semibold text-themeMuted uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -75,7 +74,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-themeMuted font-medium">No sale items found.</td>
+                                <td colspan="6" class="px-6 py-12 text-center text-themeMuted font-medium">No sale items found.</td>
                             </tr>
                         @endforelse
                     </tbody>

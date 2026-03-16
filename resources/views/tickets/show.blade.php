@@ -81,17 +81,6 @@
                         </div>
                     @endif
 
-                    @if ($ticket->device)
-                        <div class="mt-4 pt-4 border-t border-themeBorder">
-                            <div class="text-sm text-themeMuted font-light mb-1">Related Device</div>
-                            <a href="{{ route('devices.show', $ticket->device) }}"
-                                class="text-primary hover:text-[#005a61] font-light">
-                                IMEI: {{ $ticket->device->imei }} -
-                                {{ $ticket->device->product->name ?? 'Unknown Product' }}
-                            </a>
-                        </div>
-                    @endif
-
                     @if ($ticket->product)
                         <div class="mt-4 pt-4 border-t border-themeBorder">
                             <div class="text-sm text-themeMuted font-light mb-1">Related Product</div>
@@ -591,23 +580,6 @@
                         class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                         <h2 class="text-lg font-semibold text-primary tracking-tight mb-4">Customer Context</h2>
 
-                        @if ($customerDevices->count() > 0)
-                            <div class="mb-4">
-                                <div class="text-sm text-themeMuted font-light mb-2">Devices
-                                    ({{ $customerDevices->count() }})</div>
-                                <div class="space-y-2 max-h-32 overflow-y-auto">
-                                    @foreach ($customerDevices->take(3) as $device)
-                                        <div class="text-sm text-themeBody font-light">
-                                            <a href="{{ route('devices.show', $device) }}"
-                                                class="text-primary hover:text-[#005a61]">
-                                                {{ $device->imei }} - {{ $device->product->name ?? 'Unknown' }}
-                                            </a>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
-
                         @if ($customerSales->count() > 0)
                             <div class="mb-4">
                                 <div class="text-sm text-themeMuted font-light mb-2">Recent Sales
@@ -674,22 +646,18 @@
                             class="space-y-4">
                             @csrf
                             <div>
-                                <label for="device_id" class="block text-themeBody font-light mb-2">Device (IMEI)
-                                    *</label>
-                                <select id="device_id" name="device_id" required
+                                <label for="sale_id" class="block text-themeBody font-light mb-2">Sale *</label>
+                                <select id="sale_id" name="sale_id" required
                                     class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">
-                                    <option value="">Select Device</option>
-                                    @foreach ($availableDevices as $device)
-                                        <option value="{{ $device->id }}"
-                                            {{ old('device_id') == $device->id || $ticket->device_id == $device->id ? 'selected' : '' }}>
-                                            {{ $device->imei }} - {{ $device->product->name ?? 'N/A' }}
+                                    <option value="">Select Sale</option>
+                                    @foreach ($customerSales ?? [] as $sale)
+                                        <option value="{{ $sale->id }}" {{ old('sale_id') == $sale->id ? 'selected' : '' }}>
+                                            {{ $sale->sale_number ?? 'Sale #' . $sale->id }} - TSh {{ number_format($sale->total, 2) }}
                                         </option>
                                     @endforeach
                                 </select>
-                                <p class="text-xs text-themeMuted font-light mt-1">Select the device (IMEI) that will
-                                    receive
-                                    this disbursement.</p>
-                                @error('device_id')
+                                <p class="text-xs text-themeMuted font-light mt-1">Select the sale this disbursement is for.</p>
+                                @error('sale_id')
                                     <p class="text-red-500 text-sm font-light mt-1">{{ $message }}</p>
                                 @enderror
                             </div>

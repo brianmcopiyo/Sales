@@ -7,7 +7,6 @@ use App\Models\Customer;
 use App\Models\User;
 use App\Models\Ticket;
 use App\Models\Sale;
-use App\Models\Device;
 use App\Models\Branch;
 use App\Models\Brand;
 use App\Models\RestockOrder;
@@ -352,71 +351,6 @@ class SearchController extends Controller
                 'section' => 'Agent Stock Requests',
                 'items' => $agentRequestItems,
             ];
-        }
-
-        // Search Devices (field agents: only devices they distributed via sale items)
-        $devicesQuery = Device::where(function($q) use ($query) {
-                $q->where('imei', 'like', '%' . $query . '%');
-            });
-        if ($isFieldAgent) {
-            $devicesQuery->whereHas('saleItem', fn($q) => $q->where('field_agent_id', $user->id));
-        }
-        $devices = $devicesQuery->with(['product', 'customer', 'branch', 'sale'])->limit(5)->get();
-
-        if ($devices->isNotEmpty()) {
-            $deviceItems = [];
-            foreach ($devices as $device) {
-                $subtitle = [];
-                if ($device->product) {
-                    $subtitle[] = $device->product->name;
-                }
-                if ($device->branch) {
-                    $subtitle[] = $device->branch->name;
-                }
-                if ($device->customer) {
-                    $subtitle[] = $device->customer->name;
-                }
-                
-                $deviceItems[] = [
-                    'title' => 'IMEI: ' . $device->imei,
-                    'subtitle' => implode(' • ', array_filter($subtitle)),
-                    'url' => route('devices.show', $device->id),
-                    'icon' => 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z'
-                ];
-            }
-            $suggestions[] = [
-                'section' => 'Devices',
-                'items' => $deviceItems
-            ];
-
-            // If any of the found devices are sold, add their sale(s) as results (user can view sale from device search)
-            $saleIdsFromDevices = $devices->pluck('sale_id')->filter()->unique()->values()->all();
-            if (!empty($saleIdsFromDevices) && $user->hasPermission('sales.view')) {
-                $salesFromDevices = Sale::with(['customer', 'branch'])->whereIn('id', $saleIdsFromDevices)->get();
-                $saleItemsFromDevices = [];
-                foreach ($salesFromDevices as $sale) {
-                    $subtitle = [];
-                    if ($sale->customer) {
-                        $subtitle[] = $sale->customer->name;
-                    }
-                    if ($sale->branch) {
-                        $subtitle[] = $sale->branch->name;
-                    }
-                    if ($sale->total !== null) {
-                        $subtitle[] = 'TSh ' . number_format((float) $sale->total, 2);
-                    }
-                    $saleItemsFromDevices[] = [
-                        'title' => 'Sale #' . $sale->sale_number,
-                        'subtitle' => implode(' • ', array_filter($subtitle)),
-                        'url' => route('sales.show', $sale->id),
-                        'icon' => 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'
-                    ];
-                }
-                $suggestions[] = [
-                    'section' => 'Sales (this device)',
-                    'items' => $saleItemsFromDevices
-                ];
-            }
         }
 
         // Search Branches (field agents: only their branch)

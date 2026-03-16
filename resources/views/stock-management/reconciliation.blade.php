@@ -71,32 +71,10 @@
             </form>
         </div>
 
-        <!-- Sync stock from devices: always visible -->
         <div
             class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
             <div class="flex flex-wrap items-center justify-between gap-4">
-                <p class="text-sm text-themeBody">Set current branch stock to the count of available (non-sold) devices per branch/product.</p>
-                <form method="POST" action="{{ route('stock-management.sync-stock-from-devices') }}" class="inline"
-                    onsubmit="return confirm('Set branch stock to available device count for {{ $branchParam || $productParam ? 'selected filters' : 'all branches/products' }}?');">
-                    @csrf
-                    <input type="hidden" name="from" value="reconciliation">
-                    <input type="hidden" name="redirect_date" value="{{ $dateFilter }}">
-                    @if ($branchParam)
-                        <input type="hidden" name="branch" value="{{ $branchParam }}">
-                    @endif
-                    @if ($productParam)
-                        <input type="hidden" name="product" value="{{ $productParam }}">
-                    @endif
-                    <button type="submit"
-                        class="bg-primary text-white px-5 py-2.5 rounded-xl font-medium hover:bg-primary-dark transition shadow-sm flex items-center space-x-2 whitespace-nowrap">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                            </path>
-                        </svg>
-                        <span>Sync stock from devices</span>
-                    </button>
-                </form>
+                <p class="text-sm text-themeBody">Reconcile stock balances and movements.</p>
             </div>
         </div>
 
@@ -108,7 +86,7 @@
                     @if (in_array($dateFilter, ['today', 'yesterday'], true))
                         <form method="POST" action="{{ route('stock-management.reconciliation.fix') }}"
                             class="inline"
-                            onsubmit="return confirm('Fix discrepancies for {{ $dateFilter === 'today' ? 'today' : 'yesterday' }}? This will correct movement balances and set each branch stock to the device count for that branch/product (final devices in the system).');">
+                            onsubmit="return confirm('Fix discrepancies for {{ $dateFilter === 'today' ? 'today' : 'yesterday' }}? This will correct movement balances.');">
                             @csrf
                             <input type="hidden" name="date" value="{{ $dateFilter }}">
                             @if ($branchParam)
@@ -209,8 +187,6 @@
                                     'App\Models\RestockOrder' => 'stock-management.orders.show',
                                     'App\Models\Sale' => 'sales.show',
                                     'App\Models\StockAdjustment' => 'stock-adjustments.show',
-                                    'App\Models\DeviceRequest' => 'device-requests.show',
-                                    'App\Models\Device' => 'devices.show',
                                 ];
                             @endphp
                             @foreach ($step_rows as $row)

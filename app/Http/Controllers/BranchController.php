@@ -208,13 +208,8 @@ class BranchController extends Controller
             ->with('product')
             ->get()
             ->sortBy(fn ($bs) => $bs->product?->name ?? '');
-        $devices = \App\Models\Device::where('branch_id', $branch->id)
-            ->with('product')
-            ->orderBy('imei')
-            ->limit(50)
-            ->get();
 
-        return view('branches.show', compact('branch', 'availableUsers', 'branchStocks', 'devices'));
+        return view('branches.show', compact('branch', 'availableUsers', 'branchStocks'));
     }
 
     public function edit(Branch $branch)

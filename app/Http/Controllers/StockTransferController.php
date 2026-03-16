@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\StockTransfer;
 use App\Models\StockTransferItem;
 use App\Models\StockTransferReceptionAttachment;
-use App\Models\Device;
 use App\Models\Branch;
 use App\Models\Product;
 use App\Models\BranchStock;
@@ -179,10 +178,6 @@ class StockTransferController extends Controller
                 Auth::id()
             );
 
-            if (!empty($imeis)) {
-                $this->attachDevicesToTransfer($transfer, $validated['from_branch_id'], $validated['product_id'], $imeis);
-            }
-
             ActivityLog::log(
                 Auth::id(),
                 'stock_transfer_created',
@@ -296,9 +291,6 @@ class StockTransferController extends Controller
                     Auth::id()
                 );
 
-                if (!empty($r['imeis'])) {
-                    $this->attachDevicesToTransfer($transfer, $fromBranchId, $r['product_id'], $r['imeis']);
-                }
             }
 
             ActivityLog::log(
@@ -335,28 +327,6 @@ class StockTransferController extends Controller
         return array_values(array_unique($merged));
     }
 
-    /**
-     * Attach devices (by IMEI) to a transfer. Auto-registers devices not yet in the system at from_branch for product_id (stock_counted to avoid double-adjusting).
-     */
-    private function attachDevicesToTransfer(StockTransfer $transfer, $fromBranchId, $productId, array $imeis): void
-    {
-        foreach ($imeis as $imeiDigits) {
-            $device = Device::firstOrCreate(
-                ['imei' => $imeiDigits],
-                [
-                    'product_id' => $productId,
-                    'branch_id' => $fromBranchId,
-                    'status' => 'available',
-                    'stock_counted' => true,
-                ]
-            );
-            if ((string) $device->branch_id !== (string) $fromBranchId || (string) $device->product_id !== (string) $productId) {
-                $device->update(['branch_id' => $fromBranchId, 'product_id' => $productId, 'stock_counted' => true]);
-            }
-            $transfer->transferDevices()->syncWithoutDetaching([$device->id => ['received_at' => null]]);
-        }
-    }
-
     public function show(StockTransfer $stockTransfer)
     {
         $user = Auth::user();
@@ -366,7 +336,7 @@ class StockTransferController extends Controller
             abort(403, 'You do not have access to this stock transfer.');
         }
 
-        $stockTransfer->load(['fromBranch', 'toBranch', 'product', 'items.product', 'creator', 'receiver', 'rejectedByUser', 'senderConfirmedBy', 'returnedByUser', 'receptionAttachments.uploadedBy', 'transferDevices.branch']);
+        $stockTransfer->load(['fromBranch', 'toBranch', 'product', 'items.product', 'creator', 'receiver', 'rejectedByUser', 'senderConfirmedBy', 'returnedByUser', 'receptionAttachments.uploadedBy']);
         return view('stock-transfers.show', compact('stockTransfer'));
     }
 
@@ -495,89 +465,6 @@ class StockTransferController extends Controller
             : 'Stock transfer received successfully.';
 
         return redirect()->route('stock-transfers.show', $stockTransfer)->with('success', $message);
-    }
-
-    /**
-     * Attach IMEIs (devices) to this transfer. Sender branch only; devices must be at sender branch for this product.
-     * When the receiver receives the transfer, these devices are moved to the recipient branch.
-     */
-    public function attachDevices(Request $request, StockTransfer $stockTransfer)
-    {
-        $user = Auth::user();
-
-        if (!$user->branch_id || $stockTransfer->from_branch_id !== $user->branch_id) {
-            abort(403, 'Only the sending branch can attach IMEIs to this transfer.');
-        }
-
-        if ($stockTransfer->status !== 'pending' && $stockTransfer->status !== 'in_transit') {
-            return back()->withErrors(['status' => 'You can only attach IMEIs while the transfer is pending or in transit.']);
-        }
-
-        $stockTransfer->load('items');
-        $rules = [
-            'imeis' => ['nullable', 'string', 'max:2000'],
-            'imei_file' => ['nullable', 'file', 'max:2048'],
-        ];
-        if ($stockTransfer->items->count() > 1) {
-            $rules['product_id'] = ['required', 'exists:products,id'];
-        }
-        $validated = $request->validate($rules);
-
-        $productId = $stockTransfer->items->count() > 1
-            ? $validated['product_id']
-            : $stockTransfer->product_id;
-        $item = $stockTransfer->items->firstWhere('product_id', $productId);
-        $itemQuantity = $item ? $item->quantity : $stockTransfer->quantity;
-        $alreadyAttached = $stockTransfer->transferDevices()->where('product_id', $productId)->count();
-        $maxNew = max(0, $itemQuantity - $alreadyAttached);
-
-        $imeis = $this->collectImeisFromRequest($request);
-        if (empty($imeis)) {
-            return back()->withErrors(['imeis' => 'Provide at least one IMEI (paste or upload file).']);
-        }
-
-        $validation = ImeiHelper::validateImeis($imeis);
-        if (!empty($validation['invalid'])) {
-            $messages = [];
-            foreach ($validation['invalid'] as $val => $reason) {
-                $messages[] = $val . ': ' . $reason;
-            }
-            return back()->withErrors(['imeis' => 'Invalid IMEI(s): ' . implode(' ', array_slice($messages, 0, 5)) . (count($messages) > 5 ? '…' : '')]);
-        }
-        $imeis = $validation['valid'];
-
-        if (count($imeis) > $maxNew) {
-            return back()->withErrors(['imeis' => 'Number of IMEIs (' . count($imeis) . ') cannot exceed remaining slots for this product (' . $maxNew . '). You have already attached ' . $alreadyAttached . ' device(s) for this product.']);
-        }
-
-        foreach ($imeis as $imeiDigits) {
-            $device = Device::where('imei', $imeiDigits)->first();
-            if ($device && ((string) $device->branch_id !== (string) $stockTransfer->from_branch_id || (string) $device->product_id !== (string) $productId)) {
-                return back()->withErrors(['imeis' => 'IMEI ' . $imeiDigits . ' is at another branch or is a different product. Only devices at your branch (' . ($stockTransfer->fromBranch?->name ?? 'sender') . ') for the selected product can be attached.']);
-            }
-        }
-
-        $fromBranchId = $stockTransfer->from_branch_id;
-        DB::transaction(function () use ($stockTransfer, $imeis, $productId, $fromBranchId) {
-            foreach ($imeis as $imeiDigits) {
-                $device = Device::firstOrCreate(
-                    ['imei' => $imeiDigits],
-                    [
-                        'product_id' => $productId,
-                        'branch_id' => $fromBranchId,
-                        'status' => 'available',
-                        'stock_counted' => true,
-                    ]
-                );
-                if ((string) $device->branch_id !== (string) $fromBranchId || (string) $device->product_id !== (string) $productId) {
-                    $device->update(['branch_id' => $fromBranchId, 'product_id' => $productId, 'stock_counted' => true]);
-                }
-                $stockTransfer->transferDevices()->syncWithoutDetaching([$device->id => ['received_at' => null]]);
-            }
-        });
-
-        return redirect()->route('stock-transfers.show', $stockTransfer)
-            ->with('success', count($imeis) . ' device(s) attached to this transfer. They will be moved to the recipient branch when the transfer is received.');
     }
 
     /**
@@ -822,47 +709,12 @@ class StockTransferController extends Controller
      */
     private function moveTransferDevicesToRecipient(StockTransfer $stockTransfer, int $quantityToMove): void
     {
-        $pivotRows = $stockTransfer->transferDevices()
-            ->wherePivotNull('received_at')
-            ->orderByPivot('created_at')
-            ->limit($quantityToMove)
-            ->get();
-
-        $toBranchId = $stockTransfer->to_branch_id;
-        $now = now();
-
-        foreach ($pivotRows as $device) {
-            $device->update(['branch_id' => $toBranchId]);
-            $stockTransfer->transferDevices()->updateExistingPivot($device->id, ['received_at' => $now]);
-        }
+        // No-op: device model removed; stock is tracked by quantity only.
     }
 
-    /**
-     * Move linked devices to recipient branch per item (by product). Used when transfer has multiple items.
-     */
     private function moveTransferDevicesToRecipientByItems(StockTransfer $stockTransfer): void
     {
-        $stockTransfer->load('items');
-        $toBranchId = $stockTransfer->to_branch_id;
-        $now = now();
-
-        foreach ($stockTransfer->items as $item) {
-            $qtyToMove = (int) ($item->quantity_received ?? $item->quantity);
-            if ($qtyToMove < 1) {
-                continue;
-            }
-            $devices = $stockTransfer->transferDevices()
-                ->wherePivotNull('received_at')
-                ->where('product_id', $item->product_id)
-                ->orderByPivot('created_at')
-                ->limit($qtyToMove)
-                ->get();
-
-            foreach ($devices as $device) {
-                $device->update(['branch_id' => $toBranchId]);
-                $stockTransfer->transferDevices()->updateExistingPivot($device->id, ['received_at' => $now]);
-            }
-        }
+        // No-op: device model removed; stock is tracked by quantity only.
     }
 
     protected function normalizeImei(string $value): string

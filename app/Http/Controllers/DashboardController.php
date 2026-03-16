@@ -11,7 +11,6 @@ use App\Models\BranchStock;
 use App\Models\Product;
 use App\Models\Branch;
 use App\Models\Customer;
-use App\Models\Device;
 use App\Models\SaleItem;
 use App\Models\User;
 use App\Models\CustomerDisbursement;
@@ -64,7 +63,7 @@ class DashboardController extends Controller
         $canViewProducts = $user->hasPermission('products.view');
         $canViewBranches = $user->hasPermission('branches.view');
         $canViewSales = $user->hasPermission('sales.view');
-        $canViewDevices = $user->hasPermission('devices.view');
+        $canViewDevices = false; // device model removed
         $canViewStockManagement = $user->hasPermission('stock-management.view');
         $canViewPettyCash = $user->hasPermission('petty-cash.view');
         $canViewBills = $user->hasPermission('bills.view');
@@ -255,11 +254,10 @@ class DashboardController extends Controller
 
             $topPerformingDevices = SaleItem::query()
                 ->whereIn('sale_id', $saleIdsInPeriod)
-                ->whereNotNull('device_id')
                 ->select('product_id')
-                ->selectRaw('count(*) as devices_sold, sum(subtotal) as revenue')
+                ->selectRaw('count(*) as items_sold, sum(subtotal) as revenue')
                 ->groupBy('product_id')
-                ->orderByDesc('devices_sold')
+                ->orderByDesc('items_sold')
                 ->limit(5)
                 ->get()
                 ->load('product:id,name,sku');
@@ -282,19 +280,6 @@ class DashboardController extends Controller
                 )
                 ->groupBy(DB::raw("COALESCE(dealerships.name, restock_orders.dealership_name, '—')"))
                 ->orderByDesc('quantity_received')
-                ->get();
-        }
-
-        if ($canViewDevices) {
-            $deviceQuery = $allowedBranchIds !== null
-                ? Device::whereIn('branch_id', $allowedBranchIds)
-                : Device::query();
-            $stats['total_devices'] = (clone $deviceQuery)->count();
-            $stats['available_devices'] = (clone $deviceQuery)->where('status', 'available')->count();
-            $recent_devices = Device::with(['product'])
-                ->when($allowedBranchIds !== null, fn($q) => $q->whereIn('branch_id', $allowedBranchIds))
-                ->latest()
-                ->limit(10)
                 ->get();
         }
 

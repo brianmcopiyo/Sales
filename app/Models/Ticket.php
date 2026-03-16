@@ -22,7 +22,6 @@ class Ticket extends Model
         'status',
         'category',
         'sale_id',
-        'device_id',
         'product_id',
         'branch_id',
         'disbursement_id',
@@ -58,6 +57,11 @@ class Ticket extends Model
         return $this->belongsTo(Sale::class);
     }
 
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
     public function replies()
     {
         return $this->hasMany(TicketReply::class);
@@ -71,16 +75,6 @@ class Ticket extends Model
     public function tags()
     {
         return $this->belongsToMany(TicketTag::class, 'ticket_tag_ticket');
-    }
-
-    public function device()
-    {
-        return $this->belongsTo(Device::class);
-    }
-
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
     }
 
     public function branch()

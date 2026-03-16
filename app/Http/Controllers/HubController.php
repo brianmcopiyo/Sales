@@ -13,7 +13,6 @@ use App\Models\Sale;
 use App\Models\Customer;
 use App\Models\CustomerDisbursement;
 use App\Models\Ticket;
-use App\Models\Device;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\FieldAgent;
@@ -82,43 +81,21 @@ class HubController extends Controller
     }
 
     /**
-     * Catalog hub: Products, Brands, Product Pricing, Devices (field agents: devices they distributed)
+     * Catalog hub: Products, Brands, Product Pricing
      */
     public function catalog()
     {
-        $user = Auth::user();
-        $isFieldAgent = $user->fieldAgentProfile && $user->branch_id;
-        if ($isFieldAgent) {
-            $devicesQuery = Device::query()->whereHas('saleItem', fn($q) => $q->where('field_agent_id', $user->id));
-        } else {
-            $devicesQuery = Device::query()->when($user->branch_id && !$user->isAdmin(), fn($q) => $q->where('branch_id', $user->branch_id));
-        }
-
-        $cutoff = now()->subDays(30);
-        $overstayedQuery = Device::query()
-            ->whereIn('status', ['available', 'assigned'])
-            ->where('created_at', '<=', $cutoff);
-        if ($isFieldAgent) {
-            $overstayedQuery->where('branch_id', $user->branch_id);
-        } elseif ($user->branch_id && !$user->isAdmin()) {
-            $allowedBranchIds = Branch::selfAndDescendantIds($user->branch_id);
-            $overstayedQuery->whereIn('branch_id', $allowedBranchIds);
-        }
-
         $stats = [
             'products_total' => Product::count(),
             'products_active' => Product::where('is_active', true)->count(),
             'brands_total' => Brand::count(),
             'brands_active' => Brand::where('is_active', true)->count(),
-            'devices_total' => (clone $devicesQuery)->count(),
-            'devices_overstayed' => (clone $overstayedQuery)->count(),
         ];
 
         $recentProducts = Product::with('brand')->latest()->limit(5)->get();
         $recentBrands = Brand::latest()->limit(5)->get();
-        $recentOverstayedDevices = (clone $overstayedQuery)->with(['product', 'branch'])->orderBy('created_at')->limit(5)->get();
 
-        return view('hubs.catalog', compact('stats', 'recentProducts', 'recentBrands', 'recentOverstayedDevices'));
+        return view('hubs.catalog', compact('stats', 'recentProducts', 'recentBrands'));
     }
 
     /**
@@ -195,7 +172,7 @@ class HubController extends Controller
                 'disbursements_total' => CustomerDisbursement::count(),
                 'disbursements_amount' => CustomerDisbursement::sum('amount'),
             ];
-            $recentDisbursements = CustomerDisbursement::with(['customer', 'device'])->latest()->limit(6)->get();
+            $recentDisbursements = CustomerDisbursement::with(['customer'])->latest()->limit(6)->get();
         } else {
             $stats = [
                 'customers_total' => Customer::count(),
@@ -203,7 +180,7 @@ class HubController extends Controller
                 'disbursements_total' => CustomerDisbursement::count(),
                 'disbursements_amount' => CustomerDisbursement::sum('amount'),
             ];
-            $recentDisbursements = CustomerDisbursement::with(['customer', 'device'])->latest()->limit(6)->get();
+            $recentDisbursements = CustomerDisbursement::with(['customer'])->latest()->limit(6)->get();
         }
 
         return view('hubs.customers', compact('stats', 'recentDisbursements'));

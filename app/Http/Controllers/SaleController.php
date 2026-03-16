@@ -8,17 +8,14 @@ use App\Models\Product;
 use App\Models\Branch;
 use App\Models\BranchStock;
 use App\Models\Customer;
-use App\Models\Device;
 use App\Models\ActivityLog;
 use App\Models\ProductRegionPrice;
 use App\Models\CustomerDisbursement;
 use App\Models\SaleAttachment;
 use App\Models\StockAdjustment;
 use App\Models\User;
-use App\Models\DeviceReplacement;
 use App\Services\InventoryMovementService;
 use App\Exports\SalesExport;
-use App\Exceptions\DeviceNotInBranchException;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -40,7 +37,7 @@ class SaleController extends Controller
             $branchFilter = null;
         }
 
-        $query = Sale::with(['customer', 'branch', 'soldBy', 'items.fieldAgent', 'items.device', 'items.product.brand', 'items.product.regionPrices'])
+        $query = Sale::with(['customer', 'branch', 'soldBy', 'items.fieldAgent', 'items.product.brand', 'items.product.regionPrices'])
             ->withSum('customerDisbursements', 'amount');
 
         // Restrict to branches this user can view (their branch + descendants)
@@ -133,44 +130,8 @@ class SaleController extends Controller
             ->with('product')
             ->get()
             ->keyBy('product_id');
-        // All available devices in branch (agents may sell any device in their branch, not only those assigned to them)
-        $availableDevices = $this->getAvailableDevicesGroupedByProduct($branch->id);
-        $allAvailableDevices = $this->getAllAvailableDevicesForBranch($branch->id);
 
-        $canCreateDevice = Auth::user() && Auth::user()->hasPermission('devices.create');
-        return view('sales.create', compact('products', 'customers', 'branchStocks', 'availableDevices', 'allAvailableDevices', 'regionId', 'canCreateDevice'));
-    }
-
-    /** @return \Illuminate\Support\Collection */
-    private function getAvailableDevicesGroupedByProduct(int|string $branchId): \Illuminate\Support\Collection
-    {
-        return Device::availableForSale()
-            ->where('branch_id', $branchId)
-            ->with('product', 'branch')
-            ->get()
-            ->groupBy('product_id')
-            ->map(fn($devices) => $devices->map(fn($device) => [
-                'id' => $device->id,
-                'imei' => $device->imei,
-                'product_id' => $device->product_id,
-                'branch_name' => $device->branch ? $device->branch->name : null,
-            ]));
-    }
-
-    /** @return \Illuminate\Support\Collection */
-    private function getAllAvailableDevicesForBranch(int|string $branchId): \Illuminate\Support\Collection
-    {
-        return Device::availableForSale()
-            ->where('branch_id', $branchId)
-            ->with('product', 'branch')
-            ->get()
-            ->map(fn($device) => [
-                'id' => $device->id,
-                'imei' => $device->imei,
-                'product_id' => $device->product_id,
-                'product_name' => $device->product->name,
-                'branch_name' => $device->branch ? $device->branch->name : null,
-            ]);
+        return view('sales.create', compact('products', 'customers', 'branchStocks', 'regionId'));
     }
 
     public function store(Request $request)
@@ -178,11 +139,9 @@ class SaleController extends Controller
         // Build validation rules conditionally
         $rules = [
             'customer_id' => 'nullable|exists:customers,id',
-            'items' => 'required|array|min:1|max:1',
+            'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
-            'items.*.device_id' => 'nullable|exists:devices,id',
-            'items.*.device_imei' => 'nullable|string|regex:/^[0-9]{15}$/',
-            'items.*.quantity' => 'required|integer|min:1|max:1',
+            'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
             'tax' => 'nullable|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
@@ -243,96 +202,21 @@ class SaleController extends Controller
             $items = [];
             $totalCommissionAmount = 0;
 
-            // Track which devices were just created (to avoid double stock decrement)
-            $newlyCreatedDeviceIds = [];
-
             foreach ($validated['items'] as $item) {
-                // Enforce one device per customer per sale
-                $item['quantity'] = 1;
-
+                $quantity = (int) $item['quantity'];
                 $product = Product::findOrFail($item['product_id']);
-
-                // Handle device - create if doesn't exist. Agents may sell any available device in their branch (no assignment required).
-                if (!empty($item['device_id'])) {
-                    $device = Device::findOrFail($item['device_id']);
-
-                    if ((string) $device->branch_id !== (string) $branch->id) {
-                        $hostBranch = $device->branch;
-                        throw new DeviceNotInBranchException(
-                            'This device is not in your branch. You can only sell devices in your branch.',
-                            [
-                                'device_id' => $device->id,
-                                'imei' => $device->imei,
-                                'host_branch_id' => $device->branch_id,
-                                'host_branch_name' => $hostBranch ? $hostBranch->name : 'Other branch',
-                            ]
-                        );
-                    }
-                    if ($device->product_id !== $product->id) {
-                        throw new \Exception("Device does not match selected product.");
-                    }
-                    if (!$device->isAvailable()) {
-                        throw new \Exception("Device is not available for sale.");
-                    }
-                } elseif (!empty($item['device_imei'])) {
-                    // Use existing device by IMEI or create new one
-                    $imei = trim($item['device_imei']);
-
-                    // Validate IMEI format
-                    if (!preg_match('/^[0-9]{15}$/', $imei)) {
-                        throw new \Exception("IMEI must be exactly 15 digits (numbers only).");
-                    }
-
-                    $existingDevice = Device::where('imei', $imei)->first();
-                    if ($existingDevice) {
-                        if ((string) $existingDevice->branch_id !== (string) $branch->id) {
-                            $hostBranch = $existingDevice->branch;
-                            throw new DeviceNotInBranchException(
-                                "IMEI '{$imei}' is not in your branch. You can only sell devices in your branch.",
-                                [
-                                    'device_id' => $existingDevice->id,
-                                    'imei' => $existingDevice->imei,
-                                    'host_branch_id' => $existingDevice->branch_id,
-                                    'host_branch_name' => $hostBranch ? $hostBranch->name : 'Other branch',
-                                ]
-                            );
-                        }
-                        if ($existingDevice->product_id !== $product->id) {
-                            throw new \Exception("IMEI '{$imei}' is registered for a different product.");
-                        }
-                        if (!$existingDevice->isAvailable()) {
-                            throw new \Exception("IMEI '{$imei}' is not available for sale (may already be sold or assigned).");
-                        }
-                        $device = $existingDevice;
-                    } else {
-                        if (!Auth::user() || !Auth::user()->hasPermission('devices.create')) {
-                            throw new \Exception("IMEI '{$imei}' is not in the system. You do not have permission to create devices.");
-                        }
-                        $device = Device::create([
-                            'imei' => $imei,
-                            'product_id' => $product->id,
-                            'branch_id' => $branch->id,
-                            'status' => 'available',
-                        ]);
-                        $newlyCreatedDeviceIds[] = $device->id;
-                    }
-                } else {
-                    throw new \Exception("Either device ID or IMEI must be provided.");
-                }
 
                 $branchStock = BranchStock::where('branch_id', $branch->id)
                     ->where('product_id', $item['product_id'])
                     ->first();
 
-                if (!$branchStock || $branchStock->available_quantity < 1) {
+                if (!$branchStock || $branchStock->available_quantity < $quantity) {
                     throw new \Exception("Insufficient stock for product: {$product->name}");
                 }
 
-                $itemSubtotal = $item['unit_price'];
+                $itemSubtotal = $item['unit_price'] * $quantity;
                 $subtotal += $itemSubtotal;
 
-                // Commission from product region pricing: always look up so sale records what the seller earns.
-                // Use branch's region; if branch has no region, use first region that has pricing for this product.
                 $regionId = $branch->region_id ?? ProductRegionPrice::where('product_id', $product->id)->value('region_id');
                 $commissionPerDevice = 0;
                 if ($regionId) {
@@ -340,19 +224,15 @@ class SaleController extends Controller
                         ->where('region_id', $regionId)
                         ->value('commission_per_device') ?? 0);
                 }
-                $commissionAmount = $commissionPerDevice * 1;
+                $commissionAmount = $commissionPerDevice * $quantity;
                 $totalCommissionAmount += $commissionAmount;
 
-                // License cost (cost to sell) from product – applied per sale
                 $unitLicenseCost = (float) ($product->license_cost ?? 0);
-
-                // Attribute commission to the seller (person recording the sale)
                 $sellerId = Auth::id();
                 $items[] = [
                     'product_id' => $item['product_id'],
-                    'device_id' => $device->id,
                     'field_agent_id' => $sellerId,
-                    'quantity' => 1,
+                    'quantity' => $quantity,
                     'unit_price' => $item['unit_price'],
                     'unit_license_cost' => $unitLicenseCost,
                     'subtotal' => $itemSubtotal,
@@ -379,73 +259,52 @@ class SaleController extends Controller
                 'notes' => $validated['notes'] ?? null,
             ]);
 
-            // Update devices with sale_id and mark as sold
-            foreach ($items as $item) {
-                Device::where('id', $item['device_id'])->update([
-                    'sale_id' => $sale->id,
-                    'customer_id' => $customerId,
-                    'branch_id' => $branch->id, // Ensure branch_id is set
-                    'status' => 'sold',
-                ]);
-            }
-
             foreach ($items as $item) {
                 $sale->items()->create($item);
             }
 
-            // Record inventory movements (service updates BranchStock) and stock adjustments for reporting
+            // Record inventory movements and stock adjustments
             foreach ($items as $item) {
-                $movement = InventoryMovementService::recordSale(
-                    $branch->id,
-                    $item['product_id'],
-                    1,
-                    $sale->id,
-                    Auth::id()
-                );
-
-                // Record stock adjustment so it appears on the Stock Adjustments page
-                StockAdjustment::create([
-                    'branch_id' => $branch->id,
-                    'product_id' => $item['product_id'],
-                    'stock_take_id' => null,
-                    'adjustment_type' => 'sale',
-                    'quantity_before' => $movement->quantity_before,
-                    'quantity_after' => $movement->quantity_after,
-                    'adjustment_amount' => -1,
-                    'reason' => "Sale #{$sale->sale_number}",
-                    'adjusted_by' => Auth::id(),
-                    'approved_by' => Auth::id(),
-                    'approved_at' => now(),
-                ]);
+                $qty = $item['quantity'];
+                for ($i = 0; $i < $qty; $i++) {
+                    $movement = InventoryMovementService::recordSale(
+                        $branch->id,
+                        $item['product_id'],
+                        1,
+                        $sale->id,
+                        Auth::id()
+                    );
+                    StockAdjustment::create([
+                        'branch_id' => $branch->id,
+                        'product_id' => $item['product_id'],
+                        'stock_take_id' => null,
+                        'adjustment_type' => 'sale',
+                        'quantity_before' => $movement->quantity_before,
+                        'quantity_after' => $movement->quantity_after,
+                        'adjustment_amount' => -1,
+                        'reason' => "Sale #{$sale->sale_number}",
+                        'adjusted_by' => Auth::id(),
+                        'approved_by' => Auth::id(),
+                        'approved_at' => now(),
+                    ]);
+                }
             }
 
-            // Create or update customer disbursement when support amount is provided and sale has a customer (one per sale+device)
+            // Create or update customer disbursement when support amount is provided (one per sale)
             if ($customerSupportAmount > 0 && $customerId) {
                 $customer = Customer::findOrFail($customerId);
-
-                // Get the first device from the sale that hasn't received disbursement
-                $device = Device::where('sale_id', $sale->id)
-                    ->where('has_received_disbursement', false)
-                    ->first();
-
-                if ($device) {
-                    // Unique constraint is on device_id only (one disbursement per device). Use device_id as lookup
-                    // so we update an existing disbursement for this device instead of inserting a duplicate.
-                    CustomerDisbursement::updateOrCreate(
-                        ['device_id' => $device->id],
-                        [
-                            'customer_id' => $customerId,
-                            'sale_id' => $sale->id,
-                            'device_id' => $device->id,
-                            'amount' => $customerSupportAmount,
-                            'disbursement_phone' => $customer->phone ?? '',
-                            'notes' => 'Support provided during sale creation',
-                            'disbursed_by' => Auth::id(),
-                            'status' => CustomerDisbursement::STATUS_PENDING,
-                        ]
-                    );
-                    // total_disbursed and device flag applied only after approval
-                }
+                CustomerDisbursement::updateOrCreate(
+                    ['sale_id' => $sale->id],
+                    [
+                        'customer_id' => $customerId,
+                        'sale_id' => $sale->id,
+                        'amount' => $customerSupportAmount,
+                        'disbursement_phone' => $customer->phone ?? '',
+                        'notes' => 'Support provided during sale creation',
+                        'disbursed_by' => Auth::id(),
+                        'status' => CustomerDisbursement::STATUS_PENDING,
+                    ]
+                );
             }
 
             // Commission is credited to the seller when the sale is completed (see complete()).
@@ -476,14 +335,9 @@ class SaleController extends Controller
                 ['sale_number' => $sale->sale_number, 'total' => $sale->total, 'customer_id' => $customerId]
             );
         });
-        } catch (DeviceNotInBranchException $e) {
-            return redirect()->back()
-                ->withErrors(['device' => $e->getMessage()])
-                ->with('device_request', $e->getContext())
-                ->withInput();
         } catch (\Exception $e) {
             return redirect()->back()
-                ->withErrors(['device' => $e->getMessage()])
+                ->withErrors(['items' => $e->getMessage()])
                 ->withInput();
         }
 
@@ -496,7 +350,7 @@ class SaleController extends Controller
         if (!$this->canAccessSale($user, $sale)) {
             abort(403, 'You do not have access to this sale. It belongs to another branch.');
         }
-        $sale->load(['customer', 'branch', 'soldBy', 'items.product.regionPrices', 'items.device', 'items.fieldAgent', 'customerDisbursements', 'evidence.uploadedBy', 'deviceReplacements.originalDevice', 'deviceReplacements.replacementDevice', 'deviceReplacements.replacedByUser']);
+        $sale->load(['customer', 'branch', 'soldBy', 'items.product.regionPrices', 'items.fieldAgent', 'customerDisbursements', 'evidence.uploadedBy']);
         if ($user instanceof User) {
             $user->loadMissing('roleModel');
         }
@@ -507,19 +361,7 @@ class SaleController extends Controller
         $customersForAttach = $sale->customer_id === null
             ? Customer::where('is_active', true)->orderBy('name')->get(['id', 'name', 'phone'])
             : collect();
-        // For replacement: available devices (same product as any sale item) in allowed branches
-        $productsInSale = $sale->items->pluck('product_id')->unique()->values()->all();
-        $allowedBranchIds = $this->canAccessSale($user, $sale) && $user->branch_id
-            ? Branch::selfAndDescendantIds($user->branch_id)
-            : null;
-        $availableDevicesForReplacement = Device::with(['product', 'branch'])
-            ->where('status', 'available')
-            ->whereIn('product_id', $productsInSale)
-            ->when($allowedBranchIds !== null, fn ($q) => $q->whereIn('branch_id', $allowedBranchIds))
-            ->orderBy('imei')
-            ->get(['id', 'imei', 'product_id', 'branch_id']);
-        $canReplaceDevice = $canEditSale && in_array($sale->status, ['pending', 'completed'], true) && $sale->items->whereNotNull('device_id')->isNotEmpty();
-        return view('sales.show', compact('sale', 'canEditSale', 'canCompleteSale', 'canCancelSale', 'customersForAttach', 'availableDevicesForReplacement', 'canReplaceDevice'));
+        return view('sales.show', compact('sale', 'canEditSale', 'canCompleteSale', 'canCancelSale', 'customersForAttach'));
     }
 
     /**
@@ -543,11 +385,8 @@ class SaleController extends Controller
         }
 
         $sale->update(['status' => 'cancelled']);
-
-        // Free devices from disbursements so they can receive new disbursements; keep disbursement records for bookkeeping
-        CustomerDisbursement::where('sale_id', $sale->id)->update(['device_id' => null]);
-
-        $sale->freeDevicesForResale($user->id ?? null);
+        $sale->load('items');
+        $sale->returnStockOnCancel($user->id ?? null);
 
         ActivityLog::log(
             $user->id ?? null,
@@ -558,7 +397,7 @@ class SaleController extends Controller
             ['sale_number' => $sale->sale_number]
         );
 
-        return redirect()->route('sales.show', $sale)->with('success', 'Sale cancelled. Devices have been returned to stock.');
+        return redirect()->route('sales.show', $sale)->with('success', 'Sale cancelled.');
     }
 
     /**
@@ -657,8 +496,6 @@ class SaleController extends Controller
         $customerId = $validated['customer_id'];
         $sale->update(['customer_id' => $customerId]);
 
-        Device::where('sale_id', $sale->id)->update(['customer_id' => $customerId]);
-
         ActivityLog::log(
             Auth::id(),
             'sale_customer_attached',
@@ -697,143 +534,6 @@ class SaleController extends Controller
         );
 
         return redirect()->route('sales.show', $sale)->with('success', 'Sale reopened. You can now create a new disbursement request for this sale.');
-    }
-
-    /**
-     * Change or replace device on a sale. Works for both:
-     * - Pending: change device before completion (e.g. wrong device selected, issue found).
-     * - Completed: replace device after customer return (genuine case).
-     */
-    public function replaceDevice(Request $request, Sale $sale)
-    {
-        $user = Auth::user();
-        if (!$this->canAccessSale($user, $sale)) {
-            abort(403, 'You do not have access to this sale.');
-        }
-        if (!in_array($sale->status, ['pending', 'completed'], true)) {
-            return redirect()->route('sales.show', $sale)
-                ->with('error', 'Only pending or completed sales can have devices changed or replaced.');
-        }
-
-        $validated = $request->validate([
-            'original_device_id' => 'required|exists:devices,id',
-            'replacement_device_id' => 'required|exists:devices,id|different:original_device_id',
-            'reason' => 'nullable|string|max:2000',
-        ], [
-            'original_device_id.required' => 'Select the device being returned by the customer.',
-            'replacement_device_id.required' => 'Select the replacement device.',
-        ]);
-
-        $originalDevice = Device::with('product')->findOrFail($validated['original_device_id']);
-        $replacementDevice = Device::with('product')->findOrFail($validated['replacement_device_id']);
-
-        $saleItemWithDevice = $sale->items()->where('device_id', $originalDevice->id)->first();
-        if (!$saleItemWithDevice) {
-            return redirect()->route('sales.show', $sale)
-                ->with('error', 'The selected device is not part of this sale.');
-        }
-        if ($originalDevice->product_id !== $replacementDevice->product_id) {
-            return redirect()->route('sales.show', $sale)
-                ->with('error', 'Replacement device must be the same product.');
-        }
-        if ($replacementDevice->status !== 'available') {
-            return redirect()->route('sales.show', $sale)
-                ->with('error', 'The replacement device is not available.');
-        }
-
-        $userId = $user->id ?? null;
-        $reason = $validated['reason'] ? trim($validated['reason']) : ($sale->status === 'completed' ? 'Device replacement (genuine case)' : 'Device changed before sale completion');
-
-        DB::transaction(function () use ($sale, $originalDevice, $replacementDevice, $saleItemWithDevice, $reason, $userId) {
-            DeviceReplacement::create([
-                'sale_id' => $sale->id,
-                'original_device_id' => $originalDevice->id,
-                'replacement_device_id' => $replacementDevice->id,
-                'reason' => $reason,
-                'replaced_by' => $userId,
-            ]);
-
-            $branchId = $sale->branch_id;
-            $customerId = $sale->customer_id;
-            $productId = $originalDevice->product_id;
-
-            // Return original device to stock
-            $originalDevice->update([
-                'sale_id' => null,
-                'customer_id' => null,
-                'status' => 'available',
-                'sold_by_user_id' => null,
-                'has_received_disbursement' => false,
-            ]);
-            $returnMovement = InventoryMovementService::recordSaleCancellation(
-                $originalDevice->branch_id,
-                $productId,
-                1,
-                $sale->id,
-                $userId
-            );
-            StockAdjustment::create([
-                'branch_id' => $originalDevice->branch_id,
-                'product_id' => $productId,
-                'stock_take_id' => null,
-                'adjustment_type' => 'correction',
-                'quantity_before' => $returnMovement->quantity_before,
-                'quantity_after' => $returnMovement->quantity_after,
-                'adjustment_amount' => 1,
-                'reason' => "Replacement return – Sale #{$sale->sale_number} (device returned)",
-                'adjusted_by' => $userId,
-                'approved_by' => $userId,
-                'approved_at' => now(),
-            ]);
-
-            // Update sale item and disbursement to point to replacement device
-            $saleItemWithDevice->update(['device_id' => $replacementDevice->id]);
-            CustomerDisbursement::where('sale_id', $sale->id)->where('device_id', $originalDevice->id)
-                ->update(['device_id' => $replacementDevice->id]);
-
-            // Assign replacement device to sale
-            $replacementDevice->update([
-                'sale_id' => $sale->id,
-                'customer_id' => $customerId,
-                'branch_id' => $branchId,
-                'status' => 'sold',
-                'sold_by_user_id' => $sale->sold_by,
-            ]);
-            $saleMovement = InventoryMovementService::recordSale(
-                $replacementDevice->branch_id,
-                $productId,
-                1,
-                $sale->id,
-                $userId
-            );
-            StockAdjustment::create([
-                'branch_id' => $replacementDevice->branch_id,
-                'product_id' => $productId,
-                'stock_take_id' => null,
-                'adjustment_type' => 'sale',
-                'quantity_before' => $saleMovement->quantity_before,
-                'quantity_after' => $saleMovement->quantity_after,
-                'adjustment_amount' => -1,
-                'reason' => "Replacement – Sale #{$sale->sale_number}",
-                'adjusted_by' => $userId,
-                'approved_by' => $userId,
-                'approved_at' => now(),
-            ]);
-        });
-
-        ActivityLog::log(
-            $userId,
-            'device_replaced',
-            "Replaced device on sale #{$sale->sale_number} (returned IMEI: {$originalDevice->imei}, replacement: {$replacementDevice->imei})",
-            Sale::class,
-            $sale->id,
-            ['sale_number' => $sale->sale_number, 'original_device_id' => $originalDevice->id, 'replacement_device_id' => $replacementDevice->id]
-        );
-
-        $message = $sale->status === 'completed'
-            ? 'Device replaced successfully. The returned device is back in stock; the replacement is now linked to this sale.'
-            : 'Device changed successfully. The previous device is back in stock; the new device is now linked to this sale.';
-        return redirect()->route('sales.show', $sale)->with('success', $message);
     }
 
     public function downloadEvidence(SaleAttachment $attachment)

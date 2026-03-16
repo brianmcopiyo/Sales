@@ -11,21 +11,8 @@
             </div>
             <div class="flex items-center gap-3">
                 @if (auth()->user()?->hasPermission('stock-management.view'))
-                    <form method="POST" action="{{ route('stock-management.sync-stock-from-devices') }}" class="inline"
-                        onsubmit="return confirm('Set all branch stock to the count of available (non-sold) devices per branch/product? This will update current stock to match device counts.');">
-                        @csrf
-                        <button type="submit"
-                            class="bg-primary text-white px-5 py-2.5 rounded-xl font-medium hover:bg-primary-dark transition shadow-sm flex items-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                                </path>
-                            </svg>
-                            <span>Sync stock from devices</span>
-                        </button>
-                    </form>
                     <form method="POST" action="{{ route('stock-management.reconciliation.fix') }}" class="inline"
-                        onsubmit="return confirm('Run reconciliation for all branches? This will fix movement balances for today and set each branch stock to the device count for that branch/product (final devices in the system).');">
+                        onsubmit="return confirm('Run reconciliation for all branches? This will fix movement balances for today.');">
                         @csrf
                         <input type="hidden" name="date" value="today">
                         <button type="submit"
@@ -203,17 +190,6 @@
                                             class="absolute right-0 top-full z-[9999] mt-2 w-48 bg-themeCard rounded-xl border border-themeBorder shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]"
                                             style="display: none;">
                                             <div class="py-1">
-                                                <a href="{{ route('devices.index', ['branch' => $stock->branch_id, 'product_id' => $stock->product_id, 'status' => 'available']) }}"
-                                                    class="block px-4 py-2 text-sm font-medium text-themeBody hover:bg-themeInput transition flex items-center space-x-2">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
-                                                        </path>
-                                                    </svg>
-                                                    <span>View available IMEIs</span>
-                                                </a>
                                                 @if (auth()->user()?->hasPermission('branch-stocks.update'))
                                                     <a href="{{ route('branch-stocks.edit', $stock) }}"
                                                         class="block px-4 py-2 text-sm font-medium text-themeBody hover:bg-themeInput transition flex items-center space-x-2">
