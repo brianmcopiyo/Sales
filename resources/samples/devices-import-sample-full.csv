@@ -1,0 +1,4 @@
+imei,product_sku,product_name,brand,branch,status,customer,field_agent,notes
+354789012345688,SMPL-001,,,Head Office,available,,,
+354789012345689,,Google Pixel 8,Samsung,Head Office,assigned,Jane Doe,,Received 2024-01
+354789012345690,SMPL-002,Some Device,,,available,Customer A,agent@example.com,Optional notes

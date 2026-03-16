@@ -1,0 +1,4 @@
+name,email,phone,is_active,branch
+Agent One,agent.one@example.com,+255711111001,active,
+Agent Two,agent.two@example.com,+255711111002,1,
+Agent Three,agent.three@example.com,+255711111003,inactive,

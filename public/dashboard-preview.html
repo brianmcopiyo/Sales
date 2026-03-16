@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Preview - Stock Management</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts - Inter (slim, modern font) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#006F78',
+                        secondary: '#E48A22',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="hidden lg:flex lg:flex-shrink-0">
+            <div class="flex flex-col w-72 bg-white border-r border-gray-200">
+                <!-- Logo -->
+                <div class="flex items-center justify-center h-20 px-6 border-b border-gray-200">
+                    <h1 class="text-3xl font-light text-primary tracking-tight">Stock</h1>
+                </div>
+                
+                <!-- Navigation -->
+                <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                    <a href="#" class="flex items-center px-4 py-4 text-lg font-light text-primary bg-primary/10 rounded-xl">
+                        <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    
+                    <a href="#" class="flex items-center px-4 py-4 text-lg font-light text-gray-700 rounded-xl hover:bg-primary/5 hover:text-primary transition-all duration-200">
+                        <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                        Products
+                    </a>
+                    
+                    <a href="#" class="flex items-center px-4 py-4 text-lg font-light text-gray-700 rounded-xl hover:bg-primary/5 hover:text-primary transition-all duration-200">
+                        <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        Branches
+                    </a>
+                    
+                    <a href="#" class="flex items-center px-4 py-4 text-lg font-light text-gray-700 rounded-xl hover:bg-primary/5 hover:text-primary transition-all duration-200">
+                        <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                        </svg>
+                        Stock Transfers
+                    </a>
+                    
+                    <a href="#" class="flex items-center px-4 py-4 text-lg font-light text-gray-700 rounded-xl hover:bg-primary/5 hover:text-primary transition-all duration-200">
+                        <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                        Sales
+                    </a>
+                    
+                    <a href="#" class="flex items-center px-4 py-4 text-lg font-light text-gray-700 rounded-xl hover:bg-primary/5 hover:text-primary transition-all duration-200">
+                        <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                        Branch Stocks
+                    </a>
+                    
+                    <a href="#" class="flex items-center px-4 py-4 text-lg font-light text-gray-700 rounded-xl hover:bg-primary/5 hover:text-primary transition-all duration-200">
+                        <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        Tickets
+                    </a>
+                </nav>
+                
+                <!-- User Section -->
+                <div class="px-4 py-6 border-t border-gray-200">
+                    <div class="flex items-center px-4 py-3 rounded-xl bg-gray-50">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+                                <span class="text-xl font-light text-white">J</span>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-1 min-w-0">
+                            <p class="text-lg font-light text-gray-900 truncate">John Doe</p>
+                            <p class="text-sm font-light text-gray-500 truncate">john@example.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Navbar -->
+            <header class="bg-white border-b border-gray-200">
+                <div class="flex items-center justify-between h-20 px-6">
+                    <div class="flex items-center">
+                        <h2 class="text-2xl font-light text-gray-900">Dashboard</h2>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <!-- Notifications -->
+                        <button type="button" class="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- Logout -->
+                        <button type="button" class="px-6 py-2.5 text-lg font-light text-white bg-primary rounded-xl hover:bg-primary/90 transition-colors">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto bg-gray-50">
+                <div class="p-6">
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <!-- Total Products -->
+                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-lg font-light text-gray-600 mb-2">Total Products</p>
+                                    <p class="text-4xl font-light text-gray-900">156</p>
+                                </div>
+                                <div class="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Total Branches -->
+                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-lg font-light text-gray-600 mb-2">Total Branches</p>
+                                    <p class="text-4xl font-light text-gray-900">12</p>
+                                </div>
+                                <div class="w-16 h-16 rounded-xl bg-secondary/10 flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Total Sales -->
+                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-lg font-light text-gray-600 mb-2">Total Sales</p>
+                                    <p class="text-4xl font-light text-gray-900">1,234</p>
+                                </div>
+                                <div class="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pending Transfers -->
+                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-lg font-light text-gray-600 mb-2">Pending Transfers</p>
+                                    <p class="text-4xl font-light text-gray-900">8</p>
+                                </div>
+                                <div class="w-16 h-16 rounded-xl bg-secondary/10 flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Recent Sales -->
+                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-2xl font-light text-gray-900">Recent Sales</h3>
+                                <a href="#" class="text-lg font-light text-primary hover:text-primary/80">View all</a>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
+                                    <div>
+                                        <p class="text-lg font-light text-gray-900">Sale #1001</p>
+                                        <p class="text-base font-light text-gray-600">Dec 12, 2025</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xl font-light text-gray-900">$1,250.00</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
+                                    <div>
+                                        <p class="text-lg font-light text-gray-900">Sale #1002</p>
+                                        <p class="text-base font-light text-gray-600">Dec 11, 2025</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xl font-light text-gray-900">$890.50</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Stock Transfers -->
+                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-2xl font-light text-gray-900">Recent Transfers</h3>
+                                <a href="#" class="text-lg font-light text-primary hover:text-primary/80">View all</a>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
+                                    <div>
+                                        <p class="text-lg font-light text-gray-900">Transfer #2001</p>
+                                        <p class="text-base font-light text-gray-600">Branch A → Branch B</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-light bg-yellow-100 text-yellow-800">
+                                            Pending
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
+                                    <div>
+                                        <p class="text-lg font-light text-gray-900">Transfer #2002</p>
+                                        <p class="text-base font-light text-gray-600">Branch C → Branch D</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-light bg-green-100 text-green-800">
+                                            Completed
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,201 @@
+{
+    "sections": [
+        {
+            "title": null,
+            "items": [
+                {
+                    "title": "Dashboard",
+                    "route": "dashboard",
+                    "icon": "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
+                    "active_pattern": "dashboard",
+                    "permission": "dashboard.view"
+                }
+            ]
+        },
+        {
+            "title": "Stock & Inventory",
+            "items": [
+                {
+                    "title": "Inventory",
+                    "route": "inventory.dashboard",
+                    "icon": "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+                    "active_pattern": "inventory.*",
+                    "permission": "inventory.view"
+                },
+                {
+                    "title": "Stock Operations",
+                    "route": "stock-operations.index",
+                    "icon": "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01",
+                    "active_pattern": "stock-operations.*|stock-takes.*|stock-adjustments.*|stock-transfers.*",
+                    "permission": "stock-takes.view|stock-adjustments.view|stock-transfers.view"
+                },
+                {
+                    "title": "Stock Management",
+                    "route": "stock-management.index",
+                    "icon": "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
+                    "active_pattern": "stock-management.*",
+                    "permission": "stock-management.view"
+                },
+                {
+                    "title": "Dealerships",
+                    "route": "dealerships.index",
+                    "icon": "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4",
+                    "active_pattern": "dealerships.*",
+                    "permission": "stock-management.view"
+                },
+                {
+                    "title": "Stock Requests",
+                    "route": "stock-requests.index",
+                    "icon": "M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4",
+                    "active_pattern": "stock-requests.*",
+                    "permission": "stock-requests.view"
+                },
+                {
+                    "title": "Agent Stock Requests",
+                    "route": "agent-stock-requests.index",
+                    "icon": "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z",
+                    "active_pattern": "agent-stock-requests.*",
+                    "permission": "agent-stock-requests.view"
+                },
+                {
+                    "title": "Branch Stocks",
+                    "route": "branch-stocks.index",
+                    "icon": "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
+                    "active_pattern": "branch-stocks.*",
+                    "permission": "branch-stocks.view"
+                },
+                {
+                    "title": "Catalog",
+                    "route": "catalog.index",
+                    "icon": "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
+                    "active_pattern": "catalog.*|products.*|brands.*|product-pricing.*|devices.*",
+                    "permission": "products.view|brands.view|devices.view|products.pricing"
+                },
+                {
+                    "title": "Locations",
+                    "route": "locations.index",
+                    "icon": "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4",
+                    "active_pattern": "locations.*|branches.*|regions.*",
+                    "permission": "branches.view|regions.view"
+                }
+            ]
+        },
+        {
+            "title": "Sales & Customers",
+            "items": [
+                {
+                    "title": "Sales & Transactions",
+                    "route": "sales-transactions.index",
+                    "icon": "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z",
+                    "active_pattern": "sales-transactions.*|sales.*|transactions.*",
+                    "permission": "sales.view|transactions.view"
+                },
+                {
+                    "title": "Customers",
+                    "route": "customers.hub",
+                    "icon": "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+                    "active_pattern": "customers.*|customer-disbursements.*",
+                    "permission": "customers.view"
+                },
+                {
+                    "title": "My Commissions",
+                    "route": "commission-disbursements.index",
+                    "icon": "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-10V6m0 12v2m-7-6a7 7 0 1114 0 7 7 0 01-14 0z",
+                    "active_pattern": "commission-disbursements.*",
+                    "permission": "commission-disbursements.view"
+                }
+            ]
+        },
+        {
+            "title": "Petty Cash",
+            "items": [
+                {
+                    "title": "Petty Cash",
+                    "route": "petty-cash.index",
+                    "icon": "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v2M7 9h10m-5 0v6m5-6v6",
+                    "active_pattern": "petty-cash.index|petty-cash.export|petty-cash.request.*|petty-cash.show-request|petty-cash.approve|petty-cash.reject|petty-cash.disburse|petty-cash.replenish.*|petty-cash.reconciliation|petty-cash.funds.*",
+                    "permission": "petty-cash.view"
+                },
+                {
+                    "title": "Petty Cash Categories",
+                    "route": "petty-cash.categories.index",
+                    "icon": "M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z",
+                    "active_pattern": "petty-cash.categories.*",
+                    "permission": "petty-cash.manage-funds"
+                }
+            ]
+        },
+        {
+            "title": "Bills",
+            "items": [
+                {
+                    "title": "Bills",
+                    "route": "bills.index",
+                    "icon": "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+                    "active_pattern": "bills.index|bills.create|bills.show|bills.edit|bills.export",
+                    "permission": "bills.view"
+                },
+                {
+                    "title": "Recurring Bills",
+                    "route": "bills.recurring.index",
+                    "icon": "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
+                    "active_pattern": "bills.recurring.*",
+                    "permission": "bills.view"
+                },
+                {
+                    "title": "Categories",
+                    "route": "bills.categories.index",
+                    "icon": "M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z",
+                    "active_pattern": "bills.categories.*",
+                    "permission": "bills.manage-vendors|bills.view"
+                },
+                {
+                    "title": "Vendors",
+                    "route": "bills.vendors.index",
+                    "icon": "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4",
+                    "active_pattern": "bills.vendors.*",
+                    "permission": "bills.manage-vendors|bills.view"
+                }
+            ]
+        },
+        {
+            "title": "Support",
+            "items": [
+                {
+                    "title": "Support",
+                    "route": "support.index",
+                    "icon": "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+                    "active_pattern": "support.*|tickets.*",
+                    "permission": "tickets.view"
+                }
+            ]
+        },
+        {
+            "title": "Administration",
+            "items": [
+                {
+                    "title": "Team & Access",
+                    "route": "team.index",
+                    "icon": "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z",
+                    "active_pattern": "team.*|users.*|roles.*|field-agents.*",
+                    "permission": "users.view"
+                },
+                {
+                    "title": "Commission Disbursements",
+                    "route": "commission-disbursements.admin.index",
+                    "icon": "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-10V6m0 12v2m-7-6a7 7 0 1114 0 7 7 0 01-14 0z",
+                    "active_pattern": "commission-disbursements.*",
+                    "requires_admin": true,
+                    "permission": "customer-disbursements.approve"
+                },
+                {
+                    "title": "Activity Logs",
+                    "route": "activity-logs.index",
+                    "icon": "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01",
+                    "active_pattern": "activity-logs.*",
+                    "permission": "activity-logs.view"
+                }
+            ]
+        }
+    ]
+}

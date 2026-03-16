@@ -1,0 +1,4 @@
+name,email,role,phone,branch
+John Doe,john.doe@example.com,staff,+255700000001,
+Jane Smith,jane.smith@example.com,staff,+255700000002,
+Branch Manager,branch.manager@example.com,head_branch_manager,+255700000003,
