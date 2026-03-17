@@ -1,4 +1,0 @@
--keepattributes Signature
--keepattributes *Annotation*
--keep class com.tajacore.outletmap.data.api.dto.** { *; }
--dontwarn com.google.android.gms.**

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Material 3 theme for Widget.Material3 in XML; Compose uses TajaCoreOutletMapTheme -->
-    <style name="Theme.OutletMap" parent="Theme.Material3.Light.NoActionBar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primary_dark</item>
-    </style>
-</resources>
