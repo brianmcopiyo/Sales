@@ -119,6 +119,25 @@
 
             @endif
 
+            @if ($canViewDistribution ?? false)
+            {{-- Today's visits (planned vs done) --}}
+            <h2 class="text-xl font-semibold text-primary tracking-tight mb-4">Today's visits</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
+                    <div class="text-themeMuted text-xs font-medium uppercase tracking-wider">Planned today</div>
+                    <div class="text-base font-semibold text-themeHeading mt-0.5">{{ number_format($distributionTodayPlanned ?? 0) }}</div>
+                </div>
+                <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
+                    <div class="text-themeMuted text-xs font-medium uppercase tracking-wider">Check-ins today</div>
+                    <div class="text-base font-semibold text-emerald-600 mt-0.5">{{ number_format($distributionTodayDone ?? 0) }}</div>
+                </div>
+                <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] flex flex-wrap items-center gap-2">
+                    <a href="{{ route('dcr.index') }}" class="text-primary font-medium hover:underline">Daily Call Report →</a>
+                    <a href="{{ route('audit-reports.index') }}" class="text-primary font-medium hover:underline">Audit reports →</a>
+                </div>
+            </div>
+            @endif
+
             @if ($canViewPettyCash ?? false)
             {{-- Petty Cash Overview: all metrics for the selected summary period only --}}
             <h2 class="text-xl font-semibold text-primary tracking-tight mb-4">Petty cash overview</h2>

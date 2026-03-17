@@ -1,0 +1,26 @@
+{
+    "name": "TajaCore Sales & Distribution",
+    "short_name": "TajaCore",
+    "description": "Sales, inventory, and distribution – outlets, check-ins, DCR, audits",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#f8fafc",
+    "theme_color": "#006F78",
+    "icons": [
+        {
+            "src": "/logo.jpg",
+            "sizes": "192x192",
+            "type": "image/jpeg",
+            "purpose": "any"
+        },
+        {
+            "src": "/logo.jpg",
+            "sizes": "512x512",
+            "type": "image/jpeg",
+            "purpose": "any"
+        }
+    ],
+    "categories": ["business", "productivity"]
+}

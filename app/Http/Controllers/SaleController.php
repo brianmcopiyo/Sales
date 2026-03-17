@@ -131,7 +131,15 @@ class SaleController extends Controller
             ->get()
             ->keyBy('product_id');
 
-        return view('sales.create', compact('products', 'customers', 'branchStocks', 'regionId'));
+        $outlets = \App\Models\Outlet::where('is_active', true)->orderBy('name')->get(['id', 'name', 'code']);
+        $recentCheckIns = \App\Models\CheckIn::where('user_id', Auth::id())
+            ->whereDate('check_in_at', today())
+            ->with('outlet')
+            ->latest('check_in_at')
+            ->limit(20)
+            ->get();
+
+        return view('sales.create', compact('products', 'customers', 'branchStocks', 'regionId', 'outlets', 'recentCheckIns'));
     }
 
     public function store(Request $request)
@@ -139,6 +147,8 @@ class SaleController extends Controller
         // Build validation rules conditionally
         $rules = [
             'customer_id' => 'nullable|exists:customers,id',
+            'outlet_id' => 'nullable|exists:outlets,id',
+            'check_in_id' => 'nullable|exists:check_ins,id',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
@@ -163,6 +173,26 @@ class SaleController extends Controller
         $rules['evidence.*'] = ['file', 'max:5120', 'mimes:jpg,jpeg,png,gif,webp,pdf'];
 
         $validated = $request->validate($rules);
+
+        // When linking to outlet and creating from field: optionally enforce geo-fence (if lat/lng provided)
+        if (!empty($validated['outlet_id'])) {
+            $outlet = \App\Models\Outlet::find($validated['outlet_id']);
+            if ($outlet && $outlet->geo_fence_type && $request->filled('order_lat') && $request->filled('order_lng')) {
+                $geo = app(\App\Services\GeoFenceService::class);
+                [$allowed, $errorMessage] = $geo->validatePointForOutlet(
+                    (float) $request->order_lat,
+                    (float) $request->order_lng,
+                    $outlet->geo_fence_type,
+                    $outlet->lat ? (float) $outlet->lat : null,
+                    $outlet->lng ? (float) $outlet->lng : null,
+                    $outlet->geo_fence_radius_metres,
+                    $outlet->geo_fence_polygon
+                );
+                if (!$allowed) {
+                    return redirect()->back()->withInput()->withErrors(['outlet_id' => $errorMessage]);
+                }
+            }
+        }
 
         $branch = Auth::user()->branch;
         if (!$branch) {
@@ -249,6 +279,8 @@ class SaleController extends Controller
             $sale = Sale::create([
                 'branch_id' => $branch->id,
                 'customer_id' => $customerId,
+                'outlet_id' => $validated['outlet_id'] ?? null,
+                'check_in_id' => $validated['check_in_id'] ?? null,
                 'sold_by' => Auth::id(),
                 'subtotal' => $subtotal,
                 'tax' => $tax,
@@ -350,7 +382,7 @@ class SaleController extends Controller
         if (!$this->canAccessSale($user, $sale)) {
             abort(403, 'You do not have access to this sale. It belongs to another branch.');
         }
-        $sale->load(['customer', 'branch', 'soldBy', 'items.product.regionPrices', 'items.fieldAgent', 'customerDisbursements', 'evidence.uploadedBy']);
+        $sale->load(['customer', 'branch', 'outlet', 'checkIn', 'soldBy', 'items.product.regionPrices', 'items.fieldAgent', 'customerDisbursements', 'evidence.uploadedBy']);
         if ($user instanceof User) {
             $user->loadMissing('roleModel');
         }

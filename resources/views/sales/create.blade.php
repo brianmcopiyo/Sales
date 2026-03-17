@@ -111,6 +111,58 @@
                     </div>
                 </div>
 
+                @if (isset($outlets) && $outlets->isNotEmpty())
+                <div class="border-t border-themeBorder pt-6">
+                    <h3 class="text-lg font-semibold text-themeHeading mb-4">Distribution (optional)</h3>
+                    <p class="text-sm text-themeMuted mb-4">Link this sale to an outlet and/or a check-in. If the outlet has a geo-fence and you capture location below, the order will be allowed only when within the outlet area.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="outlet_id" class="block text-sm font-medium text-themeBody mb-2">Outlet</label>
+                            <select id="outlet_id" name="outlet_id"
+                                class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-themeHeading">
+                                <option value="">— None</option>
+                                @foreach ($outlets as $o)
+                                    <option value="{{ $o->id }}" {{ old('outlet_id') == $o->id ? 'selected' : '' }}>{{ $o->name }}{{ $o->code ? ' (' . $o->code . ')' : '' }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label for="check_in_id" class="block text-sm font-medium text-themeBody mb-2">Check-in (visit)</label>
+                            <select id="check_in_id" name="check_in_id"
+                                class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-themeHeading">
+                                <option value="">— None</option>
+                                @foreach ($recentCheckIns ?? [] as $ci)
+                                    <option value="{{ $ci->id }}" {{ old('check_in_id') == $ci->id ? 'selected' : '' }}>{{ $ci->outlet?->name ?? 'Outlet' }} — {{ $ci->check_in_at->format('H:i') }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <p class="text-sm text-themeMuted mb-2">When creating an order at an outlet with a geo-fence, capture your location so the system can verify you are at the outlet.</p>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <input type="hidden" name="order_lat" id="order_lat" value="{{ old('order_lat') }}">
+                                <input type="hidden" name="order_lng" id="order_lng" value="{{ old('order_lng') }}">
+                                <button type="button" id="btn-capture-location" class="px-4 py-2.5 bg-themeHover text-themeBody rounded-xl font-medium hover:bg-themeBorder transition text-sm">Capture my location</button>
+                                <span id="location-status" class="text-sm text-themeMuted"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    document.getElementById('btn-capture-location')?.addEventListener('click', function () {
+                        var lat = document.getElementById('order_lat');
+                        var lng = document.getElementById('order_lng');
+                        var status = document.getElementById('location-status');
+                        if (!navigator.geolocation) { status.textContent = 'Geolocation not supported.'; return; }
+                        status.textContent = 'Getting location…';
+                        navigator.geolocation.getCurrentPosition(function (pos) {
+                            lat.value = pos.coords.latitude;
+                            lng.value = pos.coords.longitude;
+                            status.textContent = 'Location captured.';
+                        }, function () { status.textContent = 'Could not get location.'; });
+                    });
+                </script>
+                @endif
+
                 <div>
                     <h2 class="text-lg font-semibold text-primary tracking-tight mb-4">Items</h2>
                     <div id="items-container" class="space-y-4">

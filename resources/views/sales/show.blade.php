@@ -97,6 +97,18 @@
                             <div class="text-sm font-medium text-themeMuted mb-1">Branch</div>
                             <div class="text-base font-medium text-themeHeading">{{ $sale->branch->name }}</div>
                         </div>
+                        @if ($sale->outlet_id)
+                        <div>
+                            <div class="text-sm font-medium text-themeMuted mb-1">Outlet</div>
+                            <a href="{{ route('outlets.show', $sale->outlet) }}" class="text-base font-medium text-primary hover:underline">{{ $sale->outlet->name }}</a>
+                        </div>
+                        @endif
+                        @if ($sale->check_in_id)
+                        <div>
+                            <div class="text-sm font-medium text-themeMuted mb-1">Check-in (visit)</div>
+                            <div class="text-base font-medium text-themeHeading">{{ $sale->checkIn->check_in_at->format('d M Y H:i') }} at {{ $sale->checkIn->outlet?->name ?? '—' }}</div>
+                        </div>
+                        @endif
                         <div>
                             <div class="text-sm font-medium text-themeMuted mb-1">Sold By</div>
                             <div class="text-base font-medium text-themeHeading">{{ $sale->soldBy->name }}</div>

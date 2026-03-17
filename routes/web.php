@@ -38,6 +38,13 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\HubController;
+use App\Http\Controllers\OutletController;
+use App\Http\Controllers\CheckInController;
+use App\Http\Controllers\PlannedVisitController;
+use App\Http\Controllers\DcrController;
+use App\Http\Controllers\AuditTemplateController;
+use App\Http\Controllers\AuditRunController;
+use App\Http\Controllers\AuditReportController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -290,6 +297,117 @@ Route::middleware('auth')->group(function () {
     Route::post('branches/{branch}/assign-users', [BranchController::class, 'assignUsers'])
         ->name('branches.assign-users')
         ->middleware('permission:branches.manage-users');
+
+    // Distribution: Outlets & Check-ins
+    Route::get('outlets', [OutletController::class, 'index'])
+        ->name('outlets.index')
+        ->middleware('permission:outlets.view|outlets.manage|checkins.view|checkins.create');
+    Route::get('outlets/create', [OutletController::class, 'create'])
+        ->name('outlets.create')
+        ->middleware('permission:outlets.manage');
+    Route::post('outlets', [OutletController::class, 'store'])
+        ->name('outlets.store')
+        ->middleware('permission:outlets.manage');
+    Route::get('outlets/{outlet}', [OutletController::class, 'show'])
+        ->name('outlets.show')
+        ->middleware('permission:outlets.view|outlets.manage');
+    Route::get('outlets/{outlet}/edit', [OutletController::class, 'edit'])
+        ->name('outlets.edit')
+        ->middleware('permission:outlets.manage');
+    Route::put('outlets/{outlet}', [OutletController::class, 'update'])
+        ->name('outlets.update')
+        ->middleware('permission:outlets.manage');
+    Route::delete('outlets/{outlet}', [OutletController::class, 'destroy'])
+        ->name('outlets.destroy')
+        ->middleware('permission:outlets.manage');
+    Route::get('check-ins', [CheckInController::class, 'index'])
+        ->name('check-ins.index')
+        ->middleware('permission:checkins.view');
+    Route::get('check-ins/create', [CheckInController::class, 'create'])
+        ->name('check-ins.create')
+        ->middleware('permission:checkins.create');
+    Route::post('check-ins', [CheckInController::class, 'store'])
+        ->name('check-ins.store')
+        ->middleware('permission:checkins.create');
+    Route::get('planned-visits', [PlannedVisitController::class, 'index'])
+        ->name('planned-visits.index')
+        ->middleware('permission:outlets.view|outlets.manage|checkins.view|distribution.reports');
+    Route::get('planned-visits/create', [PlannedVisitController::class, 'create'])
+        ->name('planned-visits.create')
+        ->middleware('permission:outlets.view|outlets.manage|distribution.reports');
+    Route::post('planned-visits', [PlannedVisitController::class, 'store'])
+        ->name('planned-visits.store')
+        ->middleware('permission:outlets.view|outlets.manage|distribution.reports');
+    Route::delete('planned-visits/{plannedVisit}', [PlannedVisitController::class, 'destroy'])
+        ->name('planned-visits.destroy')
+        ->middleware('permission:outlets.view|outlets.manage|distribution.reports');
+    Route::get('dcr', [DcrController::class, 'index'])
+        ->name('dcr.index')
+        ->middleware('permission:distribution.reports');
+    Route::get('dcr/export', [DcrController::class, 'export'])
+        ->name('dcr.export')
+        ->middleware('permission:distribution.reports');
+
+    // Outlet audits (templates, runs, reporting)
+    Route::get('audit-templates', [AuditTemplateController::class, 'index'])
+        ->name('audit-templates.index')
+        ->middleware('permission:outlets.view|outlets.manage|distribution.reports');
+    Route::get('audit-templates/create', [AuditTemplateController::class, 'create'])
+        ->name('audit-templates.create')
+        ->middleware('permission:outlets.manage');
+    Route::post('audit-templates', [AuditTemplateController::class, 'store'])
+        ->name('audit-templates.store')
+        ->middleware('permission:outlets.manage');
+    Route::get('audit-templates/{auditTemplate}', [AuditTemplateController::class, 'show'])
+        ->name('audit-templates.show')
+        ->middleware('permission:outlets.view|outlets.manage|distribution.reports');
+    Route::get('audit-templates/{auditTemplate}/edit', [AuditTemplateController::class, 'edit'])
+        ->name('audit-templates.edit')
+        ->middleware('permission:outlets.manage');
+    Route::put('audit-templates/{auditTemplate}', [AuditTemplateController::class, 'update'])
+        ->name('audit-templates.update')
+        ->middleware('permission:outlets.manage');
+    Route::delete('audit-templates/{auditTemplate}', [AuditTemplateController::class, 'destroy'])
+        ->name('audit-templates.destroy')
+        ->middleware('permission:outlets.manage');
+    Route::post('audit-templates/{auditTemplate}/sections', [AuditTemplateController::class, 'storeSection'])
+        ->name('audit-templates.sections.store')
+        ->middleware('permission:outlets.manage');
+    Route::put('audit-sections/{auditSection}', [AuditTemplateController::class, 'updateSection'])
+        ->name('audit-sections.update')
+        ->middleware('permission:outlets.manage');
+    Route::delete('audit-sections/{auditSection}', [AuditTemplateController::class, 'destroySection'])
+        ->name('audit-sections.destroy')
+        ->middleware('permission:outlets.manage');
+    Route::post('audit-sections/{auditSection}/questions', [AuditTemplateController::class, 'storeQuestion'])
+        ->name('audit-sections.questions.store')
+        ->middleware('permission:outlets.manage');
+    Route::put('audit-questions/{auditQuestion}', [AuditTemplateController::class, 'updateQuestion'])
+        ->name('audit-questions.update')
+        ->middleware('permission:outlets.manage');
+    Route::delete('audit-questions/{auditQuestion}', [AuditTemplateController::class, 'destroyQuestion'])
+        ->name('audit-questions.destroy')
+        ->middleware('permission:outlets.manage');
+
+    Route::get('audit-runs/create', [AuditRunController::class, 'create'])
+        ->name('audit-runs.create')
+        ->middleware('permission:outlets.view|outlets.manage|distribution.reports');
+    Route::post('audit-runs', [AuditRunController::class, 'store'])
+        ->name('audit-runs.store')
+        ->middleware('permission:outlets.view|outlets.manage|distribution.reports');
+    Route::get('audit-runs/{auditRun}/fill', [AuditRunController::class, 'fill'])
+        ->name('audit-runs.fill')
+        ->middleware('permission:outlets.view|outlets.manage|distribution.reports');
+    Route::post('audit-runs/{auditRun}/submit', [AuditRunController::class, 'submit'])
+        ->name('audit-runs.submit')
+        ->middleware('permission:outlets.view|outlets.manage|distribution.reports');
+    Route::get('audit-runs/{auditRun}', [AuditRunController::class, 'show'])
+        ->name('audit-runs.show')
+        ->middleware('permission:outlets.view|outlets.manage|distribution.reports');
+
+    Route::get('audit-reports', [AuditReportController::class, 'index'])
+        ->name('audit-reports.index')
+        ->middleware('permission:distribution.reports');
 
     // Dealerships
     Route::get('dealerships', [DealershipController::class, 'index'])

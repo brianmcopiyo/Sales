@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Mail;
+use Laravel\Sanctum\HasApiTokens;
 use App\Traits\HasUuid;
 use App\Mail\LoginCredentialsMail;
 use App\Helpers\SmsHelper;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasUuid, SoftDeletes;
+    use HasFactory, Notifiable, HasUuid, SoftDeletes, HasApiTokens;
 
     /**
      * When set before creating a user, the plain password will be emailed to the new user
@@ -232,6 +233,16 @@ class User extends Authenticatable
     public function agentStockRequests()
     {
         return $this->hasMany(AgentStockRequest::class, 'field_agent_id');
+    }
+
+    public function plannedVisits()
+    {
+        return $this->hasMany(PlannedVisit::class);
+    }
+
+    public function checkIns()
+    {
+        return $this->hasMany(CheckIn::class);
     }
 
     /**

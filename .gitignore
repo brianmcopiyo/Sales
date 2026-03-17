@@ -68,6 +68,22 @@ logs/
 /dist
 /build
 
+# Android apps (Distribution, OutletMap)
+**/local.properties
+**/.gradle/
+**/build/
+**/*.iml
+**/.idea/
+*.apk
+*.ap_
+*.aab
+*.dex
+.cxx/
+.externalNativeBuild/
+captures/
+*.jks
+*.keystore
+
 # Temporary files
 *.tmp
 *.temp

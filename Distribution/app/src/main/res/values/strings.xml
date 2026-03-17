@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TajaCore Distribution</string>
+    <string name="login">Login</string>
+    <string name="email_or_phone">Email or phone</string>
+    <string name="password">Password</string>
+    <string name="outlets">Outlets</string>
+    <string name="check_in">Check in</string>
+    <string name="check_in_at">Check in at %1$s?</string>
+    <string name="notes">Notes</string>
+    <string name="take_photo">Take photo</string>
+    <string name="sync_pending">Syncing %1$d check-ins…</string>
+</resources>

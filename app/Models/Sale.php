@@ -15,6 +15,8 @@ class Sale extends Model
         'sale_number',
         'branch_id',
         'customer_id',
+        'outlet_id',
+        'check_in_id',
         'sold_by',
         'subtotal',
         'tax',
@@ -109,6 +111,16 @@ class Sale extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id');
+    }
+
+    public function outlet()
+    {
+        return $this->belongsTo(Outlet::class);
+    }
+
+    public function checkIn()
+    {
+        return $this->belongsTo(CheckIn::class);
     }
 
     public function soldBy()

@@ -19,6 +19,8 @@ use App\Models\AgentStockRequest;
 use App\Models\PettyCashRequest;
 use App\Models\CommissionDisbursement;
 use App\Models\Bill;
+use App\Models\PlannedVisit;
+use App\Models\CheckIn;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -70,6 +72,7 @@ class DashboardController extends Controller
         $canViewCustomerDisbursements = $user->hasPermission('customer-disbursements.view');
         $canViewCommissions = $user->hasPermission('commission-disbursements.view');
         $canAccessRestockWizard = $user->isAdmin() || $user->hasPermission('stock-management.restock') || $user->hasPermission('stock-management.initiate-restock');
+        $canViewDistribution = $user->hasPermission('outlets.view') || $user->hasPermission('checkins.view') || $user->hasPermission('distribution.reports');
 
         // Default stats (zeros) so view never misses a key
         $stats = [
@@ -460,6 +463,14 @@ class DashboardController extends Controller
                 ->sum('amount');
         }
 
+        $distributionTodayPlanned = 0;
+        $distributionTodayDone = 0;
+        if ($canViewDistribution) {
+            $today = Carbon::today()->toDateString();
+            $distributionTodayPlanned = PlannedVisit::whereDate('planned_date', $today)->count();
+            $distributionTodayDone = CheckIn::whereDate('check_in_at', $today)->count();
+        }
+
         return view('dashboard.index', compact(
             'period',
             'periodLabel',
@@ -508,7 +519,10 @@ class DashboardController extends Controller
             'billsStats',
             'canViewCustomerDisbursements',
             'canViewCommissions',
-            'canAccessRestockWizard'
+            'canAccessRestockWizard',
+            'canViewDistribution',
+            'distributionTodayPlanned',
+            'distributionTodayDone'
         ));
     }
 
