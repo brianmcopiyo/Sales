@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.tajacore.outletmap.BuildConfig
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
@@ -14,7 +15,6 @@ class AuthRepository(private val context: Context) {
 
     companion object {
         private val TOKEN = stringPreferencesKey("token")
-        private val BASE_URL = stringPreferencesKey("base_url")
     }
 
     suspend fun saveToken(token: String) {
@@ -27,9 +27,5 @@ class AuthRepository(private val context: Context) {
         context.dataStore.edit { it.remove(TOKEN) }
     }
 
-    suspend fun saveBaseUrl(url: String) {
-        context.dataStore.edit { it[BASE_URL] = url }
-    }
-
-    suspend fun getBaseUrl(): String? = context.dataStore.data.map { it[BASE_URL] }.first()
+    fun getBaseUrl(): String = BuildConfig.API_BASE_URL
 }

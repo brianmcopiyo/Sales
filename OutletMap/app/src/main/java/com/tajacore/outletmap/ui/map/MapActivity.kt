@@ -96,7 +96,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun loadOutlets() {
         lifecycleScope.launch {
             val token = authRepo.getToken() ?: return@launch
-            val baseUrl = authRepo.getBaseUrl() ?: "http://10.0.2.2:8000/api/"
+            val baseUrl = authRepo.getBaseUrl()
             try {
                 val api = RetrofitModule.apiService(baseUrl)
                 val response = api.getOutlets("Bearer $token")
@@ -185,7 +185,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun createOutlet(name: String, address: String?, radius: Int?, latLng: LatLng) {
         lifecycleScope.launch {
             val token = authRepo.getToken() ?: return@launch
-            val baseUrl = authRepo.getBaseUrl() ?: "http://10.0.2.2:8000/api/"
+            val baseUrl = authRepo.getBaseUrl()
             try {
                 val api = RetrofitModule.apiService(baseUrl)
                 val body = CreateOutletRequest(
@@ -212,7 +212,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun updateOutlet(id: String, name: String, address: String?, radius: Int?, latLng: LatLng) {
         lifecycleScope.launch {
             val token = authRepo.getToken() ?: return@launch
-            val baseUrl = authRepo.getBaseUrl() ?: "http://10.0.2.2:8000/api/"
+            val baseUrl = authRepo.getBaseUrl()
             try {
                 val api = RetrofitModule.apiService(baseUrl)
                 val body = UpdateOutletRequest(

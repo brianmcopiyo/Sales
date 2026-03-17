@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitModule {
 
-    private const val DEFAULT_BASE_URL = "http://10.0.2.2:8000/api/"
+    private const val DEFAULT_BASE_URL = "http://192.168.100.3:8000/api/"
 
     fun apiService(baseUrl: String = DEFAULT_BASE_URL): ApiService {
         val client = OkHttpClient.Builder()

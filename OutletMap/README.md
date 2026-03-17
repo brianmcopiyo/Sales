@@ -4,7 +4,7 @@ A **separate** Android app for **mapping outlets** on a map: place a pin, set na
 
 ## Features
 
-- **Login** with the same API as the distribution app (email/phone + password, optional base URL).
+- **Login** with the same API as the distribution app (email/phone + password). API base URL is set at build time (see Setup).
 - **Map view** with all outlets as markers; radius geo-fences shown as circles.
 - **Add outlet:** tap “Add outlet”, then tap on the map to set location; dialog for name, address, and geo-fence radius (metres). Saves via `POST /api/outlets`.
 - **Edit outlet:** tap an existing marker to update name, address, location, or radius. Saves via `PUT /api/outlets/{id}`.
@@ -12,7 +12,7 @@ A **separate** Android app for **mapping outlets** on a map: place a pin, set na
 ## Requirements
 
 - Android Studio (Hedgehog or newer), JDK 17
-- Min SDK 26, Target SDK 34
+- Min SDK 26, Target SDK 35
 - **Google Maps API key** for the map
 - Laravel backend running with API reachable from the device (e.g. `http://10.0.2.2:8000/api/` for emulator)
 
@@ -30,10 +30,17 @@ A **separate** Android app for **mapping outlets** on a map: place a pin, set na
    ```
 
 2. **Open in Android Studio**  
-   Open the `outlet-map-app` folder, sync Gradle.
+   Open the OutletMap folder, sync Gradle.
 
-3. **Run**  
-   Run on a device or emulator. On the login screen, set the API base URL if needed (e.g. `http://10.0.2.2:8000/api/` for emulator).
+3. **API base URL** (if not default)  
+   Set at build time in `gradle.properties` or via `-PAPI_BASE_URL=...`:
+   ```properties
+   API_BASE_URL=https://your-api.example.com/api/
+   ```
+   For local/dev: `API_BASE_URL=http://10.0.2.2:8000/api/` (emulator) or `http://<your-pc-ip>:8000/api/` (device on same network).
+
+4. **Run**  
+   Run on a device or emulator.
 
 ## Backend API
 
