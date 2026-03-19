@@ -66,6 +66,7 @@ class OtpActivity : AppCompatActivity() {
                 when (result) {
                     is ApiClient.ApiResult.Success -> {
                         sessionManager.token = result.data.token
+                        sessionManager.userName = result.data.user.name
                         startActivity(Intent(this, DashboardActivity::class.java))
                         finish()
                     }

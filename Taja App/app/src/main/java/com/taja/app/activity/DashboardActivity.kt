@@ -93,7 +93,7 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun loadDashboard() {
-        val name = sessionManager.userName ?: getString(R.string.dashboard_welcome).replace("Welcome, ", "").trim()
+        val name = sessionManager.userName?.trim()?.takeIf { it.isNotEmpty() } ?: ""
         welcomeText.text = getString(R.string.dashboard_hello, name)
         sessionManager.branchName?.let { branchName ->
             branchText.text = getString(R.string.dashboard_branch, branchName)

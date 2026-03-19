@@ -74,6 +74,7 @@ class LoginActivity : AppCompatActivity() {
                         }
                         is ApiClient.LoginResult.Success -> {
                             sessionManager.token = data.token
+                            sessionManager.userName = data.user.name
                             startDashboardAndFinish()
                         }
                     }
