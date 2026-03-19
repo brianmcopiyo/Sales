@@ -46,4 +46,7 @@
     <string name="error_loading_outlets">Failed to load outlets</string>
     <string name="error_save_outlet">Failed to save outlet</string>
     <string name="outlet_saved">Outlet saved</string>
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_stock">Stock</string>
+    <string name="nav_profile">Profile</string>
 </resources>

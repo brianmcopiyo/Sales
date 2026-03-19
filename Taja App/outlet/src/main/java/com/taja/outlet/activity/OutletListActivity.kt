@@ -2,30 +2,27 @@ package com.taja.outlet.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.taja.outlet.ApiClient
 import com.taja.outlet.R
 import com.taja.outlet.SessionManager
-import com.taja.outlet.adapter.OutletListAdapter
 
 class OutletListActivity : AppCompatActivity() {
 
     private lateinit var sessionManager: SessionManager
-    private lateinit var adapter: OutletListAdapter
     private lateinit var progressBar: ProgressBar
     private lateinit var emptyText: TextView
-    private lateinit var recycler: RecyclerView
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var listContainer: LinearLayout
+    private lateinit var newButton: Button
     private lateinit var outletFormLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,68 +34,78 @@ class OutletListActivity : AppCompatActivity() {
             finish()
             return
         }
-        findViewById<Button>(R.id.outlet_list_back).setOnClickListener { finish() }
-        progressBar = findViewById(R.id.outlet_list_progress)
-        emptyText = findViewById(R.id.outlet_list_empty)
-        recycler = findViewById(R.id.outlet_list_recycler)
-        swipeRefreshLayout = findViewById(R.id.outlet_list_swipe_refresh)
-        swipeRefreshLayout.setOnRefreshListener { loadOutlets(showSwipeSpinner = true) }
+        findViewById<Button>(R.id.stocktake_list_back).setOnClickListener { finish() }
+        progressBar = findViewById(R.id.stocktake_list_progress)
+        emptyText = findViewById(R.id.stocktake_list_empty)
+        listContainer = findViewById(R.id.stocktake_list_container)
+        newButton = findViewById(R.id.stocktake_list_new_btn)
 
         outletFormLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
-                loadOutlets(showSwipeSpinner = false)
+                loadOutlets()
             }
         }
 
-        recycler.layoutManager = LinearLayoutManager(this)
-        adapter = OutletListAdapter(emptyList()) { outlet ->
-            outletFormLauncher.launch(
-                Intent(this, OutletFormActivity::class.java).putExtra(OutletFormActivity.EXTRA_OUTLET_ID, outlet.id)
-            )
-        }
-        recycler.adapter = adapter
         loadOutlets()
-        findViewById<View>(R.id.outlet_list_fab_add)?.setOnClickListener {
-            outletFormLauncher.launch(Intent(this, OutletFormActivity::class.java))
-        }
+        newButton.setOnClickListener { outletFormLauncher.launch(Intent(this, OutletFormActivity::class.java)) }
     }
 
-    private fun loadOutlets(showSwipeSpinner: Boolean = false) {
-        if (showSwipeSpinner) {
-            swipeRefreshLayout.isRefreshing = true
-            progressBar.visibility = View.GONE
-        } else {
-            swipeRefreshLayout.isRefreshing = false
-            progressBar.visibility = View.VISIBLE
-        }
+    private fun loadOutlets() {
+        progressBar.visibility = android.view.View.VISIBLE
         emptyText.visibility = View.GONE
-        recycler.visibility = View.VISIBLE
+        listContainer.visibility = View.GONE
+        listContainer.removeAllViews()
         Thread {
             val token = sessionManager.token ?: ""
             if (token.isBlank()) {
                 runOnUiThread {
-                    swipeRefreshLayout.isRefreshing = false
                     progressBar.visibility = View.GONE
                     emptyText.visibility = View.VISIBLE
-                    recycler.visibility = View.GONE
+                    listContainer.visibility = View.GONE
                 }
                 return@Thread
             }
             val result = ApiClient.getOutlets(token)
             runOnUiThread {
-                swipeRefreshLayout.isRefreshing = false
                 progressBar.visibility = View.GONE
                 when (result) {
                     is ApiClient.ApiResult.Success -> {
-                        adapter.setOutlets(result.data)
-                        val empty = result.data.isEmpty()
-                        emptyText.visibility = if (empty) View.VISIBLE else View.GONE
-                        recycler.visibility = if (empty) View.GONE else View.VISIBLE
+                        val outlets = result.data
+                        if (outlets.isEmpty()) {
+                            emptyText.visibility = View.VISIBLE
+                            listContainer.visibility = View.GONE
+                        } else {
+                            emptyText.visibility = View.GONE
+                            listContainer.visibility = View.VISIBLE
+                            val inflater = LayoutInflater.from(this)
+                            outlets.forEach { outlet ->
+                                val row = inflater.inflate(R.layout.item_outlet_row, listContainer, false)
+                                row.findViewById<TextView>(R.id.item_outlet_name).text = outlet.name
+                                val codeText = row.findViewById<TextView>(R.id.item_outlet_code)
+                                val code = outlet.code?.trim().orEmpty()
+                                if (code.isNotEmpty()) {
+                                    codeText.text = code
+                                    codeText.visibility = android.view.View.VISIBLE
+                                } else {
+                                    codeText.visibility = android.view.View.GONE
+                                }
+                                val addressText = row.findViewById<TextView>(R.id.item_outlet_address)
+                                val address = outlet.address?.trim().orEmpty()
+                                addressText.text = if (address.isNotEmpty()) address else "—"
+                                row.setOnClickListener {
+                                    outletFormLauncher.launch(
+                                        Intent(this, OutletFormActivity::class.java)
+                                            .putExtra(OutletFormActivity.EXTRA_OUTLET_ID, outlet.id)
+                                    )
+                                }
+                                listContainer.addView(row)
+                            }
+                        }
                     }
                     is ApiClient.ApiResult.Error -> {
                         Toast.makeText(this, result.message, Toast.LENGTH_LONG).show()
                         emptyText.visibility = View.VISIBLE
-                        recycler.visibility = View.GONE
+                        listContainer.visibility = View.GONE
                     }
                 }
             }
