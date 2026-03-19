@@ -286,7 +286,7 @@
                             </div>
                             <div class="grid grid-cols-2 gap-2 text-sm font-medium text-themeBody">
                                 <div><span class="text-themeMuted">Quantity:</span> {{ $item->quantity }}</div>
-                                <div><span class="text-themeMuted">Price:</span> TSh
+                                <div><span class="text-themeMuted">Price:</span> {{ $currencySymbol }}
                                     {{ number_format($item->unit_price, 2) }}</div>
                                 <div><span class="text-themeMuted">Branch:</span> {{ $item->sale->branch->name }}</div>
                                 <div><span class="text-themeMuted">Date:</span>

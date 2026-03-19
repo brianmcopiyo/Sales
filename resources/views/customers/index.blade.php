@@ -117,7 +117,6 @@
                                 <div class="text-sm font-semibold text-primary">{{ $customer->name }}</div>
                                 <div class="text-xs text-themeBody mt-0.5 truncate">{{ $customer->email ?? '—' }}</div>
                                 <div class="text-xs text-themeMuted mt-1">{{ $customer->phone ?? '—' }}</div>
-                                <div class="text-xs text-themeMuted mt-0.5">TSh {{ number_format($customer->total_disbursed ?? 0, 2) }}</div>
                             </div>
                             <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium flex-shrink-0 {{ $customer->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-themeHover text-themeBody' }}">{{ $customer->is_active ? 'Active' : 'Inactive' }}</span>
                         </div>
@@ -141,8 +140,6 @@
                                 ID
                                 Number</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
-                                Total Disbursed</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
                                 Status</th>
                             <th class="px-6 py-3 text-right text-xs font-semibold text-themeMuted uppercase tracking-wider">
                                 Actions</th>
@@ -162,10 +159,6 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-themeBody">{{ $customer->id_number ?? '-' }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-red-600">TSh
-                                        {{ number_format($customer->total_disbursed ?? 0, 2) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span

@@ -59,7 +59,7 @@
             <a href="{{ route('field-agents.index') }}" 
                 class="filter-card bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] cursor-pointer transition-all hover:shadow-lg hover:border-primary/30 {{ !request('status') ? 'ring-2 ring-primary border-primary' : '' }}">
                 <div class="text-sm font-medium text-themeMuted mb-1">Total Commission</div>
-                <div class="text-2xl font-semibold text-amber-600">TSh
+                <div class="text-2xl font-semibold text-amber-600">{{ $currencySymbol }}
                     {{ number_format((float) $stats['total_commission'], 2) }}</div>
             </a>
         </div>
@@ -193,7 +193,7 @@
                                         {{ (int) ($fieldAgent->devices_distributed ?? 0) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-semibold text-amber-600">TSh
+                                    <div class="text-sm font-semibold text-amber-600">{{ $currencySymbol }}
                                         {{ number_format((float) ($fieldAgent->total_earned ?? 0), 2) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

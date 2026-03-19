@@ -47,7 +47,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-themeBody">{{ $rb->branch?->name ?? '—' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-themeBody">{{ $rb->category?->name ?? '—' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeHeading">TSh {{ number_format($rb->amount, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeHeading">{{ $currencySymbol }} {{ number_format($rb->amount, 2) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-themeBody">{{ ucfirst($rb->frequency) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-themeBody">{{ $rb->next_due_date?->format('Y-m-d') ?? '—' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">

@@ -188,7 +188,7 @@
                             <option value="">None</option>
                             @foreach ($sales as $sale)
                                 <option value="{{ $sale->id }}" {{ old('sale_id') == $sale->id ? 'selected' : '' }}>
-                                    Sale #{{ $sale->sale_number ?? $sale->id }} - TSh {{ number_format($sale->total, 2) }}
+                                    Sale #{{ $sale->sale_number ?? $sale->id }} - {{ $currencySymbol }} {{ number_format($sale->total, 2) }}
                                     - {{ $sale->created_at->format('M d, Y') }}
                                 </option>
                             @endforeach

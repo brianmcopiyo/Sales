@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Branch;
 use App\Models\BranchStock;
-use App\Models\CustomerDisbursement;
 use App\Models\Region;
 use App\Models\Sale;
 use App\Models\User;
@@ -82,19 +81,9 @@ class BranchController extends Controller
             ->groupBy('branch_id')
             ->get()
             ->keyBy('branch_id');
-        $disbursementTotalByBranch = $branchIds !== []
-            ? CustomerDisbursement::query()
-                ->join('sales', 'customer_disbursements.sale_id', '=', 'sales.id')
-                ->whereIn('sales.branch_id', $branchIds)
-                ->selectRaw('sales.branch_id, sum(customer_disbursements.amount) as total_disbursement')
-                ->groupBy('sales.branch_id')
-                ->get()
-                ->keyBy('branch_id')
-            : collect();
-
         $regions = Region::orderBy('name')->get(['id', 'name']);
 
-        return view('branches.index', compact('branches', 'stats', 'stockByBranch', 'regions', 'salesTotalByBranch', 'disbursementTotalByBranch'));
+        return view('branches.index', compact('branches', 'stats', 'stockByBranch', 'regions', 'salesTotalByBranch'));
     }
 
     /**

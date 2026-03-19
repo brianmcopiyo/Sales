@@ -29,7 +29,6 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\FieldAgentController;
 use App\Http\Controllers\ProductPricingController;
 use App\Http\Controllers\CommissionDisbursementController;
-use App\Http\Controllers\CustomerDisbursementController;
 use App\Http\Controllers\PettyCashController;
 use App\Http\Controllers\BillCategoryController;
 use App\Http\Controllers\BillController;
@@ -638,9 +637,6 @@ Route::middleware('auth')->group(function () {
     Route::post('tickets/{ticket}/reply', [TicketController::class, 'reply'])
         ->name('tickets.reply')
         ->middleware('permission:tickets.reply');
-    Route::post('tickets/{ticket}/create-disbursement', [TicketController::class, 'createDisbursement'])
-        ->name('tickets.create-disbursement')
-        ->middleware('permission:tickets.disbursements');
     Route::get('tickets/attachments/{attachment}/download', [TicketController::class, 'downloadAttachment'])
         ->name('tickets.attachments.download')
         ->middleware('permission:tickets.view');
@@ -707,42 +703,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])
         ->name('customers.delete')
         ->middleware('permission:customers.delete');
-    Route::get('customers/{customer}/disbursements', [CustomerDisbursementController::class, 'customerDisbursements'])
-        ->name('customers.disbursements')
-        ->middleware('permission:customer-disbursements.view');
-
-    // API route for customer sales (only sales without disbursements, for linking on create disbursement)
-    Route::get('api/customers/{customer}/sales', function ($customer) {
-        $sales = \App\Models\Sale::where('customer_id', $customer)
-            ->whereDoesntHave('customerDisbursements')
-            ->latest()
-            ->get(['id', 'sale_number', 'total', 'created_at']);
-        return response()->json($sales);
-    })->middleware('permission:customers.view|customer-disbursements.create');
-
-    // Customer Disbursements
-    Route::get('customer-disbursements', [CustomerDisbursementController::class, 'index'])
-        ->name('customer-disbursements.index')
-        ->middleware('permission:customer-disbursements.view');
-    Route::get('customer-disbursements/export', [CustomerDisbursementController::class, 'export'])
-        ->name('customer-disbursements.export')
-        ->middleware('permission:customer-disbursements.view');
-    Route::get('customer-disbursements/create', [CustomerDisbursementController::class, 'create'])
-        ->name('customer-disbursements.create')
-        ->middleware('permission:customer-disbursements.create');
-    Route::post('customer-disbursements', [CustomerDisbursementController::class, 'store'])
-        ->name('customer-disbursements.store')
-        ->middleware('permission:customer-disbursements.create');
-    Route::get('customer-disbursements/{customerDisbursement}', [CustomerDisbursementController::class, 'show'])
-        ->name('customer-disbursements.show')
-        ->middleware('permission:customer-disbursements.view');
-    Route::post('customer-disbursements/{customerDisbursement}/approve', [CustomerDisbursementController::class, 'approve'])
-        ->name('customer-disbursements.approve')
-        ->middleware('permission:customer-disbursements.approve');
-    Route::post('customer-disbursements/{customerDisbursement}/reject', [CustomerDisbursementController::class, 'reject'])
-        ->name('customer-disbursements.reject')
-        ->middleware('permission:customer-disbursements.approve');
-
     // Petty Cash
     Route::get('petty-cash', [PettyCashController::class, 'index'])
         ->name('petty-cash.index')

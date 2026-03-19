@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\Sale;
 use App\Models\Customer;
 use App\Models\Branch;
-use App\Models\CustomerDisbursement;
 use App\Models\Bill;
 use App\Models\PettyCashRequest;
 use App\Exports\TransactionsExport;
@@ -18,7 +17,7 @@ use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
-    public const TYPES = ['sale', 'disbursement', 'license', 'bill', 'petty_cash'];
+    public const TYPES = ['sale', 'license', 'bill', 'petty_cash'];
 
     public function index(Request $request)
     {
@@ -97,35 +96,6 @@ class TransactionController extends Controller
                     'amount' => (float) $sale->total_license_cost,
                     'url' => route('sales.show', $sale),
                     'raw' => $sale,
-                ]);
-            }
-        }
-
-        // Customer disbursements
-        if ($this->includeType('disbursement', $typeFilter) && $user->hasPermission('customer-disbursements.view')) {
-            $disbQuery = CustomerDisbursement::with(['sale.customer', 'sale.branch', 'customer'])
-                ->where('status', CustomerDisbursement::STATUS_APPROVED);
-            $disbQuery->whereHas('sale');
-            if ($allowedBranchIds !== null) {
-                $disbQuery->whereHas('sale', fn($q) => $q->whereIn('branch_id', $allowedBranchIds));
-            }
-            if ($dateFrom) {
-                $disbQuery->whereRaw('COALESCE(approved_at, created_at) >= ?', [$dateFrom]);
-            }
-            if ($dateTo) {
-                $disbQuery->whereRaw('COALESCE(approved_at, created_at) <= ?', [$dateTo]);
-            }
-            $disbursements = $disbQuery->orderByRaw('COALESCE(approved_at, created_at) DESC')->limit(400)->get();
-            foreach ($disbursements as $d) {
-                $sale = $d->sale;
-                $rows->push((object)[
-                    'type' => 'disbursement',
-                    'date' => $d->approved_at ?? $d->created_at,
-                    'reference' => 'Disbursement – ' . ($sale?->sale_number ?? 'Sale'),
-                    'description' => $d->customer?->name ?? $sale?->customer?->name ?? '—',
-                    'amount' => (float) $d->amount,
-                    'url' => $sale ? route('sales.show', $sale) : null,
-                    'raw' => $d,
                 ]);
             }
         }
@@ -211,7 +181,6 @@ class TransactionController extends Controller
         $completedQuery = (clone $baseQuery)->where('status', 'completed');
         $completedIds = (clone $completedQuery)->pluck('id')->all();
         $licenseCost = (clone $completedQuery)->sum('total_license_cost');
-        $disbursementCost = CustomerDisbursement::whereIn('sale_id', $completedIds)->sum('amount');
         $totalBuyingPrice = Sale::totalBuyingPriceForSaleIds($completedIds);
         $totalBillsPaid = $user->hasPermission('bills.view')
             ? Bill::query()->paid()
@@ -229,7 +198,7 @@ class TransactionController extends Controller
             'today' => (clone $baseQuery)->whereDate('created_at', today())->count(),
             'this_month' => (clone $baseQuery)->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
             'total_revenue' => (clone $completedQuery)->sum('total'),
-            'total_cost_to_sell' => $totalBuyingPrice + $licenseCost + $disbursementCost + $totalBillsPaid + $totalPettyCashDisbursed,
+            'total_cost_to_sell' => $totalBuyingPrice + $licenseCost + $totalBillsPaid + $totalPettyCashDisbursed,
         ];
         $stats['total_profit'] = $stats['total_revenue'] - $stats['total_cost_to_sell'];
 

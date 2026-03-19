@@ -76,7 +76,7 @@
             </div>
             <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                 <div class="text-sm font-medium text-themeMuted mb-1">Disbursed This Month</div>
-                <div class="text-2xl font-semibold text-themeBody">TSh {{ number_format($stats['disbursed_this_month'], 2) }}</div>
+                <div class="text-2xl font-semibold text-themeBody">{{ $currencySymbol }} {{ number_format($stats['disbursed_this_month'], 2) }}</div>
             </div>
         </div>
 

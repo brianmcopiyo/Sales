@@ -106,9 +106,8 @@
                                 <div class="text-xs text-themeMuted mt-0.5">{{ number_format($totalStock) }} stock</div>
                                 @php
                                     $branchSales = $salesTotalByBranch->get($branch->id);
-                                    $branchDisp = $disbursementTotalByBranch->get($branch->id);
                                 @endphp
-                                <div class="text-xs text-themeMuted mt-0.5">Sales: TSh {{ number_format($branchSales ? (float) $branchSales->total_sales : 0, 2) }} · Disb: TSh {{ number_format($branchDisp ? (float) $branchDisp->total_disbursement : 0, 2) }}</div>
+                                <div class="text-xs text-themeMuted mt-0.5">Sales: {{ $currencySymbol }} {{ number_format($branchSales ? (float) $branchSales->total_sales : 0, 2) }}</div>
                             </div>
                             <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium flex-shrink-0 {{ $branch->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-themeHover text-themeBody' }}">{{ $branch->is_active ? 'Active' : 'Inactive' }}</span>
                         </div>
@@ -134,8 +133,6 @@
                                 Stock</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
                                 Total sales</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
-                                Total disbursement</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
                                 Status</th>
                             <th class="px-6 py-3 text-right text-xs font-semibold text-themeMuted uppercase tracking-wider">
@@ -183,11 +180,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php $branchSales = $salesTotalByBranch->get($branch->id); @endphp
-                                    <div class="text-sm font-medium text-themeBody">TSh {{ number_format($branchSales ? (float) $branchSales->total_sales : 0, 2) }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @php $branchDisp = $disbursementTotalByBranch->get($branch->id); @endphp
-                                    <div class="text-sm font-medium text-themeBody">TSh {{ number_format($branchDisp ? (float) $branchDisp->total_disbursement : 0, 2) }}</div>
+                                    <div class="text-sm font-medium text-themeBody">{{ $currencySymbol }} {{ number_format($branchSales ? (float) $branchSales->total_sales : 0, 2) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span

@@ -128,9 +128,9 @@
                                 <div class="text-sm font-semibold text-primary">{{ $product->name }}</div>
                                 <div class="text-xs text-themeBody mt-0.5">{{ $product->sku }} · {{ $product->brand->name ?? '—' }}</div>
                                 @php $regionalSelling = $product->regionPrices->first()?->selling_price; $licenseCost = $product->license_cost; @endphp
-                                <div class="text-xs text-themeMuted mt-1">{{ $regionalSelling !== null ? 'TSh ' . number_format((float)$regionalSelling, 2) : '—' }}</div>
+                                <div class="text-xs text-themeMuted mt-1">{{ $regionalSelling !== null ? $currencySymbol . ' ' . number_format((float)$regionalSelling, 2) : '—' }}</div>
                                 @if ($licenseCost !== null && (float)$licenseCost > 0)
-                                    <div class="text-xs text-themeBody mt-0.5">License: TSh {{ number_format((float)$licenseCost, 2) }}</div>
+                                    <div class="text-xs text-themeBody mt-0.5">License: {{ $currencySymbol }} {{ number_format((float)$licenseCost, 2) }}</div>
                                 @endif
                             </div>
                             <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium flex-shrink-0 {{ $product->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-themeHover text-themeBody' }}">{{ $product->is_active ? 'Active' : 'Inactive' }}</span>
@@ -196,13 +196,13 @@
                                     @endphp
                                     <div
                                         class="text-sm font-medium {{ $regionalSelling !== null ? 'text-themeHeading' : 'text-themeMuted' }}">
-                                        {{ $regionalSelling !== null ? 'TSh ' . number_format((float) $regionalSelling, 2) : '—' }}
+                                        {{ $regionalSelling !== null ? $currencySymbol . ' ' . number_format((float) $regionalSelling, 2) : '—' }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php $licenseCost = $product->license_cost; @endphp
                                     <div class="text-sm font-medium {{ $licenseCost !== null && (float)$licenseCost > 0 ? 'text-themeHeading' : 'text-themeMuted' }}">
-                                        {{ $licenseCost !== null && (float)$licenseCost > 0 ? 'TSh ' . number_format((float) $licenseCost, 2) : '—' }}
+                                        {{ $licenseCost !== null && (float)$licenseCost > 0 ? $currencySymbol . ' ' . number_format((float) $licenseCost, 2) : '—' }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">

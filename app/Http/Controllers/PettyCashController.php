@@ -578,7 +578,7 @@ class PettyCashController extends Controller
             'fund_limit' => $validated['fund_limit'],
             'current_balance' => 0,
             'custodian_user_id' => $validated['custodian_user_id'] ?? null,
-            'currency' => $validated['currency'] ?? 'TSh',
+            'currency' => $validated['currency'] ?? config('app.currency_symbol'),
         ]);
         return redirect()->route('petty-cash.funds.index')->with('success', 'Fund created.');
     }

@@ -61,25 +61,25 @@
                 class="filter-card bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] cursor-pointer transition-all hover:shadow-lg hover:border-primary/30 {{ !request('date_from') && !request('status') ? 'ring-2 ring-primary border-primary' : '' }}"
                 data-filter="sales-all">
                 <div class="text-sm font-medium text-themeMuted mb-1">Total In Sales</div>
-                <div class="text-2xl font-semibold text-amber-600">TSh {{ number_format($stats['total_revenue'], 2) }}</div>
+                <div class="text-2xl font-semibold text-amber-600">{{ $currencySymbol }} {{ number_format($stats['total_revenue'], 2) }}</div>
             </a>
             <a href="{{ route('sales.index', $baseQuery) }}" 
                 class="filter-card bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] cursor-pointer transition-all hover:shadow-lg hover:border-primary/30"
                 data-filter="sales-all">
-                <div class="text-sm font-medium text-themeMuted mb-1">Cost to sell (buying + license + commission + disbursements)</div>
-                <div class="text-2xl font-semibold text-themeHeading">TSh {{ number_format($stats['total_cost_to_sell'] ?? 0, 2) }}</div>
+                <div class="text-sm font-medium text-themeMuted mb-1">Cost to sell (buying + license + commission)</div>
+                <div class="text-2xl font-semibold text-themeHeading">{{ $currencySymbol }} {{ number_format($stats['total_cost_to_sell'] ?? 0, 2) }}</div>
             </a>
             <a href="{{ route('sales.index', $baseQuery) }}" 
                 class="filter-card bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] cursor-pointer transition-all hover:shadow-lg hover:border-primary/30"
                 data-filter="sales-all">
                 <div class="text-sm font-medium text-themeMuted mb-1">Gross profit</div>
-                <div class="text-2xl font-semibold text-emerald-600">TSh {{ number_format($stats['total_profit'] ?? 0, 2) }}</div>
+                <div class="text-2xl font-semibold text-emerald-600">{{ $currencySymbol }} {{ number_format($stats['total_profit'] ?? 0, 2) }}</div>
             </a>
             <a href="{{ route('sales.index', $baseQuery) }}" 
                 class="filter-card bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] cursor-pointer transition-all hover:shadow-lg hover:border-primary/30"
                 data-filter="sales-all">
                 <div class="text-sm font-medium text-themeMuted mb-1">Total commission</div>
-                <div class="text-2xl font-semibold text-primary">TSh {{ number_format($stats['total_commission'] ?? 0, 2) }}</div>
+                <div class="text-2xl font-semibold text-primary">{{ $currencySymbol }} {{ number_format($stats['total_commission'] ?? 0, 2) }}</div>
             </a>
         </div>
 
@@ -164,9 +164,9 @@
                                 <div class="text-xs text-themeMuted mt-0.5 truncate" title="{{ $devices }}">{{ $devices }}</div>
                             </div>
                             <div class="flex-shrink-0 text-right">
-                                <div class="text-sm font-semibold text-primary">TSh {{ number_format($sale->total, 2) }}</div>
+                                <div class="text-sm font-semibold text-primary">{{ $currencySymbol }} {{ number_format($sale->total, 2) }}</div>
                                 <div class="text-xs text-themeMuted mt-1">
-                                    Buy: TSh {{ number_format($sale->total_buying_price, 2) }} · License: TSh {{ number_format($sale->total_license_cost ?? 0, 2) }} · Profit: TSh {{ number_format($sale->gross_profit, 2) }} · Commission: TSh {{ number_format($sale->items->sum('commission_amount'), 2) }}
+                                    Buy: {{ $currencySymbol }} {{ number_format($sale->total_buying_price, 2) }} · License: {{ $currencySymbol }} {{ number_format($sale->total_license_cost ?? 0, 2) }} · Profit: {{ $currencySymbol }} {{ number_format($sale->gross_profit, 2) }} · Commission: {{ $currencySymbol }} {{ number_format($sale->items->sum('commission_amount'), 2) }}
                                 </div>
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium mt-1 {{ $sale->status === 'completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-themeHover text-themeBody' }}">
                                     {{ ucfirst($sale->status) }}
@@ -207,8 +207,6 @@
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
                                 Commission</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
-                                Support</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
                                 Status</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
                                 Date</th>
@@ -247,28 +245,24 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-semibold text-primary">TSh
+                                    <div class="text-sm font-semibold text-primary">{{ $currencySymbol }}
                                         {{ number_format($sale->total, 2) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-themeBody">TSh
+                                    <div class="text-sm font-medium text-themeBody">{{ $currencySymbol }}
                                         {{ number_format($sale->total_buying_price, 2) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-themeBody">TSh
+                                    <div class="text-sm font-medium text-themeBody">{{ $currencySymbol }}
                                         {{ number_format($sale->total_license_cost ?? 0, 2) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-semibold text-emerald-600">TSh
+                                    <div class="text-sm font-semibold text-emerald-600">{{ $currencySymbol }}
                                         {{ number_format($sale->gross_profit, 2) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-primary">TSh
+                                    <div class="text-sm font-medium text-primary">{{ $currencySymbol }}
                                         {{ number_format($sale->items->sum('commission_amount'), 2) }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-amber-600">
-                                        TSh {{ number_format($sale->customer_disbursements_sum_amount ?? 0, 2) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span

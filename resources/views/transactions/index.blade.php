@@ -11,7 +11,7 @@
         <div class="flex justify-between items-center">
             <div>
                 <h1 class="text-3xl font-semibold text-primary tracking-tight">Transactions</h1>
-                <p class="text-sm font-medium text-themeMuted mt-1">Sales, disbursements, license, bills, and petty cash</p>
+                <p class="text-sm font-medium text-themeMuted mt-1">Sales, license, bills, and petty cash</p>
             </div>
             <a href="{{ route('transactions.export') . (request()->query() ? '?' . http_build_query(request()->query()) : '') }}"
                 class="bg-themeHover text-themeBody px-5 py-2.5 rounded-xl font-medium hover:bg-themeBorder transition shadow-sm flex items-center space-x-2">
@@ -43,17 +43,17 @@
             <div
                 class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                 <div class="text-sm font-medium text-themeMuted mb-1">Total In Sales</div>
-                <div class="text-2xl font-semibold text-amber-600">TSh {{ number_format($stats['total_revenue'], 2) }}</div>
+                <div class="text-2xl font-semibold text-amber-600">{{ $currencySymbol }} {{ number_format($stats['total_revenue'], 2) }}</div>
             </div>
             <div
                 class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                 <div class="text-sm font-medium text-themeMuted mb-1">Cost to sell</div>
-                <div class="text-2xl font-semibold text-themeHeading">TSh {{ number_format($stats['total_cost_to_sell'] ?? 0, 2) }}</div>
+                <div class="text-2xl font-semibold text-themeHeading">{{ $currencySymbol }} {{ number_format($stats['total_cost_to_sell'] ?? 0, 2) }}</div>
             </div>
             <div
                 class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                 <div class="text-sm font-medium text-themeMuted mb-1">Gross profit</div>
-                <div class="text-2xl font-semibold text-emerald-600">TSh {{ number_format($stats['total_profit'] ?? 0, 2) }}</div>
+                <div class="text-2xl font-semibold text-emerald-600">{{ $currencySymbol }} {{ number_format($stats['total_profit'] ?? 0, 2) }}</div>
             </div>
         </div>
 
@@ -67,7 +67,6 @@
                         class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">
                         <option value="">All</option>
                         <option value="sale" {{ ($typeFilter ?? '') === 'sale' ? 'selected' : '' }}>Sale</option>
-                        <option value="disbursement" {{ ($typeFilter ?? '') === 'disbursement' ? 'selected' : '' }}>Disbursement</option>
                         <option value="license" {{ ($typeFilter ?? '') === 'license' ? 'selected' : '' }}>License</option>
                         <option value="bill" {{ ($typeFilter ?? '') === 'bill' ? 'selected' : '' }}>Bill</option>
                         <option value="petty_cash" {{ ($typeFilter ?? '') === 'petty_cash' ? 'selected' : '' }}>Petty cash</option>
@@ -123,14 +122,12 @@
             @php
                 $typeLabels = [
                     'sale' => 'Sale',
-                    'disbursement' => 'Disbursement',
                     'license' => 'License',
                     'bill' => 'Bill',
                     'petty_cash' => 'Petty cash',
                 ];
                 $typeBadgeClass = [
                     'sale' => 'bg-emerald-100 text-emerald-800',
-                    'disbursement' => 'bg-violet-100 text-violet-800',
                     'license' => 'bg-amber-100 text-amber-800',
                     'bill' => 'bg-slate-100 text-slate-800',
                     'petty_cash' => 'bg-teal-100 text-teal-800',
@@ -153,7 +150,7 @@
                                 <div class="text-xs text-themeMuted mt-1">{{ $t->date?->format('M d, Y h:i A') ?? '—' }}</div>
                             </div>
                             <div class="flex-shrink-0 text-right">
-                                <div class="text-sm font-semibold text-themeHeading">TSh {{ number_format($t->amount ?? 0, 2) }}</div>
+                                <div class="text-sm font-semibold text-themeHeading">{{ $currencySymbol }} {{ number_format($t->amount ?? 0, 2) }}</div>
                                 @if ($t->url)
                                     <span class="text-xs text-primary mt-1">View</span>
                                 @endif
@@ -195,7 +192,7 @@
                                     <div class="text-sm text-themeBody max-w-xs truncate" title="{{ $t->description }}">{{ $t->description }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <div class="text-sm font-semibold text-themeHeading">TSh {{ number_format($t->amount ?? 0, 2) }}</div>
+                                    <div class="text-sm font-semibold text-themeHeading">{{ $currencySymbol }} {{ number_format($t->amount ?? 0, 2) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-themeBody">{{ $t->date?->format('M d, Y') ?? '—' }}</div>

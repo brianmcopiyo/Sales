@@ -78,19 +78,19 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div
                                         class="text-sm font-medium {{ $row?->cost_price !== null ? 'text-themeBody' : 'text-themeMuted' }}">
-                                        {{ $row?->cost_price !== null ? 'TSh ' . number_format((float) $row->cost_price, 2) : '—' }}
+                                        {{ $row?->cost_price !== null ? $currencySymbol . ' ' . number_format((float) $row->cost_price, 2) : '—' }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div
                                         class="text-sm font-semibold {{ $row?->selling_price !== null ? 'text-primary' : 'text-themeMuted' }}">
-                                        {{ $row?->selling_price !== null ? 'TSh ' . number_format((float) $row->selling_price, 2) : '—' }}
+                                        {{ $row?->selling_price !== null ? $currencySymbol . ' ' . number_format((float) $row->selling_price, 2) : '—' }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div
                                         class="text-sm font-medium {{ $row?->commission_per_device !== null ? 'text-themeBody' : 'text-themeMuted' }}">
-                                        {{ $row?->commission_per_device !== null ? 'TSh ' . number_format((float) $row->commission_per_device, 2) : '—' }}
+                                        {{ $row?->commission_per_device !== null ? $currencySymbol . ' ' . number_format((float) $row->commission_per_device, 2) : '—' }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

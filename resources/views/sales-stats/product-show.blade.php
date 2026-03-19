@@ -27,15 +27,15 @@
             </div>
             <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                 <div class="text-xs font-medium text-themeMuted mb-1">Total in sales</div>
-                <div class="text-2xl font-semibold text-amber-600">TSh {{ number_format($stats['total_revenue'], 2) }}</div>
+                <div class="text-2xl font-semibold text-amber-600">{{ $currencySymbol }} {{ number_format($stats['total_revenue'], 2) }}</div>
             </div>
             <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                 <div class="text-xs font-medium text-themeMuted mb-1">Cost to sell</div>
-                <div class="text-2xl font-semibold text-themeHeading">TSh {{ number_format($stats['total_cost_to_sell'] ?? 0, 2) }}</div>
+                <div class="text-2xl font-semibold text-themeHeading">{{ $currencySymbol }} {{ number_format($stats['total_cost_to_sell'] ?? 0, 2) }}</div>
             </div>
             <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                 <div class="text-xs font-medium text-themeMuted mb-1">Gross profit</div>
-                <div class="text-2xl font-semibold text-emerald-600">TSh {{ number_format($stats['total_profit'] ?? 0, 2) }}</div>
+                <div class="text-2xl font-semibold text-emerald-600">{{ $currencySymbol }} {{ number_format($stats['total_profit'] ?? 0, 2) }}</div>
             </div>
         </div>
 
@@ -64,7 +64,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-themeBody">{{ $item->sale?->customer?->name ?? '—' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-themeBody">{{ $item->sale?->branch?->name ?? '—' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-themeBody">{{ $item->quantity }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeBody">TSh {{ number_format($item->subtotal ?? 0, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeBody">{{ $currencySymbol }} {{ number_format($item->subtotal ?? 0, 2) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-themeBody">{{ $item->device?->imei ?? '—' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     @if ($item->sale)

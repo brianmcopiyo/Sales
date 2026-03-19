@@ -80,7 +80,7 @@
                                     <span class="text-sm font-medium text-themeHeading">{{ number_format($cat->requests_count ?? 0) }}</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <span class="text-sm font-medium text-amber-600">TSh {{ number_format((float) ($cat->requests_sum_amount ?? 0), 2) }}</span>
+                                    <span class="text-sm font-medium text-amber-600">{{ $currencySymbol }} {{ number_format((float) ($cat->requests_sum_amount ?? 0), 2) }}</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if($cat->is_active)

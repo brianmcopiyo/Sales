@@ -35,8 +35,7 @@ class SalesExport implements FromQuery, WithHeadings, WithMapping
         $query = Sale::with([
             'customer', 'branch', 'soldBy',
             'items.fieldAgent', 'items.device', 'items.product.brand', 'items.product.regionPrices',
-        ])
-            ->withSum('customerDisbursements', 'amount');
+        ]);
 
         // Restrict to branches this user can view (their branch + descendants)
         $query->when($allowedBranchIds !== null, fn ($q) => $q->whereIn('branch_id', $allowedBranchIds));
@@ -77,12 +76,11 @@ class SalesExport implements FromQuery, WithHeadings, WithMapping
             'Field Agent',
             'Product',
             'Brand',
-            'Total (TSh)',
-            'Buying price (TSh)',
-            'License cost (TSh)',
-            'Profit (TSh)',
-            'Commission (TSh)',
-            'Support (TSh)',
+            'Total (' . config('app.currency_symbol') . ')',
+            'Buying price (' . config('app.currency_symbol') . ')',
+            'License cost (' . config('app.currency_symbol') . ')',
+            'Profit (' . config('app.currency_symbol') . ')',
+            'Commission (' . config('app.currency_symbol') . ')',
             'Status',
             'Date',
         ];
@@ -96,9 +94,8 @@ class SalesExport implements FromQuery, WithHeadings, WithMapping
 
         $buyingPrice = (float) $sale->total_buying_price;
         $licenseCost = (float) ($sale->total_license_cost ?? 0);
-        $support = (float) ($sale->customer_disbursements_sum_amount ?? 0);
         $commission = (float) $sale->items->sum('commission_amount');
-        $profit = (float) $sale->gross_profit; // total - (buying + license + commission + support)
+        $profit = (float) $sale->gross_profit;
 
         return [
             $sale->sale_number ?? '',
@@ -113,7 +110,6 @@ class SalesExport implements FromQuery, WithHeadings, WithMapping
             number_format($licenseCost, 2),
             number_format($profit, 2),
             number_format($commission, 2),
-            number_format($support, 2),
             ucfirst($sale->status ?? ''),
             $sale->created_at?->format('M d, Y') ?? '',
         ];

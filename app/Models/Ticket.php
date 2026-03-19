@@ -24,7 +24,6 @@ class Ticket extends Model
         'sale_id',
         'product_id',
         'branch_id',
-        'disbursement_id',
         'resolved_at',
         'first_response_at',
         'last_response_at',
@@ -80,11 +79,6 @@ class Ticket extends Model
     public function branch()
     {
         return $this->belongsTo(Branch::class);
-    }
-
-    public function disbursement()
-    {
-        return $this->belongsTo(CustomerDisbursement::class, 'disbursement_id');
     }
 
     public function assignments()

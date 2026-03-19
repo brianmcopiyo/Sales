@@ -11,7 +11,6 @@ use App\Models\Branch;
 use App\Models\Region;
 use App\Models\Sale;
 use App\Models\Customer;
-use App\Models\CustomerDisbursement;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\Role;
@@ -147,7 +146,7 @@ class HubController extends Controller
             'sales_today' => (clone $salesQuery)->whereDate('created_at', today())->count(),
         ];
 
-        $recentSales = Sale::with(['customer', 'branch', 'items.product.regionPrices', 'customerDisbursements'])
+        $recentSales = Sale::with(['customer', 'branch', 'items.product.regionPrices'])
             ->when($isFieldAgent, fn($q) => $q->whereHas('items', fn($q2) => $q2->where('field_agent_id', $user->id)))
             ->when(!$isFieldAgent && $user->branch_id && !$user->isAdmin(), fn($q) => $q->where('branch_id', $user->branch_id))
             ->latest()
@@ -158,7 +157,7 @@ class HubController extends Controller
     }
 
     /**
-     * Customers hub: Customers, Customer Disbursements (field agents see only their customers)
+     * Customers hub (field agents see only their customers).
      */
     public function customers()
     {
@@ -169,21 +168,15 @@ class HubController extends Controller
             $stats = [
                 'customers_total' => (clone $customersQuery)->count(),
                 'customers_active' => (clone $customersQuery)->where('is_active', true)->count(),
-                'disbursements_total' => CustomerDisbursement::count(),
-                'disbursements_amount' => CustomerDisbursement::sum('amount'),
             ];
-            $recentDisbursements = CustomerDisbursement::with(['customer'])->latest()->limit(6)->get();
         } else {
             $stats = [
                 'customers_total' => Customer::count(),
                 'customers_active' => Customer::where('is_active', true)->count(),
-                'disbursements_total' => CustomerDisbursement::count(),
-                'disbursements_amount' => CustomerDisbursement::sum('amount'),
             ];
-            $recentDisbursements = CustomerDisbursement::with(['customer'])->latest()->limit(6)->get();
         }
 
-        return view('hubs.customers', compact('stats', 'recentDisbursements'));
+        return view('hubs.customers', compact('stats'));
     }
 
     /**

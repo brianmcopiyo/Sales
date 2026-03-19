@@ -75,7 +75,7 @@ class BillsExport implements FromQuery, WithHeadings, WithMapping
             $bill->invoice_date?->format('Y-m-d') ?? '',
             $bill->due_date?->format('Y-m-d') ?? '',
             number_format((float) $bill->amount, 2),
-            $bill->currency ?? 'TSh',
+            $bill->currency ?? config('app.currency_symbol'),
             $bill->category?->name ?? '',
             $bill->branch?->name ?? '',
             $bill->status ?? '',

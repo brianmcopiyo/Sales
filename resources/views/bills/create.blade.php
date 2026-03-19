@@ -84,7 +84,7 @@
                     </div>
                     <div>
                         <label for="currency" class="block text-sm font-medium text-themeBody mb-2">Currency</label>
-                        <input type="text" id="currency" name="currency" value="{{ old('currency', 'TSh') }}" maxlength="10"
+                        <input type="text" id="currency" name="currency" value="{{ old('currency', config('app.currency_symbol')) }}" maxlength="10"
                             class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">
                     </div>
                     <div class="md:col-span-2">

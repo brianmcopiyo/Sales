@@ -122,7 +122,7 @@
                                                 {{ $item->product?->name ?? '' }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-semibold text-amber-600">TSh
+                                            <div class="text-sm font-semibold text-amber-600">{{ $currencySymbol }}
                                                 {{ number_format((float) $item->commission_amount, 2) }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -159,12 +159,12 @@
                         </div>
                         <div>
                             <div class="text-sm font-medium text-themeMuted mb-1">Total Earned</div>
-                            <div class="text-2xl font-semibold text-amber-600">TSh
+                            <div class="text-2xl font-semibold text-amber-600">{{ $currencySymbol }}
                                 {{ number_format((float) $totals['total_commission'], 2) }}</div>
                         </div>
                         <div>
                             <div class="text-sm font-medium text-themeMuted mb-1">Available Balance</div>
-                            <div class="text-2xl font-semibold text-primary">TSh
+                            <div class="text-2xl font-semibold text-primary">{{ $currencySymbol }}
                                 {{ number_format((float) ($totals['available_balance'] ?? 0), 2) }}</div>
                         </div>
                     </div>

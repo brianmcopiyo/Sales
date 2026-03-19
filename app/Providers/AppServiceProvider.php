@@ -29,6 +29,11 @@ class AppServiceProvider extends ServiceProvider
         // Share NavigationService with all views
         View::share('navigation', $this->app->make(NavigationService::class));
 
+        // Share currency from config (.env: APP_CURRENCY_CODE, APP_CURRENCY_SYMBOL, APP_CURRENCY_NAME)
+        View::share('currencySymbol', config('app.currency_symbol'));
+        View::share('currencyCode', config('app.currency_code'));
+        View::share('currencyName', config('app.currency_name'));
+
         BranchStock::observe(BranchStockObserver::class);
 
         // Custom Blade directive: show content only if user has permission (avoids @can() issues)

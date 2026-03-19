@@ -19,7 +19,6 @@ class Customer extends Model
         'address',
         'id_number',
         'is_active',
-        'total_disbursed',
     ];
 
     protected static function booted(): void
@@ -35,7 +34,6 @@ class Customer extends Model
     {
         return [
             'is_active' => 'boolean',
-            'total_disbursed' => 'decimal:2',
         ];
     }
 
@@ -52,11 +50,6 @@ class Customer extends Model
     public function tickets()
     {
         return $this->hasMany(Ticket::class, 'customer_id');
-    }
-
-    public function disbursements()
-    {
-        return $this->hasMany(CustomerDisbursement::class);
     }
 
     /**

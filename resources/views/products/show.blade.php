@@ -64,7 +64,7 @@
                         @if ($product->license_cost !== null && (float) $product->license_cost > 0)
                             <div>
                                 <div class="text-sm font-medium text-themeMuted mb-1">License cost (cost to sell per unit)</div>
-                                <div class="text-base font-semibold text-themeHeading">TSh {{ number_format((float) $product->license_cost, 2) }}</div>
+                                <div class="text-base font-semibold text-themeHeading">{{ $currencySymbol }} {{ number_format((float) $product->license_cost, 2) }}</div>
                             </div>
                         @endif
                     </div>
@@ -92,8 +92,8 @@
                                         @foreach ($product->regionPrices as $rp)
                                             <tr>
                                                 <td class="px-4 py-3 text-sm font-medium text-themeHeading">{{ $rp->region?->name ?? $rp->region_id }}</td>
-                                                <td class="px-4 py-3 text-sm font-medium text-themeBody">TSh {{ number_format((float) $rp->cost_price, 2) }}</td>
-                                                <td class="px-4 py-3 text-sm font-medium text-themeBody">TSh {{ number_format((float) $rp->selling_price, 2) }}</td>
+                                                <td class="px-4 py-3 text-sm font-medium text-themeBody">{{ $currencySymbol }} {{ number_format((float) $rp->cost_price, 2) }}</td>
+                                                <td class="px-4 py-3 text-sm font-medium text-themeBody">{{ $currencySymbol }} {{ number_format((float) $rp->selling_price, 2) }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

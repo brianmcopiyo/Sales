@@ -20,7 +20,7 @@
 
         <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] max-w-md">
             <div class="text-sm font-medium text-themeMuted mb-1">Total commission (filtered)</div>
-            <div class="text-2xl font-semibold text-primary">TSh {{ number_format($totalInPeriod, 2) }}</div>
+            <div class="text-2xl font-semibold text-primary">{{ $currencySymbol }} {{ number_format($totalInPeriod, 2) }}</div>
         </div>
 
         <!-- Filters -->
@@ -66,7 +66,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeHeading">{{ $sale->customer->name ?? '—' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeHeading">{{ $sale->branch->name ?? '—' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeHeading">{{ $sale->created_at->format('M d, Y') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-primary">TSh {{ number_format((float) ($sale->total_commission ?? 0), 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-primary">{{ $currencySymbol }} {{ number_format((float) ($sale->total_commission ?? 0), 2) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <a href="{{ route('sales.show', $sale) }}" class="font-medium text-primary hover:text-primary-dark">View sale</a>
                                 </td>

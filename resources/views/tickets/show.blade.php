@@ -75,7 +75,7 @@
                             <div class="text-sm text-themeMuted font-light mb-1">Related Sale</div>
                             <a href="{{ route('sales.show', $ticket->sale) }}"
                                 class="text-primary hover:text-[#005a61] font-light">
-                                Sale #{{ $ticket->sale->sale_number ?? $ticket->sale->id }} - TSh
+                                Sale #{{ $ticket->sale->sale_number ?? $ticket->sale->id }} - {{ $currencySymbol }}
                                 {{ number_format($ticket->sale->total, 2) }}
                             </a>
                         </div>
@@ -101,16 +101,6 @@
                         </div>
                     @endif
 
-                    @if ($ticket->disbursement)
-                        <div class="mt-4 pt-4 border-t border-themeBorder">
-                            <div class="text-sm text-themeMuted font-light mb-1">Related Disbursement</div>
-                            <a href="{{ route('customer-disbursements.show', $ticket->disbursement) }}"
-                                class="text-primary hover:text-[#005a61] font-light">
-                                TSh {{ number_format($ticket->disbursement->amount, 2) }} -
-                                {{ $ticket->disbursement->created_at->format('M d, Y') }}
-                            </a>
-                        </div>
-                    @endif
                 </div>
 
                 <!-- Ticket Details Card -->
@@ -503,17 +493,6 @@
                             </a>
                         @endif
 
-                        @if (!$ticket->disbursement && !auth()->user()->isCustomer())
-                            <button onclick="document.getElementById('disbursement-form').classList.toggle('hidden')"
-                                class="block w-full bg-[#E48A22] text-white px-4 py-2 rounded hover:bg-[#d17a1a] transition font-light flex items-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-10V6m0 12v2m-7-6a7 7 0 1114 0 7 7 0 01-14 0z">
-                                    </path>
-                                </svg>
-                                <span>Create Disbursement</span>
-                            </button>
-                        @endif
                         <a href="{{ route('tickets.index') }}?status={{ $ticket->status }}"
                             class="block w-full bg-themeInput text-themeBody px-4 py-2.5 rounded-xl font-medium hover:bg-themeHover transition flex items-center space-x-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -589,7 +568,7 @@
                                         <div class="text-sm text-themeBody font-light">
                                             <a href="{{ route('sales.show', $sale) }}"
                                                 class="text-primary hover:text-[#005a61]">
-                                                {{ $sale->sale_number ?? 'Sale #' . $sale->id }} - TSh
+                                                {{ $sale->sale_number ?? 'Sale #' . $sale->id }} - {{ $currencySymbol }}
                                                 {{ number_format($sale->total, 2) }}
                                             </a>
                                         </div>
@@ -616,80 +595,10 @@
                             </div>
                         @endif
 
-                        @if ($customerDisbursements->count() > 0)
-                            <div>
-                                <div class="text-sm text-themeMuted font-light mb-2">Recent Disbursements
-                                    ({{ $customerDisbursements->count() }})</div>
-                                <div class="space-y-2 max-h-32 overflow-y-auto">
-                                    @foreach ($customerDisbursements->take(3) as $disbursement)
-                                        <div class="text-sm text-themeBody font-light">
-                                            <a href="{{ route('customer-disbursements.show', $disbursement) }}"
-                                                class="text-primary hover:text-[#005a61]">
-                                                TSh {{ number_format($disbursement->amount, 2) }} -
-                                                {{ $disbursement->created_at->format('M d, Y') }}
-                                            </a>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
                     </div>
                 @endif
 
                 @if (!auth()->user()->isCustomer())
-                    <!-- Create Disbursement Form -->
-                    <div id="disbursement-form"
-                        class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] {{ $ticket->disbursement ? 'hidden' : '' }}">
-                        <h2 class="text-lg font-semibold text-primary tracking-tight mb-4">Create Customer Disbursement
-                        </h2>
-                        <form method="POST" action="{{ route('tickets.create-disbursement', $ticket) }}"
-                            class="space-y-4">
-                            @csrf
-                            <div>
-                                <label for="sale_id" class="block text-themeBody font-light mb-2">Sale *</label>
-                                <select id="sale_id" name="sale_id" required
-                                    class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">
-                                    <option value="">Select Sale</option>
-                                    @foreach ($customerSales ?? [] as $sale)
-                                        <option value="{{ $sale->id }}" {{ old('sale_id') == $sale->id ? 'selected' : '' }}>
-                                            {{ $sale->sale_number ?? 'Sale #' . $sale->id }} - TSh {{ number_format($sale->total, 2) }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <p class="text-xs text-themeMuted font-light mt-1">Select the sale this disbursement is for.</p>
-                                @error('sale_id')
-                                    <p class="text-red-500 text-sm font-light mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <div>
-                                <label for="amount" class="block text-themeBody font-light mb-2">Amount *</label>
-                                <input type="number" id="amount" name="amount" step="0.01" min="0.01"
-                                    required
-                                    class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">
-                            </div>
-                            <div>
-                                <label for="disbursement_phone" class="block text-themeBody font-light mb-2">Phone Number
-                                    *</label>
-                                <input type="text" id="disbursement_phone" name="disbursement_phone"
-                                    value="{{ $ticket->customer->phone ?? '' }}" required
-                                    class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">
-                            </div>
-                            <div>
-                                <label for="notes" class="block text-themeBody font-light mb-2">Notes</label>
-                                <textarea id="notes" name="notes" rows="3"
-                                    class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading"></textarea>
-                            </div>
-                            <button type="submit"
-                                class="w-full bg-[#E48A22] text-white px-6 py-2 rounded hover:bg-[#d17a1a] transition font-light flex items-center justify-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 4v16m8-8H4"></path>
-                                </svg>
-                                <span>Create Disbursement</span>
-                            </button>
-                        </form>
-                    </div>
-
                     <!-- Update Ticket Card -->
                     <div
                         class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">

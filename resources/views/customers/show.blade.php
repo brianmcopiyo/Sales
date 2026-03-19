@@ -112,7 +112,7 @@
                                         <div>
                                             <div class="text-sm font-medium text-themeMuted mb-1">Sale
                                                 #{{ $sale->sale_number }}</div>
-                                            <div class="text-base font-semibold text-primary">TSh
+                                            <div class="text-base font-semibold text-primary">{{ $currencySymbol }}
                                                 {{ number_format($sale->total, 2) }}</div>
                                             <div class="text-sm font-medium text-themeBody mt-1">
                                                 {{ $sale->created_at->format('M d, Y') }}</div>
@@ -151,24 +151,6 @@
                             </svg>
                             <span>Create Ticket</span>
                         </a>
-                        <a href="{{ route('customer-disbursements.create', ['customer_id' => $customer->id]) }}"
-                            class="block w-full bg-amber-500 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-amber-600 transition shadow-sm flex items-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-10V6m0 12v2m-7-6a7 7 0 1114 0 7 7 0 01-14 0z">
-                                </path>
-                            </svg>
-                            <span>Disburse Support</span>
-                        </a>
-                        <a href="{{ route('customers.disbursements', $customer) }}"
-                            class="block w-full bg-themeInput text-themeBody px-4 py-2.5 rounded-xl font-medium hover:bg-themeHover transition flex items-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                </path>
-                            </svg>
-                            <span>View Disbursements</span>
-                        </a>
                     </div>
                 </div>
 
@@ -187,23 +169,18 @@
                         </div>
                         <div>
                             <div class="text-sm font-medium text-themeMuted mb-1">Total In Sales</div>
-                            <div class="text-2xl font-semibold text-amber-600">TSh
+                            <div class="text-2xl font-semibold text-amber-600">{{ $currencySymbol }}
                                 {{ number_format($salesStats['revenue'] ?? $customer->sales->sum('total'), 2) }}</div>
                         </div>
                         <div>
                             <div class="text-sm font-medium text-themeMuted mb-1">Cost to sell</div>
-                            <div class="text-2xl font-semibold text-themeHeading">TSh
+                            <div class="text-2xl font-semibold text-themeHeading">{{ $currencySymbol }}
                                 {{ number_format($salesStats['cost_to_sell'] ?? 0, 2) }}</div>
                         </div>
                         <div>
                             <div class="text-sm font-medium text-themeMuted mb-1">Gross profit</div>
-                            <div class="text-2xl font-semibold text-emerald-600">TSh
+                            <div class="text-2xl font-semibold text-emerald-600">{{ $currencySymbol }}
                                 {{ number_format($salesStats['profit'] ?? 0, 2) }}</div>
-                        </div>
-                        <div>
-                            <div class="text-sm font-medium text-themeMuted mb-1">Total Disbursed</div>
-                            <div class="text-2xl font-semibold text-red-600">TSh
-                                {{ number_format($customer->total_disbursed ?? 0, 2) }}</div>
                         </div>
                     </div>
                 </div>

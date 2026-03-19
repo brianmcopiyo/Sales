@@ -10,7 +10,7 @@ class SessionManager(context: Context) {
         get() = prefs.getString(KEY_TOKEN, null)
         set(value) = prefs.edit().putString(KEY_TOKEN, value).apply()
 
-    var isLoggedIn: Boolean
+    val isLoggedIn: Boolean
         get() = !token.isNullOrBlank()
 
     var userName: String?

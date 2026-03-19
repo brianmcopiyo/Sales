@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\Sale;
 use App\Models\Customer;
 use App\Models\Branch;
-use App\Models\CustomerDisbursement;
 use App\Models\Bill;
 use App\Models\PettyCashRequest;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -107,31 +106,6 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping
             }
         }
 
-        if ($this->includeType('disbursement', $typeFilter) && $user->hasPermission('customer-disbursements.view')) {
-            $disbQuery = CustomerDisbursement::with(['sale.customer', 'customer'])
-                ->where('status', CustomerDisbursement::STATUS_APPROVED)->whereHas('sale');
-            if ($allowedBranchIds !== null) {
-                $disbQuery->whereHas('sale', fn($q) => $q->whereIn('branch_id', $allowedBranchIds));
-            }
-            if ($dateFrom) {
-                $disbQuery->whereRaw('COALESCE(approved_at, created_at) >= ?', [$dateFrom]);
-            }
-            if ($dateTo) {
-                $disbQuery->whereRaw('COALESCE(approved_at, created_at) <= ?', [$dateTo]);
-            }
-            $disbursements = $disbQuery->orderByRaw('COALESCE(approved_at, created_at) DESC')->limit(1000)->get();
-            foreach ($disbursements as $d) {
-                $sale = $d->sale;
-                $rows->push((object)[
-                    'type' => 'Disbursement',
-                    'date' => $d->approved_at ?? $d->created_at,
-                    'reference' => 'Disbursement – ' . ($sale?->sale_number ?? 'Sale'),
-                    'description' => $d->customer?->name ?? $sale?->customer?->name ?? '—',
-                    'amount' => (float) $d->amount,
-                ]);
-            }
-        }
-
         if ($this->includeType('bill', $typeFilter) && $user->hasPermission('bills.view')) {
             $billsQuery = Bill::with(['vendor'])->paid();
             if ($allowedBranchIds !== null) {
@@ -191,7 +165,7 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping
 
     public function headings(): array
     {
-        return ['Type', 'Date', 'Reference', 'Description', 'Amount (TSh)'];
+        return ['Type', 'Date', 'Reference', 'Description', 'Amount (' . config('app.currency_symbol') . ')'];
     }
 
     public function map($row): array

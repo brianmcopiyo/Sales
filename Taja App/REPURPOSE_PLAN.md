@@ -16,6 +16,26 @@ This document contains: **(1)** deep research on FMCG distribution app best prac
 
 ---
 
+# DATABASE ALIGNMENT — SCHEMA SUPPORTS THE PLAN
+
+The Laravel database has been verified to support all capabilities described in this plan. Summary:
+
+| Plan requirement | Table / model | Schema / notes |
+|------------------|---------------|----------------|
+| **Login (email/phone + password)** | `users` | `email` (nullable), `phone` (nullable), `password`. Login by email or phone is supported. |
+| **User branch & phone for profile/dashboard** | `users` | `branch_id` (FK to branches), `phone`. API returns both in GET /api/user and login payloads. |
+| **OTP (verify, resend)** | `otps` | `email`, `phone` (nullable), `otp`, `type`, `used`, `expires_at`. Supports email- or phone-only OTP. |
+| **Outlets CRUD** | `outlets` | `name`, `code`, `address`, `lat`, `lng`, `branch_id`, `region_id`, `assigned_to`, `is_active`, `type`, `contact_*`. |
+| **Geo-fence on outlets** | `outlets` | `geo_fence_type`, `geo_fence_radius_metres`, `geo_fence_polygon` (JSON). GeoFenceService validates check-in location. |
+| **Check-ins (create, list)** | `check_ins` | `user_id`, `outlet_id`, `check_in_at`, `lat_in`, `lng_in`, `photo_path`, `notes`; optional check_out / lat_out / lng_out. Indexes on (user_id, check_in_at), (outlet_id, check_in_at). |
+| **Offline sync (POST /api/sync/check-ins)** | `check_ins` | No separate queue table; sync creates rows in `check_ins`. Client sends `items[]` with client_id, outlet_id, lat, lng, notes, photo_base64, check_in_at. |
+| **Branch hierarchy (dashboard scope)** | `branches` | `head_branch_id` for parent; `Branch::selfAndDescendantIds()` used by DistributionDashboardController and outlet/check-in scoping. |
+| **Distribution permissions** | `permissions`, `role_permission` | `outlets.view`, `outlets.manage`, `checkins.create`, `checkins.view`, `distribution.reports` (seeded). |
+
+**Conclusion:** The database supports login (email/phone), OTP, users with branch/phone, outlets with geo-fence, check-ins with location/photo/notes, offline sync into the same check_ins table, branch hierarchy for dashboards, and distribution permissions. No schema changes are required for the current repurpose scope.
+
+---
+
 # STATUS OVERVIEW — WHAT WE HAVE, IN PROGRESS, AND TO DO
 
 Use this table to track progress. Update the **Status** column as work moves from **To do** → **In progress** → **Done**.

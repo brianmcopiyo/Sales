@@ -221,7 +221,7 @@ class SearchController extends Controller
                     $subtitle[] = $sale->branch->name;
                 }
                 if ($sale->total !== null) {
-                    $subtitle[] = 'TSh ' . number_format((float) $sale->total, 2);
+                    $subtitle[] = config('app.currency_symbol') . ' ' . number_format((float) $sale->total, 2);
                 }
                 if ($sale->status) {
                     $subtitle[] = ucfirst($sale->status);
@@ -513,7 +513,7 @@ class SearchController extends Controller
                     if ($req->fund && $req->fund->branch) {
                         $subtitle[] = $req->fund->branch->name;
                     }
-                    $subtitle[] = 'TSh ' . number_format((float) $req->amount, 2);
+                    $subtitle[] = config('app.currency_symbol') . ' ' . number_format((float) $req->amount, 2);
                     if ($req->categoryRelation) {
                         $subtitle[] = $req->categoryRelation->name;
                     } elseif ($req->category) {

@@ -91,28 +91,22 @@
                 </div>
                 <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                     <div class="text-themeMuted text-xs font-medium uppercase tracking-wider">Revenue ({{ $periodLabel ?? 'period' }})</div>
-                    <div class="text-base font-semibold text-themeHeading mt-0.5">TSh {{ number_format($stats['revenue_in_period'] ?? 0, 2) }}</div>
+                    <div class="text-base font-semibold text-themeHeading mt-0.5">{{ $currencySymbol }} {{ number_format($stats['revenue_in_period'] ?? 0, 2) }}</div>
                 </div>
                 <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                     <div class="text-themeMuted text-xs font-medium uppercase tracking-wider">Cost to sell ({{ $periodLabel ?? 'period' }})</div>
                     <div class="text-xs text-themeMuted mt-0.5">buying + license + commission + support, petty cash & bills</div>
-                    <div class="text-base font-semibold text-themeHeading mt-0.5">TSh {{ number_format($stats['cost_to_sell_in_period'] ?? 0, 2) }}</div>
+                    <div class="text-base font-semibold text-themeHeading mt-0.5">{{ $currencySymbol }} {{ number_format($stats['cost_to_sell_in_period'] ?? 0, 2) }}</div>
                 </div>
                 <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                     <div class="text-themeMuted text-xs font-medium uppercase tracking-wider">Gross profit ({{ $periodLabel ?? 'period' }})</div>
                     <div class="text-xs text-themeMuted mt-0.5">after petty cash & bills</div>
-                    <div class="text-base font-semibold text-emerald-600 mt-0.5">TSh {{ number_format($stats['profit_in_period'] ?? 0, 2) }}</div>
+                    <div class="text-base font-semibold text-emerald-600 mt-0.5">{{ $currencySymbol }} {{ number_format($stats['profit_in_period'] ?? 0, 2) }}</div>
                 </div>
-                @if ($canViewCustomerDisbursements ?? false)
-                <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                    <div class="text-themeMuted text-xs font-medium uppercase tracking-wider">Support ({{ $periodLabel ?? 'period' }})</div>
-                    <div class="text-base font-semibold text-themeHeading mt-0.5">TSh {{ number_format($stats['support_in_period'] ?? 0, 2) }}</div>
-                </div>
-                @endif
                 @if ($canViewCommissions ?? false)
                 <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                     <div class="text-themeMuted text-xs font-medium uppercase tracking-wider">Commission ({{ $periodLabel ?? 'period' }})</div>
-                    <div class="text-base font-semibold text-primary mt-0.5">TSh {{ number_format($stats['commission_in_period'] ?? 0, 2) }}</div>
+                    <div class="text-base font-semibold text-primary mt-0.5">{{ $currencySymbol }} {{ number_format($stats['commission_in_period'] ?? 0, 2) }}</div>
                 </div>
                 @endif
             </div>
@@ -154,7 +148,7 @@
                 </div>
                 <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                     <div class="text-themeMuted text-xs font-medium uppercase tracking-wider">Expenses ({{ $periodLabel ?? 'period' }})</div>
-                    <div class="text-base font-semibold text-amber-600 mt-0.5">TSh {{ number_format($pettyCashStats['disbursed_in_period_amount'] ?? 0, 2) }}</div>
+                    <div class="text-base font-semibold text-amber-600 mt-0.5">{{ $currencySymbol }} {{ number_format($pettyCashStats['disbursed_in_period_amount'] ?? 0, 2) }}</div>
                 </div>
                 <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] flex items-center justify-end">
                     <a href="{{ route('petty-cash.index') }}" class="text-sm font-medium text-primary hover:underline">View petty cash →</a>
@@ -169,7 +163,7 @@
                 <a href="{{ route('bills.index', ['filter' => 'unpaid']) }}"
                     class="block bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:border-primary/40 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 rounded-2xl">
                     <div class="text-themeMuted text-xs font-medium uppercase tracking-wider">Total unpaid</div>
-                    <div class="text-base font-semibold text-primary mt-0.5">TSh {{ number_format($billsStats['total_unpaid'] ?? 0, 2) }}</div>
+                    <div class="text-base font-semibold text-primary mt-0.5">{{ $currencySymbol }} {{ number_format($billsStats['total_unpaid'] ?? 0, 2) }}</div>
                 </a>
                 <a href="{{ route('bills.index', ['filter' => 'due_this_week']) }}"
                     class="block bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:border-amber-400/50 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:ring-offset-2 rounded-2xl">
@@ -184,7 +178,7 @@
                 <a href="{{ route('bills.index', ['filter' => 'paid_this_month']) }}"
                     class="block bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:border-emerald-400/50 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-emerald-400/30 focus:ring-offset-2 rounded-2xl">
                     <div class="text-themeMuted text-xs font-medium uppercase tracking-wider">Paid this month</div>
-                    <div class="text-base font-semibold text-emerald-600 mt-0.5">TSh {{ number_format($billsStats['paid_this_month'] ?? 0, 2) }}</div>
+                    <div class="text-base font-semibold text-emerald-600 mt-0.5">{{ $currencySymbol }} {{ number_format($billsStats['paid_this_month'] ?? 0, 2) }}</div>
                 </a>
             </div>
             <div class="mb-6">
@@ -224,7 +218,7 @@
                                         <td class="px-6 py-3 text-sm text-themeBody">{{ $order->branch?->name ?? '—' }}</td>
                                         <td class="px-6 py-3 text-sm text-themeBody">{{ $order->product?->name ?? '—' }}</td>
                                         <td class="px-6 py-3 text-sm font-medium text-themeHeading">{{ $order->quantity_received }}/{{ $order->quantity_ordered }}</td>
-                                        <td class="px-6 py-3 text-sm font-medium text-themeBody">TSh {{ number_format((float) ($order->total_acquisition_cost ?? 0), 2) }}</td>
+                                        <td class="px-6 py-3 text-sm font-medium text-themeBody">{{ $currencySymbol }} {{ number_format((float) ($order->total_acquisition_cost ?? 0), 2) }}</td>
                                         <td class="px-6 py-3 text-sm text-themeMuted">{{ ($order->ordered_at ?? $order->created_at)?->format('M d, Y') }}</td>
                                         <td class="px-6 py-3">
                                             @if ($order->status === 'received_full')
@@ -292,7 +286,7 @@
                                 <div class="text-right text-sm">
                                     <span class="font-medium text-themeHeading">{{ number_format($user->sales_count ?? 0) }} sales</span>
                                     <span class="text-themeMuted"> · </span>
-                                    <span class="text-emerald-600 font-medium">TSh {{ number_format($user->revenue ?? 0, 2) }}</span>
+                                    <span class="text-emerald-600 font-medium">{{ $currencySymbol }} {{ number_format($user->revenue ?? 0, 2) }}</span>
                                 </div>
                             </li>
                         @empty
@@ -319,7 +313,7 @@
                                 <div class="text-right text-sm">
                                     <span class="font-medium text-themeHeading">{{ number_format($item->items_sold ?? 0) }} sold</span>
                                     <span class="text-themeMuted"> · </span>
-                                    <span class="text-emerald-600 font-medium">TSh {{ number_format($item->revenue ?? 0, 2) }}</span>
+                                    <span class="text-emerald-600 font-medium">{{ $currencySymbol }} {{ number_format($item->revenue ?? 0, 2) }}</span>
                                 </div>
                             </li>
                         @empty

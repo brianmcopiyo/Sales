@@ -58,7 +58,6 @@ class CustomersExport implements FromQuery, WithHeadings, WithMapping
             'Phone',
             'ID Number',
             'Address',
-            'Total Disbursed (TSh)',
             'Status',
             'Created',
         ];
@@ -72,7 +71,6 @@ class CustomersExport implements FromQuery, WithHeadings, WithMapping
             $customer->phone ?? '',
             $customer->id_number ?? '',
             $customer->address ?? '',
-            number_format((float) ($customer->total_disbursed ?? 0), 2),
             $customer->is_active ? 'Active' : 'Inactive',
             $customer->created_at?->format('Y-m-d H:i') ?? '',
         ];

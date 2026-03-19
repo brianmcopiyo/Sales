@@ -16,7 +16,6 @@ use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\Product;
 use App\Models\Branch;
-use App\Models\CustomerDisbursement;
 use App\Models\ActivityLog;
 use App\Exports\TicketsExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -339,7 +338,6 @@ class TicketController extends Controller
             'sale.items.product',
             'product.brand',
             'branch',
-            'disbursement',
             'replies.user',
             'replies.attachments',
             'attachments.uploadedBy',
@@ -360,9 +358,8 @@ class TicketController extends Controller
         // Get customer's related data for context
         $customerSales = $ticket->customer->sales()->latest()->take(10)->get();
         $customerTickets = $ticket->customer->tickets()->where('id', '!=', $ticket->id)->latest()->take(5)->get();
-        $customerDisbursements = $ticket->customer->disbursements()->latest()->take(5)->get();
 
-        return view('tickets.show', compact('ticket', 'staff', 'tags', 'customerSales', 'customerTickets', 'customerDisbursements'));
+        return view('tickets.show', compact('ticket', 'staff', 'tags', 'customerSales', 'customerTickets'));
     }
 
     public function update(Request $request, Ticket $ticket)
@@ -530,59 +527,6 @@ class TicketController extends Controller
         $attachment->delete();
 
         return redirect()->back()->with('success', 'Attachment deleted successfully.');
-    }
-
-    public function createDisbursement(Request $request, Ticket $ticket)
-    {
-        $validated = $request->validate([
-            'sale_id' => 'required|exists:sales,id',
-            'amount' => 'required|numeric|min:0.01',
-            'disbursement_phone' => 'required|string|max:255',
-            'notes' => 'nullable|string|max:1000',
-        ]);
-
-        $saleId = $validated['sale_id'];
-        $sale = Sale::findOrFail($saleId);
-        if ((string) $sale->customer_id !== (string) $ticket->customer_id) {
-            return back()->withErrors(['sale_id' => 'Selected sale does not belong to the ticket customer.'])->withInput();
-        }
-
-        // One disbursement per sale (avoid duplicates)
-        $existing = CustomerDisbursement::where('sale_id', $saleId)->whereIn('status', [CustomerDisbursement::STATUS_APPROVED, CustomerDisbursement::STATUS_PENDING])->first();
-        if ($existing) {
-            return back()->withErrors(['sale_id' => 'This sale already has a disbursement request.'])->withInput();
-        }
-
-        $notes = ($validated['notes'] ?? '') . "\n\nCreated from ticket: {$ticket->ticket_number}";
-        $data = [
-            'customer_id' => $ticket->customer_id,
-            'sale_id' => $saleId,
-            'amount' => $validated['amount'],
-            'disbursement_phone' => $validated['disbursement_phone'],
-            'notes' => $notes,
-            'disbursed_by' => Auth::id(),
-            'status' => CustomerDisbursement::STATUS_PENDING,
-        ];
-
-        DB::transaction(function () use ($data, $ticket, $existing) {
-            $disbursement = $existing
-                ? tap($existing)->update($data)
-                : CustomerDisbursement::create($data);
-
-            $ticket->update(['disbursement_id' => $disbursement->id]);
-
-            ActivityLog::log(
-                Auth::id(),
-                $existing ? 'ticket_disbursement_updated' : 'ticket_disbursement_created',
-                ($existing ? 'Updated' : 'Created') . " disbursement of {$disbursement->amount} from ticket #{$ticket->ticket_number} (pending approval)",
-                Ticket::class,
-                $ticket->id,
-                ['ticket_number' => $ticket->ticket_number, 'disbursement_id' => $disbursement->id, 'amount' => $disbursement->amount]
-            );
-        });
-
-        $message = $existing ? 'Disbursement updated. It requires approval before it is applied.' : 'Customer disbursement created. It requires approval before it is applied.';
-        return redirect()->route('tickets.show', $ticket)->with('success', $message);
     }
 
     /**

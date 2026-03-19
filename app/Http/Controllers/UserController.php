@@ -10,7 +10,6 @@ use App\Models\ActivityLog;
 use App\Models\FieldAgent;
 use App\Models\SaleItem;
 use App\Models\CommissionDisbursement;
-use App\Models\CustomerDisbursement;
 use App\Imports\UsersImport;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -185,7 +184,7 @@ class UserController extends Controller
         $saleIds = $user->sales->pluck('id')->all();
         $revenue = $user->sales->sum('total');
         $totalBuyingPrice = \App\Models\Sale::totalBuyingPriceForSaleIds($saleIds);
-        $costToSell = $totalBuyingPrice + $user->sales->sum('total_license_cost') + CustomerDisbursement::whereIn('sale_id', $saleIds)->sum('amount');
+        $costToSell = $totalBuyingPrice + $user->sales->sum('total_license_cost');
         $salesStats = [
             'revenue' => $revenue,
             'cost_to_sell' => $costToSell,

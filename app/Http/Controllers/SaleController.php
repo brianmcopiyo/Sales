@@ -10,7 +10,6 @@ use App\Models\BranchStock;
 use App\Models\Customer;
 use App\Models\ActivityLog;
 use App\Models\ProductRegionPrice;
-use App\Models\CustomerDisbursement;
 use App\Models\SaleAttachment;
 use App\Models\StockAdjustment;
 use App\Models\User;
@@ -37,8 +36,7 @@ class SaleController extends Controller
             $branchFilter = null;
         }
 
-        $query = Sale::with(['customer', 'branch', 'soldBy', 'items.fieldAgent', 'items.product.brand', 'items.product.regionPrices'])
-            ->withSum('customerDisbursements', 'amount');
+        $query = Sale::with(['customer', 'branch', 'soldBy', 'items.fieldAgent', 'items.product.brand', 'items.product.regionPrices']);
 
         // Restrict to branches this user can view (their branch + descendants)
         $query->when($allowedBranchIds !== null, fn($q) => $q->whereIn('branch_id', $allowedBranchIds));
@@ -77,11 +75,10 @@ class SaleController extends Controller
         $completedIds = (clone $baseFiltered)->where('status', 'completed')->pluck('id')->all();
         $completedQuery = Sale::whereIn('id', $completedIds);
         $licenseCost = (clone $completedQuery)->sum('total_license_cost');
-        $disbursementCost = CustomerDisbursement::whereIn('sale_id', $completedIds)->sum('amount');
         $stats['total_revenue'] = (clone $completedQuery)->sum('total');
         $totalBuyingPrice = Sale::totalBuyingPriceForSaleIds($completedIds);
         $stats['total_commission'] = \App\Models\SaleItem::whereIn('sale_id', $completedIds)->sum('commission_amount');
-        $stats['total_cost_to_sell'] = $totalBuyingPrice + $licenseCost + $stats['total_commission'] + $disbursementCost;
+        $stats['total_cost_to_sell'] = $totalBuyingPrice + $licenseCost + $stats['total_commission'];
         $stats['total_profit'] = $stats['total_revenue'] - $stats['total_cost_to_sell'];
 
         $sales = $query->latest()->paginate(15)->withQueryString();
@@ -155,7 +152,6 @@ class SaleController extends Controller
             'items.*.unit_price' => 'required|numeric|min:0',
             'tax' => 'nullable|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
-            'customer_support_amount' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ];
 
@@ -272,7 +268,6 @@ class SaleController extends Controller
             }
 
             $tax = $validated['tax'] ?? 0;
-            $customerSupportAmount = $validated['customer_support_amount'] ?? 0;
             $total = $subtotal + $tax;
             $totalLicenseCost = array_sum(array_map(fn ($i) => ($i['quantity'] ?? 1) * ($i['unit_license_cost'] ?? 0), $items));
 
@@ -322,23 +317,6 @@ class SaleController extends Controller
                 }
             }
 
-            // Create or update customer disbursement when support amount is provided (one per sale)
-            if ($customerSupportAmount > 0 && $customerId) {
-                $customer = Customer::findOrFail($customerId);
-                CustomerDisbursement::updateOrCreate(
-                    ['sale_id' => $sale->id],
-                    [
-                        'customer_id' => $customerId,
-                        'sale_id' => $sale->id,
-                        'amount' => $customerSupportAmount,
-                        'disbursement_phone' => $customer->phone ?? '',
-                        'notes' => 'Support provided during sale creation',
-                        'disbursed_by' => Auth::id(),
-                        'status' => CustomerDisbursement::STATUS_PENDING,
-                    ]
-                );
-            }
-
             // Commission is credited to the seller when the sale is completed (see complete()).
 
             // Store evidence attachments
@@ -382,7 +360,7 @@ class SaleController extends Controller
         if (!$this->canAccessSale($user, $sale)) {
             abort(403, 'You do not have access to this sale. It belongs to another branch.');
         }
-        $sale->load(['customer', 'branch', 'outlet', 'checkIn', 'soldBy', 'items.product.regionPrices', 'items.fieldAgent', 'customerDisbursements', 'evidence.uploadedBy']);
+        $sale->load(['customer', 'branch', 'outlet', 'checkIn', 'soldBy', 'items.product.regionPrices', 'items.fieldAgent', 'evidence.uploadedBy']);
         if ($user instanceof User) {
             $user->loadMissing('roleModel');
         }
@@ -449,11 +427,6 @@ class SaleController extends Controller
             return redirect()->route('sales.show', $sale)
                 ->with('error', 'Only pending sales can be completed.');
         }
-        if ($sale->hasPendingDisbursement()) {
-            return redirect()->route('sales.show', $sale)
-                ->with('error', 'This sale has a pending disbursement. Approve the disbursement request before completing the sale.');
-        }
-
         $validated = $request->validate([
             'completion_document' => ['required', 'file', 'max:5120', 'mimes:jpg,jpeg,png,gif,webp,pdf'],
         ], [
@@ -541,7 +514,7 @@ class SaleController extends Controller
     }
 
     /**
-     * Reopen a cancelled sale so the user can submit a new disbursement request.
+     * Reopen a cancelled sale so the user can edit or complete it again.
      */
     public function reopen(Sale $sale)
     {
@@ -559,13 +532,13 @@ class SaleController extends Controller
         ActivityLog::log(
             Auth::id(),
             'sale_reopened',
-            "Reopened sale #{$sale->sale_number} (can submit new disbursement request)",
+            "Reopened sale #{$sale->sale_number}",
             Sale::class,
             $sale->id,
             ['sale_number' => $sale->sale_number]
         );
 
-        return redirect()->route('sales.show', $sale)->with('success', 'Sale reopened. You can now create a new disbursement request for this sale.');
+        return redirect()->route('sales.show', $sale)->with('success', 'Sale reopened.');
     }
 
     public function downloadEvidence(SaleAttachment $attachment)

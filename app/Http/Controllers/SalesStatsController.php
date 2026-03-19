@@ -8,7 +8,6 @@ use App\Models\SaleItem;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Branch;
-use App\Models\CustomerDisbursement;
 use Illuminate\Support\Facades\Auth;
 
 class SalesStatsController extends Controller
@@ -56,27 +55,17 @@ class SalesStatsController extends Controller
         $allSaleIds = (clone $baseQuery)->pluck('id');
         $userIds = (clone $completedQuery)->distinct()->pluck('sold_by')->filter()->values()->all();
 
-        $disbursementQuery = CustomerDisbursement::whereIn('sale_id', $allSaleIds);
-
         // Derive all summary stats from the same sale set used in tables so stats match table totals
-        $disbursementAmount = CustomerDisbursement::whereIn('sale_id', $saleIdsArray)->sum('amount');
         $licenseCost = Sale::whereIn('id', $saleIdsArray)->sum('total_license_cost');
         $totalBuyingPrice = Sale::totalBuyingPriceForSaleIds($saleIdsArray);
         $totalInSales = Sale::whereIn('id', $saleIdsArray)->sum('total');
         $stats = [
             'completed_sales' => count($saleIdsArray),
             'total_revenue' => $totalInSales,
-            'total_cost_to_sell' => $totalBuyingPrice + $licenseCost + $disbursementAmount,
-            'total_profit' => $totalInSales - ($totalBuyingPrice + $licenseCost + $disbursementAmount),
+            'total_cost_to_sell' => $totalBuyingPrice + $licenseCost,
+            'total_profit' => $totalInSales - ($totalBuyingPrice + $licenseCost),
             'users_with_sales' => count($userIds),
             'products_sold' => SaleItem::whereIn('sale_id', $saleIdsArray)->sum('quantity'),
-            'disbursements_total' => (clone $disbursementQuery)->count(),
-            'disbursements_pending' => (clone $disbursementQuery)->where('status', CustomerDisbursement::STATUS_PENDING)->count(),
-            'disbursements_approved_amount' => (clone $disbursementQuery)->where('status', CustomerDisbursement::STATUS_APPROVED)->sum('amount'),
-            'disbursements_this_month' => (clone $disbursementQuery)->where('status', CustomerDisbursement::STATUS_APPROVED)
-                ->whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year)
-                ->sum('amount'),
         ];
 
         // Best users by sales initiated (sold_by): count and total revenue
@@ -89,14 +78,11 @@ class SalesStatsController extends Controller
             ->get();
 
         $salesByUser = Sale::with(['items.product.regionPrices', 'branch'])->whereIn('id', $saleIds)->get();
-        $disbursements = CustomerDisbursement::whereIn('sale_id', $saleIds)->get(['sale_id', 'amount']);
         $saleToUser = $salesByUser->pluck('sold_by', 'id');
-        $disbBySale = $disbursements->groupBy('sale_id')->map(fn($c) => $c->sum('amount'));
         $buyingByUser = $salesByUser->groupBy('sold_by')->map(fn($sales) => $sales->sum('total_buying_price'));
         $licenseByUser = $salesByUser->groupBy('sold_by')->map(fn($s) => $s->sum('total_license_cost'));
-        $disbByUser = $disbursements->groupBy(fn($d) => $saleToUser[$d->sale_id] ?? null)->map(fn($c) => $c->sum('amount'));
         foreach ($bestUsers as $u) {
-            $u->cost_to_sell = ($buyingByUser[$u->id] ?? 0) + ($licenseByUser[$u->id] ?? 0) + ($disbByUser[$u->id] ?? 0);
+            $u->cost_to_sell = ($buyingByUser[$u->id] ?? 0) + ($licenseByUser[$u->id] ?? 0);
             $u->gross_profit = (float) ($u->total_revenue ?? 0) - $u->cost_to_sell;
         }
 
@@ -126,20 +112,15 @@ class SalesStatsController extends Controller
                     $buyingCost += $unitCost * $items->sum('quantity');
                 }
             }
-            $licenseDisbForProduct = $itemsBySale->keys()->sum(fn($sid) => (float) ($costBySale[$sid] ?? 0) + (float) ($disbBySale[$sid] ?? 0));
+            $licenseDisbForProduct = $itemsBySale->keys()->sum(fn($sid) => (float) ($costBySale[$sid] ?? 0));
             $row->cost_to_sell = $buyingCost + $licenseDisbForProduct;
             $row->gross_profit = (float) ($row->total_revenue ?? 0) - $row->cost_to_sell;
         }
 
         $branches = $this->getBranchesForFilter($request);
         $branchFilter = $request->get('branch');
-        $recentDisbursements = CustomerDisbursement::with(['customer', 'sale', 'device'])
-            ->whereIn('sale_id', $allSaleIds)
-            ->latest()
-            ->limit(10)
-            ->get();
 
-        return view('sales-stats.index', compact('bestUsers', 'bestProducts', 'branches', 'branchFilter', 'stats', 'recentDisbursements'));
+        return view('sales-stats.index', compact('bestUsers', 'bestProducts', 'branches', 'branchFilter', 'stats'));
     }
 
     /**
@@ -156,23 +137,18 @@ class SalesStatsController extends Controller
 
         $completedQuery = (clone $baseQuery)->where('status', 'completed');
         $saleIds = (clone $baseQuery)->pluck('id');
-        $disbursementQuery = CustomerDisbursement::whereIn('sale_id', $saleIds);
 
         $totalRevenue = (clone $completedQuery)->sum('total');
         $saleIdsUser = (clone $completedQuery)->pluck('id')->all();
         $totalBuyingPrice = Sale::totalBuyingPriceForSaleIds($saleIdsUser);
         $licenseCost = (clone $completedQuery)->sum('total_license_cost');
-        $disbAmount = CustomerDisbursement::whereIn('sale_id', $saleIdsUser)->sum('amount');
-        $costToSell = $totalBuyingPrice + $licenseCost + $disbAmount;
+        $costToSell = $totalBuyingPrice + $licenseCost;
         $stats = [
             'total_sales' => (clone $baseQuery)->count(),
             'completed_sales' => (clone $completedQuery)->count(),
             'total_revenue' => $totalRevenue,
             'total_cost_to_sell' => $costToSell,
             'total_profit' => $totalRevenue - $costToSell,
-            'disbursements_total' => (clone $disbursementQuery)->count(),
-            'disbursements_pending' => (clone $disbursementQuery)->where('status', CustomerDisbursement::STATUS_PENDING)->count(),
-            'disbursements_approved_amount' => (clone $disbursementQuery)->where('status', CustomerDisbursement::STATUS_APPROVED)->sum('amount'),
         ];
 
         return view('sales-stats.user-show', compact('user', 'sales', 'stats'));
@@ -204,7 +180,7 @@ class SalesStatsController extends Controller
             return $unitCost * $item->quantity;
         });
         $saleIdsWithProduct = array_unique(SaleItem::where('product_id', $product->id)->whereIn('sale_id', $saleIds)->pluck('sale_id')->all());
-        $licenseDisb = Sale::whereIn('id', $saleIdsWithProduct)->sum('total_license_cost') + CustomerDisbursement::whereIn('sale_id', $saleIdsWithProduct)->sum('amount');
+        $licenseDisb = Sale::whereIn('id', $saleIdsWithProduct)->sum('total_license_cost');
         $costToSell = $buyingCostProduct + $licenseDisb;
         $stats = [
             'total_quantity' => (clone $itemsBase)->sum('quantity'),

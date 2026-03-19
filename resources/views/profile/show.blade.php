@@ -572,12 +572,12 @@
                                 <div class="space-y-2">
                                     <div>
                                         <div class="text-xs font-medium text-themeMuted">Total Earned</div>
-                                        <div class="text-base font-semibold text-primary">TSh
+                                        <div class="text-base font-semibold text-primary">{{ $currencySymbol }}
                                             {{ number_format($commissionStats['total_earned'], 2) }}</div>
                                     </div>
                                     <div>
                                         <div class="text-xs font-medium text-themeMuted">Available Balance</div>
-                                        <div class="text-base font-semibold text-amber-600">TSh
+                                        <div class="text-base font-semibold text-amber-600">{{ $currencySymbol }}
                                             {{ number_format($commissionStats['available_balance'], 2) }}</div>
                                     </div>
                                 </div>

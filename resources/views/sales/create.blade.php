@@ -263,7 +263,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-themeBody mb-2">Total</label>
-                        <div id="total-display" class="text-2xl font-semibold text-primary">TSh 0.00</div>
+                        <div id="total-display" class="text-2xl font-semibold text-primary" data-currency="{{ $currencySymbol }}">{{ $currencySymbol }} 0.00</div>
                     </div>
                 </div>
 
@@ -512,7 +512,7 @@
             const total = subtotal + tax;
 
             const totalEl = document.getElementById('total-display');
-            if (totalEl) totalEl.textContent = 'TSh ' + total.toFixed(2);
+            if (totalEl) totalEl.textContent = (totalEl.getAttribute('data-currency') || 'TSh') + ' ' + total.toFixed(2);
         }
 
         const taxEl = document.getElementById('tax');

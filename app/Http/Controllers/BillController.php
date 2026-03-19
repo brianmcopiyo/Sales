@@ -134,7 +134,7 @@ class BillController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $validated['currency'] = $validated['currency'] ?? 'TSh';
+        $validated['currency'] = $validated['currency'] ?? config('app.currency_symbol');
         $validated['status'] = Bill::STATUS_PENDING_APPROVAL;
         $validated['created_by'] = Auth::id();
 
@@ -157,7 +157,7 @@ class BillController extends Controller
         $approvers = User::usersWithBillsApprovePermission()->reject(fn ($u) => $u->id === auth()->id());
         if ($approvers->isNotEmpty()) {
             $title = 'New bill pending approval';
-            $message = $bill->vendor->name . ' – TSh ' . number_format((float) $bill->amount, 2) . ' – pending your approval.';
+            $message = $bill->vendor->name . ' – ' . config('app.currency_symbol') . ' ' . number_format((float) $bill->amount, 2) . ' – pending your approval.';
             $url = route('bills.show', $bill);
             Notification::send($approvers, new AppNotification($title, $message, $url, 'bill_pending_approval', ['bill_id' => $bill->id]));
         }
@@ -218,7 +218,7 @@ class BillController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $validated['currency'] = $validated['currency'] ?? 'TSh';
+        $validated['currency'] = $validated['currency'] ?? config('app.currency_symbol');
 
         $allowedBranchIds = $this->allowedBranchIds();
         if (!empty($validated['branch_id']) && $allowedBranchIds !== null && !in_array($validated['branch_id'], $allowedBranchIds, true)) {

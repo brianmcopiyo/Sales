@@ -26,27 +26,15 @@
             </div>
             <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                 <div class="text-xs font-medium text-themeMuted mb-1">Total in sales</div>
-                <div class="text-2xl font-semibold text-amber-600">TSh {{ number_format($stats['total_revenue'], 2) }}</div>
+                <div class="text-2xl font-semibold text-amber-600">{{ $currencySymbol }} {{ number_format($stats['total_revenue'], 2) }}</div>
             </div>
             <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                 <div class="text-xs font-medium text-themeMuted mb-1">Cost to sell</div>
-                <div class="text-2xl font-semibold text-themeHeading">TSh {{ number_format($stats['total_cost_to_sell'] ?? 0, 2) }}</div>
+                <div class="text-2xl font-semibold text-themeHeading">{{ $currencySymbol }} {{ number_format($stats['total_cost_to_sell'] ?? 0, 2) }}</div>
             </div>
             <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                 <div class="text-xs font-medium text-themeMuted mb-1">Gross profit</div>
-                <div class="text-2xl font-semibold text-emerald-600">TSh {{ number_format($stats['total_profit'] ?? 0, 2) }}</div>
-            </div>
-            <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                <div class="text-xs font-medium text-themeMuted mb-1">Disbursements</div>
-                <div class="text-2xl font-semibold text-primary">{{ $stats['disbursements_total'] ?? 0 }}</div>
-            </div>
-            <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                <div class="text-xs font-medium text-themeMuted mb-1">Pending</div>
-                <div class="text-2xl font-semibold text-amber-600">{{ $stats['disbursements_pending'] ?? 0 }}</div>
-            </div>
-            <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                <div class="text-xs font-medium text-themeMuted mb-1">Approved amount</div>
-                <div class="text-xl font-semibold text-emerald-600">TSh {{ number_format($stats['disbursements_approved_amount'] ?? 0, 2) }}</div>
+                <div class="text-2xl font-semibold text-emerald-600">{{ $currencySymbol }} {{ number_format($stats['total_profit'] ?? 0, 2) }}</div>
             </div>
         </div>
 
@@ -76,7 +64,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium {{ $sale->status === 'completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">{{ ucfirst($sale->status) }}</span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeBody">TSh {{ number_format($sale->total ?? 0, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeBody">{{ $currencySymbol }} {{ number_format($sale->total ?? 0, 2) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-themeBody">{{ $sale->created_at?->format('M j, Y') ?? '—' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <a href="{{ route('sales.show', $sale) }}" class="text-primary hover:underline">View</a>

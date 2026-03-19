@@ -89,8 +89,8 @@
                                         <a href="{{ route('sales.show', $sale) }}" class="text-sm font-medium text-primary hover:underline">{{ $sale->sale_number }}</a>
                                     </td>
                                     <td class="px-6 py-3 text-sm text-themeBody">{{ $sale->customer?->name ?? '—' }}</td>
-                                    <td class="px-6 py-3 text-sm font-medium text-themeHeading">TSh {{ number_format($sale->total ?? 0, 2) }}</td>
-                                    <td class="px-6 py-3 text-sm font-medium text-themeBody">TSh {{ number_format($sale->total_cost_to_sell, 2) }}</td>
+                                    <td class="px-6 py-3 text-sm font-medium text-themeHeading">{{ $currencySymbol }} {{ number_format($sale->total ?? 0, 2) }}</td>
+                                    <td class="px-6 py-3 text-sm font-medium text-themeBody">{{ $currencySymbol }} {{ number_format($sale->total_cost_to_sell, 2) }}</td>
                                     <td class="px-6 py-3 text-sm text-themeMuted">{{ $sale->created_at->format('M d, Y') }}</td>
                                     <td class="px-6 py-3">
                                         <span class="px-2.5 py-0.5 rounded-lg text-xs font-medium {{ $sale->status === 'completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">{{ ucfirst($sale->status) }}</span>

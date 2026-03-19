@@ -135,7 +135,7 @@ class RecurringBillController extends Controller
             'invoice_date' => $dueDate,
             'due_date' => $dueDate,
             'amount' => $recurringBill->amount,
-            'currency' => 'TSh',
+            'currency' => config('app.currency_symbol'),
             'status' => Bill::STATUS_PENDING_APPROVAL,
             'description' => $recurringBill->description,
             'created_by' => Auth::id(),

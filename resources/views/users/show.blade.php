@@ -97,7 +97,7 @@
                                         <div>
                                             <div class="text-sm text-themeMuted font-light mb-1">Sale
                                                 #{{ $sale->sale_number }}</div>
-                                            <div class="text-lg text-themeHeading font-light">TSh
+                                            <div class="text-lg text-themeHeading font-light">{{ $currencySymbol }}
                                                 {{ number_format($sale->total, 2) }}</div>
                                             <div class="text-sm text-themeBody font-light mt-1">
                                                 {{ $sale->created_at->format('M d, Y') }}</div>
@@ -306,17 +306,17 @@
                         </div>
                         <div>
                             <div class="text-sm font-medium text-themeMuted mb-1">Total In Sales</div>
-                            <div class="text-2xl font-semibold text-amber-600">TSh
+                            <div class="text-2xl font-semibold text-amber-600">{{ $currencySymbol }}
                                 {{ number_format($salesStats['revenue'] ?? $user->sales->sum('total'), 2) }}</div>
                         </div>
                         <div>
                             <div class="text-sm font-medium text-themeMuted mb-1">Cost to sell</div>
-                            <div class="text-2xl font-semibold text-themeHeading">TSh
+                            <div class="text-2xl font-semibold text-themeHeading">{{ $currencySymbol }}
                                 {{ number_format($salesStats['cost_to_sell'] ?? 0, 2) }}</div>
                         </div>
                         <div>
                             <div class="text-sm font-medium text-themeMuted mb-1">Gross profit</div>
-                            <div class="text-2xl font-semibold text-emerald-600">TSh
+                            <div class="text-2xl font-semibold text-emerald-600">{{ $currencySymbol }}
                                 {{ number_format($salesStats['profit'] ?? 0, 2) }}</div>
                         </div>
                         <div>
@@ -330,12 +330,12 @@
                                 <div class="space-y-2">
                                     <div>
                                         <div class="text-xs font-medium text-themeMuted">Total Earned</div>
-                                        <div class="text-lg font-semibold text-primary">TSh
+                                        <div class="text-lg font-semibold text-primary">{{ $currencySymbol }}
                                             {{ number_format($commissionStats['total_earned'], 2) }}</div>
                                     </div>
                                     <div>
                                         <div class="text-xs font-medium text-themeMuted">Available Balance</div>
-                                        <div class="text-lg font-semibold text-amber-600">TSh
+                                        <div class="text-lg font-semibold text-amber-600">{{ $currencySymbol }}
                                             {{ number_format($commissionStats['available_balance'], 2) }}</div>
                                     </div>
                                 </div>

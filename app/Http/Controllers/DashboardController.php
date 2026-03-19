@@ -13,7 +13,6 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\SaleItem;
 use App\Models\User;
-use App\Models\CustomerDisbursement;
 use App\Models\FieldAgentStock;
 use App\Models\AgentStockRequest;
 use App\Models\PettyCashRequest;
@@ -69,7 +68,6 @@ class DashboardController extends Controller
         $canViewStockManagement = $user->hasPermission('stock-management.view');
         $canViewPettyCash = $user->hasPermission('petty-cash.view');
         $canViewBills = $user->hasPermission('bills.view');
-        $canViewCustomerDisbursements = $user->hasPermission('customer-disbursements.view');
         $canViewCommissions = $user->hasPermission('commission-disbursements.view');
         $canAccessRestockWizard = $user->isAdmin() || $user->hasPermission('stock-management.restock') || $user->hasPermission('stock-management.initiate-restock');
         $canViewDistribution = $user->hasPermission('outlets.view') || $user->hasPermission('checkins.view') || $user->hasPermission('distribution.reports');
@@ -161,8 +159,7 @@ class DashboardController extends Controller
             $stats['total_revenue'] = (clone $completedQuery)->sum('total');
             $completedIds = (clone $completedQuery)->pluck('id')->all();
             $licenseCost = (clone $completedQuery)->sum('total_license_cost');
-            $disbursementCost = CustomerDisbursement::whereIn('sale_id', $completedIds)->sum('amount');
-            $stats['total_support'] = $disbursementCost;
+            $stats['total_support'] = 0;
             $totalBuyingPrice = Sale::totalBuyingPriceForSaleIds($completedIds);
             $stats['total_commission'] = SaleItem::whereIn('sale_id', $completedIds)->sum('commission_amount');
             $totalPettyCashDisbursed = PettyCashRequest::query()
@@ -177,16 +174,15 @@ class DashboardController extends Controller
                     ->paid()
                     ->sum('amount')
                 : 0;
-            $stats['total_cost_to_sell'] = $totalBuyingPrice + $licenseCost + $stats['total_commission'] + $disbursementCost + $totalPettyCashDisbursed + $totalBillsPaid;
+            $stats['total_cost_to_sell'] = $totalBuyingPrice + $licenseCost + $stats['total_commission'] + $totalPettyCashDisbursed + $totalBillsPaid;
             $stats['total_profit'] = $stats['total_revenue'] - $stats['total_cost_to_sell'];
             $revenueInPeriodQuery = (clone $completedQuery)->whereBetween('created_at', [$periodStart, $periodEnd]);
             $stats['revenue_in_period'] = (clone $revenueInPeriodQuery)->sum('total');
             $periodIds = (clone $revenueInPeriodQuery)->pluck('id')->all();
-            $supportInPeriod = CustomerDisbursement::whereIn('sale_id', $periodIds)->sum('amount');
-            $stats['support_in_period'] = $supportInPeriod;
+            $stats['support_in_period'] = 0;
             $buyingPriceInPeriod = Sale::totalBuyingPriceForSaleIds($periodIds);
             $stats['commission_in_period'] = SaleItem::whereIn('sale_id', $periodIds)->sum('commission_amount');
-            $costToSellInPeriod = $buyingPriceInPeriod + (clone $revenueInPeriodQuery)->sum('total_license_cost') + $stats['commission_in_period'] + $supportInPeriod;
+            $costToSellInPeriod = $buyingPriceInPeriod + (clone $revenueInPeriodQuery)->sum('total_license_cost') + $stats['commission_in_period'];
             $pettyCashInPeriod = PettyCashRequest::query()
                 ->where('status', PettyCashRequest::STATUS_DISBURSED)
                 ->whereBetween('disbursed_at', [$periodStart, $periodEnd])
@@ -236,7 +232,7 @@ class DashboardController extends Controller
                     ->whereYear('created_at', $month->year)
                     ->sum('total');
             }
-            $recent_sales = Sale::with(['customer', 'soldBy', 'branch', 'items.product.regionPrices', 'customerDisbursements'])
+            $recent_sales = Sale::with(['customer', 'soldBy', 'branch', 'items.product.regionPrices'])
                 ->when($allowedBranchIds !== null, fn($q) => $q->whereIn('branch_id', $allowedBranchIds))
                 ->latest()
                 ->limit(10)
@@ -517,7 +513,6 @@ class DashboardController extends Controller
             'pettyCashStats',
             'canViewBills',
             'billsStats',
-            'canViewCustomerDisbursements',
             'canViewCommissions',
             'canAccessRestockWizard',
             'canViewDistribution',
@@ -586,7 +581,7 @@ class DashboardController extends Controller
             ->get();
 
         $branch = $user->branch_id ? Branch::find($user->branch_id) : null;
-        $canViewCommissions = $user->hasPermission('customer-disbursements.view');
+        $canViewCommissions = $user->hasPermission('commission-disbursements.view');
 
         return view('dashboard.agent', compact(
             'allocations',

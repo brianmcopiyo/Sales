@@ -44,7 +44,7 @@ class Sale extends Model
     }
 
     /**
-     * Total cost to sell = buying price + license cost + commission + customer disbursements (support).
+     * Total cost to sell = buying price + license cost + commission.
      */
     public function getTotalCostToSellAttribute(): float
     {
@@ -53,14 +53,11 @@ class Sale extends Model
         $commission = (float) ($this->relationLoaded('items')
             ? $this->items->sum('commission_amount')
             : $this->items()->sum('commission_amount'));
-        $disbursements = (float) ($this->relationLoaded('customerDisbursements')
-            ? $this->customerDisbursements->sum('amount')
-            : $this->customerDisbursements()->sum('amount'));
-        return $buyingPrice + $license + $commission + $disbursements;
+        return $buyingPrice + $license + $commission;
     }
 
     /**
-     * Gross profit = total revenue minus cost to sell (buying + license + commission + support).
+     * Gross profit = total revenue minus cost to sell (buying + license + commission).
      */
     public function getGrossProfitAttribute(): float
     {
@@ -136,20 +133,6 @@ class Sale extends Model
     public function tickets()
     {
         return $this->hasMany(Ticket::class);
-    }
-
-    public function customerDisbursements()
-    {
-        return $this->hasMany(CustomerDisbursement::class);
-    }
-
-    /**
-     * Whether this sale has any disbursement request that is still pending approval.
-     * Sales requiring disbursement remain pending until the disbursement is approved.
-     */
-    public function hasPendingDisbursement(): bool
-    {
-        return $this->customerDisbursements()->where('status', CustomerDisbursement::STATUS_PENDING)->exists();
     }
 
     public function evidence()

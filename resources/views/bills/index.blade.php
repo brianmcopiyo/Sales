@@ -51,7 +51,7 @@
             <a href="{{ route('bills.index', ['filter' => 'unpaid'] + request()->only(['branch_id', 'vendor_id', 'category_id'])) }}"
                 class="block bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:border-primary/40 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 rounded-2xl">
                 <div class="text-sm font-medium text-themeMuted mb-1">Total unpaid</div>
-                <div class="text-2xl font-semibold text-primary">TSh {{ number_format($stats['total_unpaid'] ?? 0, 2) }}</div>
+                <div class="text-2xl font-semibold text-primary">{{ $currencySymbol }} {{ number_format($stats['total_unpaid'] ?? 0, 2) }}</div>
             </a>
             <a href="{{ route('bills.index', ['filter' => 'due_this_week'] + request()->only(['branch_id', 'vendor_id', 'category_id'])) }}"
                 class="block bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:border-amber-400/50 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:ring-offset-2 rounded-2xl">
@@ -66,7 +66,7 @@
             <a href="{{ route('bills.index', ['filter' => 'paid_this_month'] + request()->only(['branch_id', 'vendor_id', 'category_id'])) }}"
                 class="block bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:border-emerald-400/50 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-emerald-400/30 focus:ring-offset-2 rounded-2xl">
                 <div class="text-sm font-medium text-themeMuted mb-1">Paid this month</div>
-                <div class="text-2xl font-semibold text-emerald-600">TSh {{ number_format($stats['paid_this_month'] ?? 0, 2) }}</div>
+                <div class="text-2xl font-semibold text-emerald-600">{{ $currencySymbol }} {{ number_format($stats['paid_this_month'] ?? 0, 2) }}</div>
             </a>
         </div>
 

@@ -24,15 +24,15 @@
                 </div>
                 <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                     <div class="text-xs font-medium text-themeMuted uppercase tracking-wider mb-1">Total in sales</div>
-                    <div class="text-2xl font-semibold text-amber-600">TSh {{ number_format($stats['total_revenue'] ?? 0, 2) }}</div>
+                    <div class="text-2xl font-semibold text-amber-600">{{ $currencySymbol }} {{ number_format($stats['total_revenue'] ?? 0, 2) }}</div>
                 </div>
                 <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                     <div class="text-xs font-medium text-themeMuted uppercase tracking-wider mb-1">Cost to sell</div>
-                    <div class="text-2xl font-semibold text-themeHeading">TSh {{ number_format($stats['total_cost_to_sell'] ?? 0, 2) }}</div>
+                    <div class="text-2xl font-semibold text-themeHeading">{{ $currencySymbol }} {{ number_format($stats['total_cost_to_sell'] ?? 0, 2) }}</div>
                 </div>
                 <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                     <div class="text-xs font-medium text-themeMuted uppercase tracking-wider mb-1">Gross profit</div>
-                    <div class="text-2xl font-semibold text-emerald-600">TSh {{ number_format($stats['total_profit'] ?? 0, 2) }}</div>
+                    <div class="text-2xl font-semibold text-emerald-600">{{ $currencySymbol }} {{ number_format($stats['total_profit'] ?? 0, 2) }}</div>
                 </div>
                 <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                     <div class="text-xs font-medium text-themeMuted uppercase tracking-wider mb-1">Users with sales</div>
@@ -41,22 +41,6 @@
                 <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
                     <div class="text-xs font-medium text-themeMuted uppercase tracking-wider mb-1">Units sold</div>
                     <div class="text-2xl font-semibold text-primary">{{ number_format($stats['products_sold'] ?? 0) }}</div>
-                </div>
-                <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                    <div class="text-xs font-medium text-themeMuted uppercase tracking-wider mb-1">Disbursements</div>
-                    <div class="text-2xl font-semibold text-primary">{{ $stats['disbursements_total'] ?? 0 }}</div>
-                </div>
-                <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                    <div class="text-xs font-medium text-themeMuted uppercase tracking-wider mb-1">Pending</div>
-                    <div class="text-2xl font-semibold text-amber-600">{{ $stats['disbursements_pending'] ?? 0 }}</div>
-                </div>
-                <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                    <div class="text-xs font-medium text-themeMuted uppercase tracking-wider mb-1">Approved amount</div>
-                    <div class="text-xl font-semibold text-emerald-600">TSh {{ number_format($stats['disbursements_approved_amount'] ?? 0, 2) }}</div>
-                </div>
-                <div class="bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                    <div class="text-xs font-medium text-themeMuted uppercase tracking-wider mb-1">Approved this month</div>
-                    <div class="text-xl font-semibold text-primary">TSh {{ number_format($stats['disbursements_this_month'] ?? 0, 2) }}</div>
                 </div>
             </div>
         @endif
@@ -110,9 +94,9 @@
                                     <div class="text-xs text-themeMuted">{{ $u->email ?? '—' }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeBody">{{ $u->completed_sales_count ?? 0 }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-amber-600">TSh {{ number_format($u->total_revenue ?? 0, 2) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeHeading">TSh {{ number_format($u->cost_to_sell ?? 0, 2) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-600">TSh {{ number_format($u->gross_profit ?? 0, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-amber-600">{{ $currencySymbol }} {{ number_format($u->total_revenue ?? 0, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeHeading">{{ $currencySymbol }} {{ number_format($u->cost_to_sell ?? 0, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-600">{{ $currencySymbol }} {{ number_format($u->gross_profit ?? 0, 2) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <a href="{{ route('sales-stats.user', $u) }}" class="text-primary hover:underline">View details</a>
                                 </td>
@@ -155,9 +139,9 @@
                                     <div class="text-xs text-themeMuted">{{ $row->product?->sku ?? '' }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeBody">{{ (int) ($row->total_quantity ?? 0) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-amber-600">TSh {{ number_format($row->total_revenue ?? 0, 2) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeHeading">TSh {{ number_format($row->cost_to_sell ?? 0, 2) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-600">TSh {{ number_format($row->gross_profit ?? 0, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-amber-600">{{ $currencySymbol }} {{ number_format($row->total_revenue ?? 0, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-themeHeading">{{ $currencySymbol }} {{ number_format($row->cost_to_sell ?? 0, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-600">{{ $currencySymbol }} {{ number_format($row->gross_profit ?? 0, 2) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     @if ($row->product)
                                         <a href="{{ route('sales-stats.product', $row->product) }}" class="text-primary hover:underline">View details</a>
@@ -176,61 +160,5 @@
             </div>
         </div>
 
-        {{-- Recent customer disbursements --}}
-        @if (isset($recentDisbursements) && $recentDisbursements->isNotEmpty())
-            <div class="bg-themeCard rounded-2xl border border-themeBorder overflow-hidden shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
-                <div class="px-6 py-4 border-b border-themeBorder flex justify-between items-center">
-                    <div>
-                        <h2 class="text-lg font-semibold text-primary tracking-tight">Recent customer disbursements</h2>
-                        <p class="text-sm text-themeMuted mt-0.5">Latest disbursements linked to sales in scope</p>
-                    </div>
-                    <a href="{{ route('customer-disbursements.index') }}" class="text-sm font-medium text-primary hover:underline">View all</a>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-themeBorder">
-                        <thead class="bg-themeInput/80">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">Customer</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">Sale</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">Amount</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">Date</th>
-                                <th class="px-6 py-3 text-right text-xs font-semibold text-themeMuted uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-themeCard divide-y divide-themeBorder">
-                            @foreach ($recentDisbursements as $d)
-                                <tr class="hover:bg-themeInput/50 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-themeHeading">{{ $d->customer->name ?? '—' }}</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if ($d->sale)
-                                            <a href="{{ route('sales.show', $d->sale) }}" class="text-sm font-medium text-primary hover:underline">{{ $d->sale->sale_number ?? '—' }}</a>
-                                        @else
-                                            <span class="text-sm text-themeMuted">—</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-amber-600">TSh {{ number_format($d->amount ?? 0, 2) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if ($d->status === \App\Models\CustomerDisbursement::STATUS_APPROVED)
-                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700">Approved</span>
-                                        @elseif ($d->status === \App\Models\CustomerDisbursement::STATUS_PENDING)
-                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-700">Pending</span>
-                                        @else
-                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">Rejected</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-themeMuted">{{ $d->created_at->format('M d, Y') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <a href="{{ route('customer-disbursements.show', $d) }}" class="text-primary hover:underline">View</a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        @endif
     </div>
 @endsection

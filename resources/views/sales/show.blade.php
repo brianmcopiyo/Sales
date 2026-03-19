@@ -10,15 +10,7 @@
                 <p class="text-sm font-medium text-themeMuted mt-1">{{ $sale->sale_number ?? 'Sale' }}</p>
             </div>
             <div class="flex items-center gap-2">
-                @if (($canEditSale ?? false) && $sale->status === 'pending' && $sale->hasPendingDisbursement())
-                    <span class="text-sm text-amber-600 font-medium">Pending disbursement — approve it to complete this sale</span>
-                    @foreach ($sale->customerDisbursements->where('status', \App\Models\CustomerDisbursement::STATUS_PENDING) as $disp)
-                        <a href="{{ route('customer-disbursements.show', $disp) }}"
-                            class="bg-amber-100 text-amber-800 px-4 py-2 rounded-xl font-medium hover:bg-amber-200 transition inline-flex items-center space-x-2">
-                            <span>View disbursement</span>
-                        </a>
-                    @endforeach
-                @elseif (($canEditSale ?? false) && ($canCompleteSale ?? false) && $sale->status === 'pending')
+                @if (($canEditSale ?? false) && ($canCompleteSale ?? false) && $sale->status === 'pending')
                     <button type="button" @click="completeModalOpen = true"
                         class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-emerald-700 transition flex items-center space-x-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,7 +45,7 @@
                             <span>Reopen sale</span>
                         </button>
                     </form>
-                    <span class="text-sm text-themeMuted">Reopen to submit a new disbursement request.</span>
+                    <span class="text-sm text-themeMuted">Reopen to edit or complete this sale.</span>
                 @endif
                 <a href="{{ route('sales.index') }}"
                     class="bg-themeHover text-themeBody px-5 py-2.5 rounded-xl font-medium hover:bg-themeBorder transition flex items-center space-x-2">
@@ -162,19 +154,19 @@
                                 class="flex justify-between items-start py-3 border-b border-themeBorder last:border-0 last:pb-0">
                                 <div>
                                     <div class="font-medium text-themeHeading">{{ $item->product->name }}</div>
-                                    <div class="text-sm font-medium text-themeMuted">{{ $item->quantity }} × TSh
+                                    <div class="text-sm font-medium text-themeMuted">{{ $item->quantity }} × {{ $currencySymbol }}
                                         {{ number_format($item->unit_price, 2) }}</div>
                                     @if ((float) ($item->unit_license_cost ?? 0) > 0)
-                                        <div class="text-sm font-medium text-themeBody mt-1">Cost to sell: TSh {{ number_format($item->total_license_cost, 2) }}</div>
+                                        <div class="text-sm font-medium text-themeBody mt-1">Cost to sell: {{ $currencySymbol }} {{ number_format($item->total_license_cost, 2) }}</div>
                                     @endif
                                     @if ($item->fieldAgent)
                                         <div class="text-sm font-medium text-themeBody mt-1">
-                                            Field Agent: {{ $item->fieldAgent->name }} (Commission: TSh
+                                            Field Agent: {{ $item->fieldAgent->name }} (Commission: {{ $currencySymbol }}
                                             {{ number_format((float) $item->commission_amount, 2) }})
                                         </div>
                                     @endif
                                 </div>
-                                <div class="font-semibold text-primary">TSh {{ number_format($item->subtotal, 2) }}</div>
+                                <div class="font-semibold text-primary">{{ $currencySymbol }} {{ number_format($item->subtotal, 2) }}</div>
                             </div>
                         @endforeach
                     </div>
@@ -187,48 +179,41 @@
                     <div class="space-y-3">
                         <div class="flex justify-between items-center">
                             <div class="font-medium text-themeBody">Subtotal</div>
-                            <div class="font-medium text-themeHeading">TSh {{ number_format($sale->subtotal, 2) }}</div>
+                            <div class="font-medium text-themeHeading">{{ $currencySymbol }} {{ number_format($sale->subtotal, 2) }}</div>
                         </div>
                         @if ($sale->tax > 0)
                             <div class="flex justify-between items-center">
                                 <div class="font-medium text-themeBody">Tax</div>
-                                <div class="font-medium text-themeHeading">TSh {{ number_format($sale->tax, 2) }}</div>
+                                <div class="font-medium text-themeHeading">{{ $currencySymbol }} {{ number_format($sale->tax, 2) }}</div>
                             </div>
                         @endif
                         @if ($sale->discount > 0)
                             <div class="flex justify-between items-center">
                                 <div class="font-medium text-themeBody">Discount</div>
-                                <div class="font-medium text-themeHeading">-TSh {{ number_format($sale->discount, 2) }}</div>
-                            </div>
-                        @endif
-                        @php $totalSupport = $sale->customerDisbursements->sum('amount'); @endphp
-                        @if ($totalSupport > 0)
-                            <div class="flex justify-between items-center">
-                                <div class="font-medium text-themeBody">Customer Support</div>
-                                <div class="font-medium text-amber-600">TSh {{ number_format($totalSupport, 2) }}</div>
+                                <div class="font-medium text-themeHeading">-{{ $currencySymbol }} {{ number_format($sale->discount, 2) }}</div>
                             </div>
                         @endif
                         @php $totalCommission = $sale->items->sum('commission_amount'); @endphp
                         @if ($totalCommission > 0)
                             <div class="flex justify-between items-center">
                                 <div class="font-medium text-themeBody">Commission</div>
-                                <div class="font-medium text-themeHeading">TSh {{ number_format($totalCommission, 2) }}</div>
+                                <div class="font-medium text-themeHeading">{{ $currencySymbol }} {{ number_format($totalCommission, 2) }}</div>
                             </div>
                         @endif
                         @php $totalCostToSell = $sale->total_cost_to_sell; @endphp
                         @if ($totalCostToSell > 0)
                             <div class="flex justify-between items-center">
-                                <div class="font-medium text-themeBody">Total cost to sell (buying + license + disbursements)</div>
-                                <div class="font-medium text-themeHeading">TSh {{ number_format($totalCostToSell, 2) }}</div>
+                                <div class="font-medium text-themeBody">Total cost to sell (buying + license)</div>
+                                <div class="font-medium text-themeHeading">{{ $currencySymbol }} {{ number_format($totalCostToSell, 2) }}</div>
                             </div>
                             <div class="flex justify-between items-center">
                                 <div class="font-medium text-themeBody">Gross profit</div>
-                                <div class="font-medium text-emerald-600">TSh {{ number_format($sale->gross_profit, 2) }}</div>
+                                <div class="font-medium text-emerald-600">{{ $currencySymbol }} {{ number_format($sale->gross_profit, 2) }}</div>
                             </div>
                         @endif
                         <div class="flex justify-between items-center pt-4 border-t border-themeBorder">
                             <div class="text-lg font-semibold text-primary">Total</div>
-                            <div class="text-lg font-semibold text-primary">TSh {{ number_format($sale->total, 2) }}
+                            <div class="text-lg font-semibold text-primary">{{ $currencySymbol }} {{ number_format($sale->total, 2) }}
                             </div>
                         </div>
                     </div>
@@ -372,16 +357,6 @@
                                 </svg>
                                 <span>View Customer</span>
                             </a>
-                            @if (auth()->user()?->hasPermission('customer-disbursements.create') && $sale->customerDisbursements->isEmpty())
-                                <a href="{{ route('customer-disbursements.create', ['sale_id' => $sale->id]) }}"
-                                    class="block w-full bg-themeInput text-themeBody px-4 py-2.5 rounded-xl font-medium hover:bg-themeHover transition flex items-center space-x-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    <span>Create Disbursement</span>
-                                </a>
-                            @endif
                         @endif
                         <a href="{{ route('branches.show', $sale->branch) }}"
                             class="block w-full bg-themeInput text-themeBody px-4 py-2.5 rounded-xl font-medium hover:bg-themeHover transition flex items-center space-x-2">

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\Branch;
-use App\Models\CustomerDisbursement;
 use App\Exports\CustomersExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
@@ -137,7 +136,7 @@ class CustomerController extends Controller
         $saleIds = $customer->sales->pluck('id')->all();
         $revenue = $customer->sales->sum('total');
         $totalBuyingPrice = \App\Models\Sale::totalBuyingPriceForSaleIds($saleIds);
-        $costToSell = $totalBuyingPrice + $customer->sales->sum('total_license_cost') + CustomerDisbursement::whereIn('sale_id', $saleIds)->sum('amount');
+        $costToSell = $totalBuyingPrice + $customer->sales->sum('total_license_cost');
         $salesStats = [
             'revenue' => $revenue,
             'cost_to_sell' => $costToSell,
