@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.navigation.NavigationBarView
 import com.taja.app.ApiClient
 import com.taja.app.CheckInQueue
@@ -26,6 +27,7 @@ class OutletsListActivity : AppCompatActivity() {
     private lateinit var adapter: OutletsAdapter
     private lateinit var checkInQueue: CheckInQueue
     private var permissionCheckInCallback: ((Boolean) -> Unit)? = null
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +43,8 @@ class OutletsListActivity : AppCompatActivity() {
         emptyText = findViewById(R.id.outlets_empty_text)
         findViewById<Button>(R.id.outlets_list_back).setOnClickListener { finish() }
         bottomNavigation = findViewById(R.id.bottom_navigation)
+        swipeRefreshLayout = findViewById(R.id.outlets_swipe_refresh)
+        swipeRefreshLayout.setOnRefreshListener { loadOutlets(showSwipeSpinner = true) }
         recycler.layoutManager = LinearLayoutManager(this)
         adapter = OutletsAdapter(emptyList()) { outlet -> openCheckInSheet(outlet) }
         recycler.adapter = adapter
@@ -71,20 +75,31 @@ class OutletsListActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (sessionManager.isLoggedIn) {
-            loadOutlets()
+            loadOutlets(showSwipeSpinner = false)
             trySyncPendingCheckIns()
         }
     }
 
-    private fun loadOutlets() {
+    private fun loadOutlets(showSwipeSpinner: Boolean = false) {
         val token = sessionManager.token
-        if (token.isNullOrBlank()) return
-        progressBar.visibility = View.VISIBLE
+        if (token.isNullOrBlank()) {
+            if (::swipeRefreshLayout.isInitialized) swipeRefreshLayout.isRefreshing = false
+            progressBar.visibility = View.GONE
+            return
+        }
+        if (showSwipeSpinner) {
+            swipeRefreshLayout.isRefreshing = true
+            progressBar.visibility = View.GONE
+        } else {
+            swipeRefreshLayout.isRefreshing = false
+            progressBar.visibility = View.VISIBLE
+        }
         emptyText.visibility = View.GONE
         recycler.visibility = View.GONE
         Thread {
             val result = ApiClient.getOutlets(token)
             runOnUiThread {
+                swipeRefreshLayout.isRefreshing = false
                 progressBar.visibility = View.GONE
                 when (result) {
                     is ApiClient.ApiResult.Success -> {
@@ -194,8 +209,11 @@ class OutletsListActivity : AppCompatActivity() {
                 runOnUiThread {
                     progressBar.visibility = View.GONE
                     when (result) {
-                        is ApiClient.ApiResult.Success ->
+                        is ApiClient.ApiResult.Success -> {
                             android.widget.Toast.makeText(this, getString(R.string.check_in_success), android.widget.Toast.LENGTH_SHORT).show()
+                            // Reload outlets after successful check-in from bottom sheet
+                            loadOutlets(showSwipeSpinner = false)
+                        }
                         is ApiClient.ApiResult.Error -> {
                             // Network or server error: queue for later sync
                             checkInQueue.add(outletId, lat, lng, notes, null)

@@ -49,6 +49,7 @@ class OutletApiController extends Controller
      */
     public function store(Request $request)
     {
+        $user = $request->user();
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|max:255|unique:outlets,code',
@@ -71,6 +72,15 @@ class OutletApiController extends Controller
         $validated = $this->normalizeGeoFence($request, $validated);
         if ($validated === null) {
             return response()->json(['message' => 'Invalid geo_fence_polygon (need 4+ points with lat/lng).'], 422);
+        }
+
+        // Mobile app create flow does not send branch/assignee; align with list visibility
+        // by defaulting new outlets to the current user's branch and user assignment.
+        if (!array_key_exists('branch_id', $validated) || empty($validated['branch_id'])) {
+            $validated['branch_id'] = $user?->branch_id;
+        }
+        if (!array_key_exists('assigned_to', $validated) || empty($validated['assigned_to'])) {
+            $validated['assigned_to'] = $user?->id;
         }
 
         $outlet = Outlet::create($validated);

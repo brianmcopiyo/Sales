@@ -36,7 +36,6 @@
 	<dimen name="iphone_xxs04_activity_subtraction1_image_view_margin_top">29dp</dimen>
 	<dimen name="iphone_xxs04_activity_rc_logo_constraint_layout_width">293dp</dimen>
 	<dimen name="login_logo_text_size">10sp</dimen>
-	<dimen name="iphone_xxs04_activity_group21_constraint_layout_border_size">0dp</dimen>
 	<dimen name="iphone_xxs04_activity_subtraction2_image_view_margin_start">39dp</dimen>
 	<dimen name="iphone_xxs04_activity_group16_constraint_layout_height">52dp</dimen>
 	<dimen name="iphone_xxs04_activity_forgot_password_button_text_size">12sp</dimen>

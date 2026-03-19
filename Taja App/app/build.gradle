@@ -54,6 +54,7 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
     // Supernova UI Toolkit removed: was io.supernova:android-ui-toolkit (JCenter/JitPack unavailable).
     // Not used in app source; add as local module if needed.

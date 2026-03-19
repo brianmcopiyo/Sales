@@ -72,7 +72,7 @@ class OtpActivity : AppCompatActivity() {
                     is ApiClient.ApiResult.Success -> {
                         sessionManager.token = result.data.token
                         sessionManager.userName = result.data.user.name
-                        startActivity(Intent(this, OutletMapActivity::class.java))
+                        startActivity(Intent(this, OutletListActivity::class.java))
                         finish()
                     }
                     is ApiClient.ApiResult.Error ->
