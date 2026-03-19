@@ -172,7 +172,8 @@ object ApiClient {
         lat: Double?,
         lng: Double?,
         geoFenceType: String? = null,
-        geoFenceRadiusMetres: Int? = null
+        geoFenceRadiusMetres: Int? = null,
+        geoFencePolygon: String? = null
     ): ApiResult<Outlet> {
         val body = JSONObject().apply {
             put("name", name)
@@ -182,6 +183,7 @@ object ApiClient {
             lng?.let { put("lng", it) }
             geoFenceType?.let { put("geo_fence_type", it) }
             geoFenceRadiusMetres?.let { put("geo_fence_radius_metres", it) }
+            geoFencePolygon?.let { put("geo_fence_polygon", it) }
         }.toString().toRequestBody(jsonType)
         val request = Request.Builder()
             .url("${baseUrl()}/api/outlets/$outletId")

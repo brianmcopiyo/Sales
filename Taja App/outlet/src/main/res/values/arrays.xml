@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="outlet_geofence_type_entries">
+        <item>@string/outlet_geofence_type_none</item>
+        <item>@string/outlet_geofence_type_radius</item>
+        <item>@string/outlet_geofence_type_polygon</item>
+    </string-array>
+</resources>
+

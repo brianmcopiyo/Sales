@@ -48,45 +48,132 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/outlet_location_label"
+                android:text="@string/outlet_geofence_type_label"
                 android:textColor="@color/restock_input_hint"
                 android:textSize="12sp"
                 android:layout_marginBottom="4dp"/>
-            <TextView
-                android:id="@+id/outlet_geofence_location_value"
+            <Spinner
+                android:id="@+id/outlet_geofence_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/restock_input_text"
-                android:textSize="14sp"
-                android:layout_marginBottom="10dp"/>
-
-            <Button
-                android:id="@+id/outlet_geofence_use_current"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/outlet_geofence_use_current"
-                android:textColor="@color/color_primary"
-                android:background="?attr/selectableItemBackground"
-                android:textSize="14sp"
-                android:layout_marginBottom="12dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/outlet_geofence_radius_label"
-                android:textColor="@color/restock_input_hint"
-                android:textSize="12sp"
-                android:layout_marginBottom="4dp"/>
-            <EditText
-                android:id="@+id/outlet_geofence_radius"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
+                android:entries="@array/outlet_geofence_type_entries"
                 android:background="@drawable/restock_input_background"
                 android:padding="12dp"
-                android:textColor="@color/restock_input_text"
-                android:textColorHint="@color/restock_input_hint"
-                android:hint="@string/outlet_geofence_radius_hint"/>
+                android:layout_marginBottom="12dp"/>
+
+            <LinearLayout
+                android:id="@+id/outlet_geofence_location_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/outlet_location_label"
+                    android:textColor="@color/restock_input_hint"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="4dp"/>
+                <TextView
+                    android:id="@+id/outlet_geofence_location_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/restock_input_text"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="10dp"/>
+
+                <Button
+                    android:id="@+id/outlet_geofence_use_current"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/outlet_geofence_use_current"
+                    android:textColor="@color/color_primary"
+                    android:background="?attr/selectableItemBackground"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="12dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/outlet_geofence_radius_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/outlet_geofence_radius_label"
+                    android:textColor="@color/restock_input_hint"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="4dp"/>
+                <EditText
+                    android:id="@+id/outlet_geofence_radius"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:background="@drawable/restock_input_background"
+                    android:padding="12dp"
+                    android:textColor="@color/restock_input_text"
+                    android:textColorHint="@color/restock_input_hint"
+                    android:hint="@string/outlet_geofence_radius_hint"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/outlet_geofence_polygon_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/outlet_geofence_polygon_label"
+                    android:textColor="@color/restock_input_hint"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/outlet_geofence_polygon_hint"
+                    android:textColor="@color/restock_input_hint"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="8dp"/>
+
+                <org.osmdroid.views.MapView
+                    android:id="@+id/outlet_geofence_map"
+                    android:layout_width="match_parent"
+                    android:layout_height="260dp"
+                    android:background="@drawable/restock_input_background"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/outlet_geofence_add_point_info"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/outlet_geofence_tap_to_add"
+                        android:textColor="@color/color_primary"
+                        android:background="?attr/selectableItemBackground"
+                        android:textSize="13sp"
+                        android:gravity="start|center_vertical" />
+
+                    <Button
+                        android:id="@+id/outlet_geofence_clear_points"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/outlet_geofence_clear_points"
+                        android:textColor="@color/color_primary"
+                        android:background="?attr/selectableItemBackground"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
