@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'name' => env('APP_NAME', 'Phone Distribution System'),
+    'name' => env('APP_NAME', 'Sales and Distribution System'),
     'env' => env('APP_ENV', 'production'),
     'debug' => (bool) env('APP_DEBUG', false),
     'url' => env('APP_URL', 'http://localhost'),
@@ -21,4 +21,10 @@ return [
     'currency_code' => env('APP_CURRENCY_CODE', 'TZS'),
     'currency_symbol' => env('APP_CURRENCY_SYMBOL', 'TSh'),
     'currency_name' => env('APP_CURRENCY_NAME', 'Tanzanian Shilling'),
+
+    /*
+    | When true, mobile API login returns requires_otp + pending_token instead of
+    | full token; client must call POST /api/verify-otp with OTP to get full token.
+    */
+    'require_otp_for_api' => env('REQUIRE_OTP_FOR_API', true),
 ];

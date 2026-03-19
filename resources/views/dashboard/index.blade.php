@@ -132,6 +132,8 @@
                     <div class="text-base font-semibold text-emerald-600 mt-0.5">{{ number_format($distributionTodayDone ?? 0) }}</div>
                 </div>
                 <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] flex flex-wrap items-center gap-2">
+                    <a href="{{ route('distribution.dashboard') }}" class="text-primary font-medium hover:underline">Distribution dashboard →</a>
+                    <a href="{{ route('check-ins.index') }}" class="text-primary font-medium hover:underline">Check-ins list →</a>
                     <a href="{{ route('dcr.index') }}" class="text-primary font-medium hover:underline">Daily Call Report →</a>
                     <a href="{{ route('audit-reports.index') }}" class="text-primary font-medium hover:underline">Audit reports →</a>
                 </div>

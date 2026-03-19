@@ -5,13 +5,9 @@
         android:icon="@drawable/ic_nav_home"
         android:title="@string/nav_dashboard" />
     <item
-        android:id="@+id/nav_stock"
-        android:icon="@drawable/ic_nav_add"
-        android:title="@string/nav_stock" />
-    <item
-        android:id="@+id/nav_stock_takes"
+        android:id="@+id/nav_outlets"
         android:icon="@drawable/ic_nav_list"
-        android:title="@string/stocktake_list_title" />
+        android:title="@string/nav_outlets" />
     <item
         android:id="@+id/nav_profile"
         android:icon="@drawable/ic_nav_person"

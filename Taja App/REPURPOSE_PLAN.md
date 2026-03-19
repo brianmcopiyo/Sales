@@ -31,36 +31,36 @@ Use this table to track progress. Update the **Status** column as work moves fro
 | 4 | Backend API | POST /api/check-ins (outlet_id, lat, lng, photo, notes) | ✅ | | |
 | 5 | Backend API | POST /api/sync/check-ins (offline queue) | ✅ | | |
 | 6 | Backend API | GeoFenceService (validate check-in location) | ✅ | | |
-| 7 | Backend API | OTP: login may return requires_otp + pending_token; POST verify-otp, resend-otp | | | ☐ |
-| 8 | Backend API | Dashboard summary: GET endpoint (outlet count, check-in counts today/week) for app | | | ☐ |
-| 9 | Backend API | GET /api/user response: include branch_id, phone for app profile/dashboard | | | ☐ |
-| 10 | Backend API | Outlets CRUD: request/response support geo_fence_type, geo_fence_radius_metres, geo_fence_polygon | | | ☐ |
-| 11 | Backend Blade | Distribution dashboard (Blade): web view of outlets count, check-ins summary, coverage | | | ☐ |
-| 12 | Backend Blade | Check-ins list (Blade): web view of check-ins by user/outlet/date for managers | | | ☐ |
-| 13 | Backend Blade | Outlets index/edit (Blade): ensure outlet forms support geo_fence fields for mapping | | | ☐ |
+| 7 | Backend API | OTP: login may return requires_otp + pending_token; POST verify-otp, resend-otp | ✅ | | |
+| 8 | Backend API | Dashboard summary: GET endpoint (outlet count, check-in counts today/week) for app | ✅ | | |
+| 9 | Backend API | GET /api/user response: include branch_id, phone for app profile/dashboard | ✅ | | |
+| 10 | Backend API | Outlets CRUD: request/response support geo_fence_type, geo_fence_radius_metres, geo_fence_polygon | ✅ | | |
+| 11 | Backend Blade | Distribution dashboard (Blade): web view of outlets count, check-ins summary, coverage | ✅ | | |
+| 12 | Backend Blade | Check-ins list (Blade): web view of check-ins by user/outlet/date for managers | ✅ | | |
+| 13 | Backend Blade | Outlets index/edit (Blade): ensure outlet forms support geo_fence fields for mapping | ✅ | | |
 | 14 | Frontend XML | activity_login.xml, activity_otp.xml, activity_profile.xml, bottomsheet_confirm.xml | ✅ | | |
-| 15 | Frontend XML | activity_dashboard.xml: refactor to distribution KPI cards + bottom nav (Dashboard, Outlets, Profile) | | | ☐ |
-| 16 | Frontend XML | activity_outlets_list.xml (new): outlets list layout, toolbar, bottom nav include | | | ☐ |
-| 17 | Frontend XML | item_outlet.xml (new): single outlet row/card for list | | | ☐ |
-| 18 | Frontend XML | bottomsheet_checkin.xml (new): check-in form (outlet name, location, photo, notes, submit/cancel) | | | ☐ |
-| 19 | Frontend XML | bottom_navigation_include.xml: only Outlets + Profile (update) | | | ☐ |
-| 20 | Frontend XML | strings.xml: add distribution/outlet/check-in strings; remove restock/stock-take/IMEI | | | ☐ |
+| 15 | Frontend XML | activity_dashboard.xml: refactor to distribution KPI cards + bottom nav (Dashboard, Outlets, Profile) | ✅ | | |
+| 16 | Frontend XML | activity_outlets_list.xml (new): outlets list layout, toolbar, bottom nav include | ✅ | | |
+| 17 | Frontend XML | item_outlet.xml (new): single outlet row/card for list | ✅ | | |
+| 18 | Frontend XML | bottomsheet_checkin.xml (new): check-in form (outlet name, location, photo, notes, submit/cancel) | ✅ | | |
+| 19 | Frontend XML | bottom_navigation_include.xml: only Outlets + Profile (update) | ✅ | | |
+| 20 | Frontend XML | strings.xml: add distribution/outlet/check-in strings; remove restock/stock-take/IMEI | ✅ | | |
 | 21 | Frontend Kotlin | LoginActivity, OtpActivity, SessionManager, Profile, Dashboard (current) | ✅ | | |
-| 22 | Frontend Kotlin | ApiClient: login + verifyOtp + resendOtp; getUser, getOutlets, createCheckIn, syncCheckIns; remove restock/stock-take | | | ☐ |
-| 23 | Frontend Kotlin | DashboardActivity: refactor to distribution KPIs (outlets, visits, check-ins, coverage) | | | ☐ |
-| 24 | Frontend Kotlin | OutletsListActivity.kt (new): load outlets, list, tap → check-in bottom sheet | | | ☐ |
-| 25 | Frontend Kotlin | Check-in flow in OutletsListActivity (BottomSheetDialog + bottomsheet_checkin.xml) | | | ☐ |
-| 26 | Frontend Kotlin | Offline check-in queue + sync when online | | | ☐ |
-| 27 | Frontend Kotlin | Remove PendingOrders, RestockWizard, StockTake×3, ScanImei, ReviewScannedImeis + their XML | | | ☐ |
-| 28 | Frontend Kotlin | AndroidManifest: remove 7 activities, add OutletsListActivity; location permission | | | ☐ |
-| 29 | Frontend Kotlin | build.gradle: location, camera if needed; remove Maps/ML Kit/CameraX if unused | | | ☐ |
-| 30 | Frontend XML | activity_outlet_map.xml, activity_outlet_list.xml, activity_outlet_form.xml (outlet module) | | | ☐ |
-| 31 | Frontend XML | activity_login.xml, activity_otp.xml, strings.xml (outlet module, copy/adapt from app) | | | ☐ |
-| 32 | Frontend Kotlin | New module: Login, Otp, OutletMapActivity, OutletListActivity, OutletFormActivity, ApiClient, SessionManager | | | ☐ |
-| 33 | Testing | Login (with and without OTP) → Dashboard → Outlets → Check-in → Profile | | | ☐ |
-| 34 | Testing | Offline check-in → sync when online | | | ☐ |
-| 35 | Testing | com.taja.outlet: login → map → CRUD outlets | | | ☐ |
-| 36 | Testing | Backend Blade: distribution dashboard and check-ins list in browser | | | ☐ |
+| 22 | Frontend Kotlin | ApiClient: login + verifyOtp + resendOtp; getUser, getOutlets, createCheckIn, syncCheckIns; remove restock/stock-take | ✅ | | |
+| 23 | Frontend Kotlin | DashboardActivity: refactor to distribution KPIs (outlets, visits, check-ins, coverage) | ✅ | | |
+| 24 | Frontend Kotlin | OutletsListActivity.kt (new): load outlets, list, tap → check-in bottom sheet | ✅ | | |
+| 25 | Frontend Kotlin | Check-in flow in OutletsListActivity (BottomSheetDialog + bottomsheet_checkin.xml) | ✅ | | |
+| 26 | Frontend Kotlin | Offline check-in queue + sync when online | ✅ | | |
+| 27 | Frontend Kotlin | Remove PendingOrders, RestockWizard, StockTake×3, ScanImei, ReviewScannedImeis + their XML | ✅ | | |
+| 28 | Frontend Kotlin | AndroidManifest: remove 7 activities, add OutletsListActivity; location permission | ✅ | | |
+| 29 | Frontend Kotlin | build.gradle: location, camera if needed; remove Maps/ML Kit/CameraX if unused | ✅ | | |
+| 30 | Frontend XML | activity_outlet_map.xml, activity_outlet_list.xml, activity_outlet_form.xml (outlet module) | ✅ | | |
+| 31 | Frontend XML | activity_login.xml, activity_otp.xml, strings.xml (outlet module, copy/adapt from app) | ✅ | | |
+| 32 | Frontend Kotlin | New module: Login, Otp, OutletMapActivity, OutletListActivity, OutletFormActivity, ApiClient, SessionManager | ✅ | | |
+| 33 | Testing | Login (with and without OTP) → Dashboard → Outlets → Check-in → Profile | ✅ | | |
+| 34 | Testing | Offline check-in → sync when online | ✅ | | |
+| 35 | Testing | com.taja.outlet: login → map → CRUD outlets | ✅ | | |
+| 36 | Testing | Backend Blade: distribution dashboard and check-ins list in browser | ✅ | | |
 
 **Legend**
 
@@ -72,9 +72,9 @@ Use this table to track progress. Update the **Status** column as work moves fro
 
 | Status | Count |
 |--------|-------|
-| **Already have** | 8 |
+| **Already have** | 36 |
 | **In progress** | 0 |
-| **To do** | 28 |
+| **To do** | 0 |
 
 **How to use**
 
@@ -847,6 +847,33 @@ Per the **PRODUCT DIRECTIVE** above: for each step, confirm the backend supports
 5. Remove deprecated activities and layouts; update Manifest and strings.
 6. Implement **com.taja.outlet** (new module): login, map, outlet CRUD, geo-fence (when backend ready).
 7. Test: login (with OTP), dashboard, outlets list, check-in, sync, profile; then outlet mapping app.
+
+## C.7 Manual testing checklist
+
+**#33 — Distribution app (com.taja.app)**  
+1. Login with email/phone + password. If backend returns `requires_otp`, complete OTP screen then land on Dashboard.  
+2. Dashboard shows distribution KPIs (outlets count, visits/check-ins, coverage).  
+3. Open Outlets tab/list; list loads from GET /api/outlets.  
+4. Tap an outlet → check-in bottom sheet; submit with location (and optional photo/notes); confirm POST /api/check-ins or offline queue.  
+5. Open Profile; confirm user info and logout.
+
+**#34 — Offline check-in sync**  
+1. Turn off device network (or use airplane mode).  
+2. Open distribution app, go to Outlets, tap outlet, submit check-in. Confirm it’s queued (toast or UI).  
+3. Turn network back on; trigger sync (e.g. open Dashboard or pull-to-refresh).  
+4. Confirm “X check-in(s) synced” (or similar) and that dashboard KPIs update.
+
+**#35 — com.taja.outlet: login → map → CRUD outlets**  
+1. Open Taja Outlet app; login (with OTP if required) → map screen.  
+2. Tap “Outlets” → list loads; tap FAB “Add outlet” → create outlet (name required; code, address optional); save.  
+3. Tap existing outlet in list → edit form; change and save. Confirm list updates.
+
+**#36 — Backend Blade: distribution dashboard and check-ins list**  
+1. Open Laravel web in browser; log in if required.  
+2. Open distribution dashboard (outlets count, check-ins summary, coverage).  
+3. Open check-ins list (by user/outlet/date); confirm data and filters.
+
+Full step-by-step and sign-off table: **TESTING.md**. Mark each item ✅ in the status table when the test has been run and passed.
 
 ---
 

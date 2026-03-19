@@ -22,6 +22,24 @@
         <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-sm">
             <form method="GET" action="{{ route('check-ins.index') }}" class="flex flex-wrap gap-4 items-end">
                 <div class="w-44">
+                    <label for="user_id" class="block text-sm font-medium text-themeBody mb-2">User</label>
+                    <select id="user_id" name="user_id" class="w-full px-4 py-2.5 border border-themeBorder rounded-xl text-themeHeading focus:ring-2 focus:ring-primary/20 focus:border-primary bg-themeCard">
+                        <option value="">All users</option>
+                        @foreach ($users ?? [] as $u)
+                            <option value="{{ $u->id }}" {{ request('user_id') == $u->id ? 'selected' : '' }}>{{ $u->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="w-52">
+                    <label for="outlet_id" class="block text-sm font-medium text-themeBody mb-2">Outlet</label>
+                    <select id="outlet_id" name="outlet_id" class="w-full px-4 py-2.5 border border-themeBorder rounded-xl text-themeHeading focus:ring-2 focus:ring-primary/20 focus:border-primary bg-themeCard">
+                        <option value="">All outlets</option>
+                        @foreach ($outlets ?? [] as $o)
+                            <option value="{{ $o->id }}" {{ request('outlet_id') == $o->id ? 'selected' : '' }}>{{ $o->name }}{{ $o->code ? ' (' . $o->code . ')' : '' }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="w-44">
                     <label for="date_from" class="block text-sm font-medium text-themeBody mb-2">From</label>
                     <input type="date" id="date_from" name="date_from" value="{{ request('date_from') }}"
                         class="w-full px-4 py-2.5 border border-themeBorder rounded-xl text-themeHeading focus:ring-2 focus:ring-primary/20 focus:border-primary">

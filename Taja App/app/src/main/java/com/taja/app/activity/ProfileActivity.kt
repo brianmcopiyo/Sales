@@ -59,13 +59,8 @@ class ProfileActivity : AppCompatActivity() {
                     false
                 }
                 R.id.nav_profile -> true
-                R.id.nav_stock -> {
-                    startActivity(Intent(this, PendingOrdersActivity::class.java))
-                    finish()
-                    false
-                }
-                R.id.nav_stock_takes -> {
-                    startActivity(Intent(this, StockTakeListActivity::class.java))
+                R.id.nav_outlets -> {
+                    startActivity(Intent(this, OutletsListActivity::class.java))
                     finish()
                     false
                 }

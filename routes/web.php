@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DistributionDashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\StockTransferController;
@@ -80,6 +81,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard')
         ->middleware('permission:dashboard.view');
+
+    // Distribution dashboard (outlets, check-ins, coverage)
+    Route::get('/distribution-dashboard', [DistributionDashboardController::class, 'index'])
+        ->name('distribution.dashboard')
+        ->middleware('permission:outlets.view|checkins.view|distribution.reports');
 
     // Global Search Route
     Route::get('/search', [SearchController::class, 'search'])->name('search');

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\CheckIn;
 use App\Models\Outlet;
+use App\Models\User;
 use App\Services\GeoFenceService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class CheckInController extends Controller
@@ -29,7 +31,11 @@ class CheckInController extends Controller
 
         $checkIns = $query->latest('check_in_at')->paginate(20)->withQueryString();
 
-        return view('check-ins.index', compact('checkIns'));
+        $currentUser = Auth::user();
+        $users = User::visibleTo($currentUser)->orderBy('name')->get(['id', 'name']);
+        $outlets = Outlet::orderBy('name')->get(['id', 'name', 'code']);
+
+        return view('check-ins.index', compact('checkIns', 'users', 'outlets'));
     }
 
     /**

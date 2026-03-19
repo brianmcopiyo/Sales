@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthApiController;
+use App\Http\Controllers\Api\DashboardApiController;
 use App\Http\Controllers\Api\OutletApiController;
 use App\Http\Controllers\Api\CheckInApiController;
 use App\Http\Controllers\Api\SyncApiController;
@@ -17,8 +17,14 @@ use App\Http\Controllers\Api\SyncApiController;
 
 Route::post('/login', [AuthApiController::class, 'login']);
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', fn (Request $request) => $request->user());
+Route::middleware(['auth:sanctum', 'ability:otp-pending'])->group(function () {
+    Route::post('/verify-otp', [AuthApiController::class, 'verifyOtp']);
+    Route::post('/resend-otp', [AuthApiController::class, 'resendOtp']);
+});
+
+Route::middleware(['auth:sanctum', 'ability:full'])->group(function () {
+    Route::get('/user', [AuthApiController::class, 'user']);
+    Route::get('/dashboard-summary', [DashboardApiController::class, 'summary']);
     Route::get('/outlets', [OutletApiController::class, 'index']);
     Route::get('/outlets/{id}', [OutletApiController::class, 'show']);
     Route::post('/outlets', [OutletApiController::class, 'store']);

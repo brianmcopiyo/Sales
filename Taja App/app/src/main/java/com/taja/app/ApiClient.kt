@@ -1,10 +1,14 @@
 package com.taja.app
 
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 /**
@@ -62,15 +66,13 @@ object ApiClient {
     }
 
     fun verifyOtp(pendingToken: String, otp: String): ApiResult<LoginResponse> {
-        val body = JSONObject().apply {
-            put("pending_token", pendingToken)
-            put("otp", otp)
-        }.toString().toRequestBody(jsonType)
-
+        val body = JSONObject().apply { put("otp", otp) }.toString().toRequestBody(jsonType)
         val request = Request.Builder()
-            .url("${baseUrl()}/api/login/verify-otp")
+            .url("${baseUrl()}/api/verify-otp")
             .post(body)
+            .addHeader("Authorization", "Bearer $pendingToken")
             .addHeader("Accept", "application/json")
+            .addHeader("Content-Type", "application/json")
             .build()
 
         return execute(request) { json ->
@@ -89,13 +91,13 @@ object ApiClient {
     }
 
     fun resendOtp(pendingToken: String): ApiResult<String> {
-        val body = JSONObject().apply { put("pending_token", pendingToken) }
-            .toString().toRequestBody(jsonType)
-
+        val body = JSONObject().toString().toRequestBody(jsonType)
         val request = Request.Builder()
-            .url("${baseUrl()}/api/login/resend-otp")
+            .url("${baseUrl()}/api/resend-otp")
             .post(body)
+            .addHeader("Authorization", "Bearer $pendingToken")
             .addHeader("Accept", "application/json")
+            .addHeader("Content-Type", "application/json")
             .build()
 
         return execute(request) { json ->
@@ -192,6 +194,204 @@ object ApiClient {
         val pendingRestockOrders: Int,
         val pendingStockTakes: Int
     )
+
+    // --- Distribution: user, dashboard summary, outlets, check-ins ---
+    data class User(
+        val id: String,
+        val name: String,
+        val email: String?,
+        val phone: String?,
+        val branchId: String?,
+        val branch: Branch?
+    )
+    data class Branch(val id: String, val name: String)
+
+    data class DashboardSummary(
+        val outletsCount: Int,
+        val checkInsToday: Int,
+        val checkInsThisWeek: Int
+    )
+
+    data class Outlet(
+        val id: String,
+        val name: String,
+        val code: String?,
+        val address: String?,
+        val lat: Double?,
+        val lng: Double?,
+        val geoFenceType: String?,
+        val geoFenceRadiusMetres: Int?,
+        val geoFencePolygon: String?,
+        val branchId: String?,
+        val isActive: Boolean?
+    )
+
+    data class CheckInCreated(val id: String, val outletId: String, val checkInAt: String)
+
+    data class SyncCheckInItem(
+        val clientId: String,
+        val outletId: String,
+        val lat: Double,
+        val lng: Double,
+        val notes: String?,
+        val photoBase64: String?,
+        val checkInAt: String
+    )
+    data class SyncCheckInsResponse(
+        val synced: List<SyncedItem>,
+        val failed: List<FailedItem>
+    )
+    data class SyncedItem(val clientId: String, val serverId: String)
+    data class FailedItem(val clientId: String, val message: String)
+
+    fun getUser(token: String): ApiResult<User> {
+        val request = Request.Builder()
+            .url("${baseUrl()}/api/user")
+            .addHeader("Authorization", "Bearer $token")
+            .addHeader("Accept", "application/json")
+            .get()
+            .build()
+        return execute(request) { json ->
+            val branchObj = json.optJSONObject("branch")
+            User(
+                id = json.optString("id", ""),
+                name = json.optString("name", ""),
+                email = json.optString("email", "").takeIf { it.isNotEmpty() },
+                phone = json.optString("phone", "").takeIf { it.isNotEmpty() },
+                branchId = json.optString("branch_id", "").takeIf { it.isNotEmpty() },
+                branch = branchObj?.let { Branch(it.optString("id", ""), it.optString("name", "")) }
+            )
+        }
+    }
+
+    fun getDashboardSummary(token: String): ApiResult<DashboardSummary> {
+        val request = Request.Builder()
+            .url("${baseUrl()}/api/dashboard-summary")
+            .addHeader("Authorization", "Bearer $token")
+            .addHeader("Accept", "application/json")
+            .get()
+            .build()
+        return execute(request) { json ->
+            DashboardSummary(
+                outletsCount = json.optInt("outlets_count", 0),
+                checkInsToday = json.optInt("check_ins_today", 0),
+                checkInsThisWeek = json.optInt("check_ins_this_week", 0)
+            )
+        }
+    }
+
+    fun getOutlets(token: String): ApiResult<List<Outlet>> {
+        val request = Request.Builder()
+            .url("${baseUrl()}/api/outlets")
+            .addHeader("Authorization", "Bearer $token")
+            .addHeader("Accept", "application/json")
+            .get()
+            .build()
+        return execute(request) { json ->
+            val arr = json.getJSONArray("outlets")
+            (0 until arr.length()).map { i -> parseOutlet(arr.getJSONObject(i)) }
+        }
+    }
+
+    fun getOutlet(token: String, outletId: String): ApiResult<Outlet> {
+        val request = Request.Builder()
+            .url("${baseUrl()}/api/outlets/$outletId")
+            .addHeader("Authorization", "Bearer $token")
+            .addHeader("Accept", "application/json")
+            .get()
+            .build()
+        return execute(request) { json ->
+            parseOutlet(json.getJSONObject("outlet"))
+        }
+    }
+
+    private fun parseOutlet(o: JSONObject): Outlet = Outlet(
+        id = o.optString("id", ""),
+        name = o.optString("name", ""),
+        code = o.optString("code", "").takeIf { it.isNotEmpty() },
+        address = o.optString("address", "").takeIf { it.isNotEmpty() },
+        lat = o.optDouble("lat", Double.NaN).takeIf { !it.isNaN() },
+        lng = o.optDouble("lng", Double.NaN).takeIf { !it.isNaN() },
+        geoFenceType = o.optString("geo_fence_type", "").takeIf { it.isNotEmpty() },
+        geoFenceRadiusMetres = o.optInt("geo_fence_radius_metres", 0).takeIf { it > 0 },
+        geoFencePolygon = o.optString("geo_fence_polygon", "").takeIf { it.isNotEmpty() },
+        branchId = o.optString("branch_id", "").takeIf { it.isNotEmpty() },
+        isActive = if (o.has("is_active")) o.optBoolean("is_active", true) else null
+    )
+
+    fun createCheckIn(
+        token: String,
+        outletId: String,
+        lat: Double,
+        lng: Double,
+        notes: String? = null,
+        photoFile: File? = null
+    ): ApiResult<CheckInCreated> {
+        val bodyBuilder = MultipartBody.Builder().setType(MultipartBody.FORM)
+            .addFormDataPart("outlet_id", outletId)
+            .addFormDataPart("lat", lat.toString())
+            .addFormDataPart("lng", lng.toString())
+        notes?.takeIf { it.isNotBlank() }?.let { bodyBuilder.addFormDataPart("notes", it) }
+        photoFile?.takeIf { it.exists() }?.let { file ->
+            bodyBuilder.addFormDataPart(
+                "photo",
+                file.name,
+                file.asRequestBody("image/jpeg".toMediaType())
+            )
+        }
+        val body = bodyBuilder.build()
+        val request = Request.Builder()
+            .url("${baseUrl()}/api/check-ins")
+            .addHeader("Authorization", "Bearer $token")
+            .addHeader("Accept", "application/json")
+            .post(body)
+            .build()
+        return execute(request) { json ->
+            val c = json.getJSONObject("check_in")
+            CheckInCreated(
+                id = c.optString("id", ""),
+                outletId = c.optString("outlet_id", ""),
+                checkInAt = c.optString("check_in_at", "")
+            )
+        }
+    }
+
+    fun syncCheckIns(token: String, items: List<SyncCheckInItem>): ApiResult<SyncCheckInsResponse> {
+        val arr = JSONArray()
+        items.forEach { item ->
+            arr.put(JSONObject().apply {
+                put("client_id", item.clientId)
+                put("outlet_id", item.outletId)
+                put("lat", item.lat)
+                put("lng", item.lng)
+                put("notes", item.notes ?: "")
+                item.photoBase64?.let { put("photo_base64", it) }
+                put("check_in_at", item.checkInAt)
+            })
+        }
+        val body = JSONObject().apply { put("items", arr) }.toString().toRequestBody(jsonType)
+        val request = Request.Builder()
+            .url("${baseUrl()}/api/sync/check-ins")
+            .addHeader("Authorization", "Bearer $token")
+            .addHeader("Accept", "application/json")
+            .addHeader("Content-Type", "application/json")
+            .post(body)
+            .build()
+        return execute(request) { json ->
+            val syncedArr = json.optJSONArray("synced") ?: JSONArray()
+            val failedArr = json.optJSONArray("failed") ?: JSONArray()
+            SyncCheckInsResponse(
+                synced = (0 until syncedArr.length()).map { i ->
+                    val o = syncedArr.getJSONObject(i)
+                    SyncedItem(o.optString("client_id", ""), o.optString("server_id", ""))
+                },
+                failed = (0 until failedArr.length()).map { i ->
+                    val o = failedArr.getJSONObject(i)
+                    FailedItem(o.optString("client_id", ""), o.optString("message", ""))
+                }
+            )
+        }
+    }
 
     // --- Restock wizard ---
     data class RestockBranch(val id: String, val name: String, val code: String)

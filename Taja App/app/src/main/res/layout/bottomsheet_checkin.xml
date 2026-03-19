@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bottomsheet_background"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/bottomsheet_checkin_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/color_primary"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="18sp"
+        android:layout_marginBottom="4dp"
+        android:text="@string/check_in_title"
+        tools:text="Check in" />
+
+    <TextView
+        android:id="@+id/bottomsheet_checkin_outlet_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/restock_input_text"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif-medium"
+        android:layout_marginBottom="12dp"
+        tools:text="Main Store" />
+
+    <TextView
+        android:id="@+id/bottomsheet_checkin_location_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/check_in_location"
+        android:textColor="@color/restock_input_hint"
+        android:textSize="12sp"
+        android:layout_marginBottom="4dp" />
+    <TextView
+        android:id="@+id/bottomsheet_checkin_location_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/restock_input_text"
+        android:textSize="13sp"
+        android:layout_marginBottom="12dp"
+        tools:text="Getting location…" />
+
+    <TextView
+        android:id="@+id/bottomsheet_checkin_notes_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/check_in_notes_hint"
+        android:textColor="@color/restock_input_hint"
+        android:textSize="12sp"
+        android:layout_marginBottom="4dp" />
+    <EditText
+        android:id="@+id/bottomsheet_checkin_notes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minLines="2"
+        android:maxLines="4"
+        android:inputType="textMultiLine"
+        android:hint="@string/check_in_notes_placeholder"
+        android:background="@drawable/restock_input_background"
+        android:padding="12dp"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/bottomsheet_checkin_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@android:string/cancel"
+            android:textColor="@color/color_primary"
+            android:background="?attr/selectableItemBackground"
+            android:textSize="14sp"
+            android:padding="12dp"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/bottomsheet_checkin_submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/check_in_submit"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/logout_button_background"
+            android:textSize="14sp"
+            android:padding="12dp" />
+    </LinearLayout>
+</LinearLayout>

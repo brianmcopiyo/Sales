@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Taja Outlet</string>
+
+    <!-- Login -->
+    <string name="login_logo_text">Taja Outlet</string>
+    <string name="login_username_hint">Username or email</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_button">LOGIN</string>
+    <string name="error_username_required">Please enter your username or email</string>
+    <string name="error_password_required">Please enter your password</string>
+
+    <!-- OTP -->
+    <string name="otp_title">VERIFY OTP</string>
+    <string name="otp_hint">Enter 6-digit code</string>
+    <string name="otp_verify">VERIFY</string>
+    <string name="otp_resend">Resend OTP</string>
+    <string name="otp_error_required">Please enter the 6-digit OTP</string>
+
+    <!-- Outlet map/list/form -->
+    <string name="outlet_map_title">Outlets map</string>
+    <string name="outlet_list_title">Outlets</string>
+    <string name="outlet_form_title">Add / Edit outlet</string>
+    <string name="outlets_empty">No outlets</string>
+    <string name="outlet_name_hint">Name</string>
+    <string name="outlet_code_hint">Code (optional)</string>
+    <string name="outlet_address_hint">Address (optional)</string>
+    <string name="outlet_location_label">Location</string>
+    <string name="outlet_location_get">Get location</string>
+    <string name="save">Save</string>
+    <string name="add_outlet">Add outlet</string>
+    <string name="loading">Loading…</string>
+    <string name="error_session">Please log in again</string>
+    <string name="error_loading_outlets">Failed to load outlets</string>
+    <string name="error_save_outlet">Failed to save outlet</string>
+    <string name="outlet_saved">Outlet saved</string>
+</resources>

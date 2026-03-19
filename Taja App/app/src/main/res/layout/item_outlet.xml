@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/dashboard_card_rounded"
+    android:padding="14dp"
+    android:layout_marginBottom="10dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <TextView
+        android:id="@+id/item_outlet_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/color_primary"
+        android:textSize="15sp"
+        tools:text="Main Store" />
+
+    <TextView
+        android:id="@+id/item_outlet_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/restock_input_hint"
+        android:textSize="12sp"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        tools:text="CODE-001"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/item_outlet_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/restock_input_text"
+        android:textSize="13sp"
+        android:layout_marginTop="4dp"
+        android:maxLines="2"
+        android:ellipsize="end"
+        tools:text="123 Street, City" />
+</LinearLayout>
