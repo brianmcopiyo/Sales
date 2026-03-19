@@ -1,0 +1,36 @@
+<resources>
+	
+	<!-- From parent Stock project: config/themes.php default theme -->
+	<color name="color_primary">#006F78</color>
+	<color name="color_primary_dark">#005a62</color>
+	<color name="color_accent">#006F78</color>
+	<color name="color_hint_text">#D0D1D5</color>
+	<color name="color_click_overlay">#555555</color>
+	<color name="color_logout_red">#C62828</color>
+	<color name="restock_step_inactive">#5A5A5A</color>
+	<color name="restock_step_active_bg">#B8DDE0</color>
+	<color name="restock_step_inactive_bg">#E0E0E0</color>
+	<color name="restock_step_connector_active">#B8DDE0</color>
+	<color name="restock_step_connector_inactive">#E0E0E0</color>
+	<color name="restock_step_active_text">#006F78</color>
+	<color name="restock_step_inactive_text">#757575</color>
+	<color name="restock_input_bg">#E8F4F5</color>
+	<color name="restock_input_text">#333333</color>
+	<color name="restock_input_hint">#757575</color>
+
+	<!-- Dashboard (card-based design) -->
+	<color name="dashboard_card_bg">#F5F6F8</color>
+	<color name="dashboard_highlight_bg">#E0F2F3</color>
+
+	<!-- Login screen (four_activity) - uses Stock primary -->
+	<color name="iphone_xxs04_activity_indicator_constraint_layout_background_color">#E2E8ED</color>
+	<color name="iphone_xxs04_activity_group16_constraint_layout_border_color">#98FFFFFF</color>
+	<color name="iphone_xxs04_activity_group89_button_text_color">#006F78</color>
+	<color name="iphone_xxs04_activity_constraint_layout_constraint_layout_background_color">#FFFFFF</color>
+	<color name="iphone_xxs04_activity_group89_constraint_layout_background_color">#006F78</color>
+	<color name="iphone_xxs04_activity_username_edit_text_background_color">#00000000</color>
+	<color name="login_logo_text_color">#FCFCFC</color>
+	<color name="iphone_xxs04_activity_password_edit_text_background_color">#00000000</color>
+	<color name="iphone_xxs04_activity_group21_constraint_layout_border_color">#98FFFFFF</color>
+	
+</resources>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bottomsheet_background"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/edit_quantity_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/edit_quantity_title"
+        android:textColor="@color/color_primary"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/edit_quantity_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/restock_input_text"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/edit_quantity_quantity_label"
+        android:textColor="@color/restock_input_text"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/edit_quantity_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:background="@drawable/restock_input_background"
+        android:padding="12dp"
+        android:inputType="number"
+        android:textColor="@color/restock_input_text"
+        android:textColorHint="@color/restock_input_hint"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/edit_quantity_minimum"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/restock_input_hint"
+        android:textSize="12sp"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/edit_quantity_password_label"
+        android:textColor="@color/restock_input_text"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/edit_quantity_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:background="@drawable/restock_input_background"
+        android:padding="12dp"
+        android:inputType="textPassword"
+        android:hint="@string/edit_quantity_password_hint"
+        android:textColor="@color/restock_input_text"
+        android:textColorHint="@color/restock_input_hint"
+        android:textSize="14sp"
+        android:layout_marginBottom="20dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/edit_quantity_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@android:string/cancel"
+            android:textColor="@color/color_primary"
+            android:background="?attr/selectableItemBackground"
+            android:textSize="14sp"
+            android:padding="12dp"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/edit_quantity_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/edit_quantity_update_button"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/logout_button_background"
+            android:textSize="14sp"
+            android:padding="12dp" />
+    </LinearLayout>
+
+</LinearLayout>
+

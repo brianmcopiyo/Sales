@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/restock_input_background"
+    android:padding="12dp"
+    android:layout_marginBottom="8dp">
+
+    <Spinner
+        android:id="@+id/row_product"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="44dp"
+        android:background="@drawable/restock_input_background"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/stocktake_opening_stock"
+        android:textSize="12sp"
+        android:textColor="@color/restock_input_hint"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="4dp"/>
+
+    <EditText
+        android:id="@+id/row_opening_stock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="0"
+        android:padding="12dp"
+        android:background="@drawable/restock_input_background"
+        android:textColor="@color/restock_input_text"
+        android:textSize="14sp"/>
+</LinearLayout>

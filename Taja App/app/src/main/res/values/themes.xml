@@ -1,0 +1,35 @@
+<resources>
+	
+	<!-- Project level resources - no action bar -->
+	<style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+		<item name="colorPrimary">@color/color_primary</item>
+		<item name="colorPrimaryDark">@color/color_primary_dark</item>
+		<item name="colorAccent">@color/color_accent</item>
+		<item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+	</style>
+	
+	<!-- Bottom sheet: use Material theme (required for com.google.android.material.bottomsheet.BottomSheetDialog) -->
+	<style name="AppBottomSheetDialogTheme" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+		<item name="bottomSheetStyle">@style/AppBottomSheetModalStyle</item>
+	</style>
+	<style name="AppBottomSheetModalStyle" parent="Widget.MaterialComponents.BottomSheet.Modal">
+		<item name="android:background">@drawable/bottomsheet_background</item>
+		<item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.App.BottomSheet</item>
+	</style>
+	<!-- Rounded top corners only; bottom corners square -->
+	<style name="ShapeAppearanceOverlay.App.BottomSheet" parent="">
+		<item name="cornerFamily">rounded</item>
+		<item name="cornerFamilyBottomLeft">cut</item>
+		<item name="cornerFamilyBottomRight">cut</item>
+		<item name="cornerSizeTopLeft">20dp</item>
+		<item name="cornerSizeTopRight">20dp</item>
+		<item name="cornerSizeBottomLeft">0dp</item>
+		<item name="cornerSizeBottomRight">0dp</item>
+	</style>
+	
+	<!-- IPhoneXXS04Activity (four_activity / login 4) -->
+	<style name="IPhoneXXS04ActivityTheme" parent="Theme.AppCompat.NoActionBar">
+		<item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+	</style>
+	
+</resources>

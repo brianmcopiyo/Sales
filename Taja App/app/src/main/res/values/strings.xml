@@ -1,0 +1,173 @@
+<resources>
+
+	<!-- Project level resources -->
+	<string name="app_name">Kimaro</string>
+
+	<!-- Resources for IPhoneXXS04Activity (four_activity layout) -->
+	<string name="iphone_xxs04_activity_keep_me_logged_in_text_view_text">Keep me logged in</string>
+	<string name="iphone_xxs04_activity_password_edit_text_hint">Password</string>
+	<string name="login_logo_text">Kimaro</string>
+	<string name="iphone_xxs04_activity_username_edit_text_hint">Username</string>
+	<string name="iphone_xxs04_activity_forgot_password_button_text">Forgot password?</string>
+	<string name="iphone_xxs04_activity_group89_button_text">LOGIN</string>
+	<string name="iphone_xxs04_activity_login_text_view_text">LOGIN</string>
+	<string name="error_username_required">Please enter your username or email</string>
+	<string name="error_password_required">Please enter your password</string>
+	<string name="forgot_password_web_message">Please use the Forgot password option on the web app to reset your password.</string>
+	<string name="dashboard_title">Dashboard</string>
+	<string name="dashboard_welcome">Welcome, %1$s</string>
+	<string name="dashboard_hello">Hello, %1$s</string>
+	<string name="dashboard_branch">Branch: %1$s</string>
+	<string name="dashboard_todays_overview">Today\'s overview</string>
+	<string name="dashboard_section_overview">Overview</string>
+	<string name="dashboard_section_quick_actions">Quick actions</string>
+	<string name="dashboard_sales">Sales</string>
+	<string name="dashboard_sales_today">Today</string>
+	<string name="dashboard_sales_month">This month</string>
+	<string name="dashboard_revenue">Revenue</string>
+	<string name="dashboard_tickets">Tickets</string>
+	<string name="dashboard_open_tickets">Open</string>
+	<string name="dashboard_transfers">Pending transfers</string>
+	<string name="dashboard_stock">Stock</string>
+	<string name="dashboard_low_stock">Low stock</string>
+	<string name="dashboard_out_of_stock">Out of stock</string>
+	<string name="dashboard_devices">Devices</string>
+	<string name="dashboard_available_devices">Available</string>
+	<string name="logout">Log out</string>
+	<string name="otp_title">VERIFY OTP</string>
+	<string name="otp_hint">Enter 6-digit code</string>
+	<string name="otp_verify">VERIFY</string>
+	<string name="otp_resend">Resend OTP</string>
+	<string name="otp_error_required">Please enter the 6-digit OTP</string>
+	<string name="otp_message_placeholder">Enter the code sent to your email or phone.</string>
+	<string name="restock_wizard_title">Create stock</string>
+	<string name="restock_step1">Step 1 — Order details</string>
+	<string name="restock_step2">Step 2 — Add products</string>
+	<string name="restock_step3">Step 3 — Review</string>
+	<string name="restock_branch">Branch</string>
+	<string name="restock_reference">Reference (optional)</string>
+	<string name="restock_dealership">Dealership (optional)</string>
+	<string name="restock_expected_date">Expected date (optional)</string>
+	<string name="restock_product">Product</string>
+	<string name="restock_quantity">Qty</string>
+	<string name="restock_cost_optional">Cost (opt)</string>
+	<string name="restock_add_product">+ Add product</string>
+	<string name="restock_remove">Remove</string>
+	<string name="restock_next">Next</string>
+	<string name="restock_back">Back</string>
+	<string name="restock_submit">Create order</string>
+	<string name="restock_success">Order created</string>
+	<string name="restock_select_branch">Select branch</string>
+	<string name="restock_select_product">Select product</string>
+	<string name="restock_review_order_details">Order details</string>
+	<string name="restock_review_products">Products</string>
+	<string name="restock_review_cost">Cost</string>
+	<string name="restock_review_no_value">—</string>
+	<string name="dashboard_orders_awaiting_approval">Orders awaiting approval</string>
+	<string name="dashboard_view_orders">View</string>
+	<string name="nav_orders">Orders</string>
+	<string name="nav_dashboard">Dashboard</string>
+	<string name="nav_stock">Stock</string>
+	<string name="nav_profile">Profile</string>
+	<string name="profile_name_label">Name</string>
+	<string name="profile_branch_label">Branch</string>
+	<string name="orders_awaiting_approval_title">Orders awaiting approval</string>
+	<string name="orders_approve_full">Full</string>
+	<string name="orders_approve_partial">Partial</string>
+	<string name="orders_reject">Reject</string>
+	<string name="orders_partial_quantity_hint">Quantity to receive (max %1$d)</string>
+	<string name="orders_mark_complete">Mark order complete</string>
+	<string name="orders_reject_reason_hint">Reason (optional)</string>
+	<string name="orders_empty">No orders awaiting approval</string>
+	<string name="orders_approved">Order approved</string>
+	<string name="orders_rejected">Order rejected</string>
+	<string name="orders_mark_complete_button">Complete</string>
+	<string name="orders_edit_quantity_button">Edit</string>
+
+	<!-- Stock take -->
+	<string name="stocktake_title">Stock take</string>
+	<string name="stocktake_list_title">Stock takes</string>
+	<string name="stocktake_new">New stock take</string>
+	<string name="stocktake_create_title">Create stock take</string>
+	<string name="stocktake_branch">Branch</string>
+	<string name="stocktake_date">Stock take date</string>
+	<string name="stocktake_notes">Notes (optional)</string>
+	<string name="stocktake_add_products">Add products</string>
+	<string name="stocktake_add_product">Add product</string>
+	<string name="stocktake_opening_stock">Opening stock</string>
+	<string name="stocktake_create">Create stock take</string>
+	<string name="stocktake_empty">No stock takes</string>
+	<string name="stocktake_detail_title">Stock take #%1$s</string>
+	<string name="stocktake_status_draft">Draft</string>
+	<string name="stocktake_status_in_progress">In progress</string>
+	<string name="stocktake_status_completed">Completed</string>
+	<string name="stocktake_status_approved">Approved</string>
+	<string name="stocktake_status_cancelled">Cancelled</string>
+	<string name="stocktake_edit">Edit</string>
+	<string name="stocktake_complete">Mark as completed</string>
+	<string name="stocktake_approve">Approve &amp; apply</string>
+	<string name="stocktake_cancel">Cancel</string>
+	<string name="stocktake_items">Items</string>
+	<string name="stocktake_counted">Counted</string>
+	<string name="stocktake_pending">Pending</string>
+	<string name="stocktake_variance">Variance</string>
+	<string name="stocktake_physical_count">Closing stock</string>
+	<string name="stocktake_enter_count">Enter count</string>
+	<string name="stocktake_save_count">Save</string>
+	<string name="stocktake_closing_stock_hint">Tap an item to enter closing stock (count).</string>
+	<string name="stocktake_imei_optional">IMEI (optional)</string>
+	<string name="stocktake_scan_imei">Scan IMEI</string>
+	<string name="stocktake_remove_item">Remove</string>
+	<string name="stocktake_cancel_confirm">Cancel this stock take?</string>
+	<string name="stocktake_cancel_reason_hint">Reason (optional)</string>
+	<string name="stocktake_complete_confirm">Mark as completed? All items must be counted.</string>
+	<string name="stocktake_approve_confirm">Approve and apply adjustments to branch stock?</string>
+	<string name="stocktake_complete_hint">Tap Edit to enter closing stock for each item, then tap \"Mark as completed\" at the bottom.</string>
+
+	<!-- Receive stock (mirrors Laravel receive modal) -->
+	<string name="receive_stock_title">Receive Stock</string>
+	<string name="receive_order_label">Order: %1$s</string>
+	<string name="receive_quantity_received_label">Quantity Received *</string>
+	<string name="receive_quantity_max">Max: %1$d</string>
+	<string name="receive_notes_label">Notes (optional)</string>
+	<string name="receive_notes_placeholder">e.g. partial delivery, batch number</string>
+	<string name="receive_imei_label">IMEI numbers for this product (optional)</string>
+	<string name="receive_imei_placeholder">One IMEI per line or comma-separated</string>
+	<string name="receive_imei_upload_csv">Or upload CSV</string>
+	<string name="receive_imei_upload_csv_hint">One IMEI per row, header: imei</string>
+	<string name="receive_imei_file_error">Could not read file</string>
+	<string name="receive_imei_scan_barcode">Scan barcode</string>
+	<string name="receive_mark_complete_label">Mark order as complete (no more stock expected). Leave unchecked to keep the order open for more deliveries.</string>
+	<string name="record_receipt">Record Receipt</string>
+	<string name="approve_full_order_title">Approve full order</string>
+	<string name="approve_full_quantity_label">Quantity to receive</string>
+	<string name="approve_button">Approve</string>
+
+	<!-- IMEI scanning -->
+	<string name="scan_imei_done">Done</string>
+	<string name="scan_imei_status">%1$d IMEI(s) captured</string>
+	<string name="scan_imei_status_filtered">%1$d IMEI(s) captured (%2$d removed - different device type)</string>
+
+	<string name="review_imei_title">Review scanned IMEIs</string>
+	<string name="review_imei_title_count">Review scanned IMEIs (%1$d)</string>
+	<string name="review_imei_subtitle">Please confirm these IMEIs before adding them to the order.</string>
+	<string name="review_imei_filtered_subtitle">%1$d IMEI(s) removed (different device type).</string>
+	<string name="review_imei_confirm">Add to order</string>
+
+	<!-- Edit quantity ordered (restock order) -->
+	<string name="edit_quantity_title">Edit quantity ordered</string>
+	<string name="edit_quantity_message">Confirm your password to change the quantity for order %1$s.</string>
+	<string name="edit_quantity_quantity_label">Quantity ordered</string>
+	<string name="edit_quantity_minimum">Minimum: %1$d (already received).</string>
+	<string name="edit_quantity_password_label">Your password</string>
+	<string name="edit_quantity_password_hint">Enter your password to confirm</string>
+	<string name="edit_quantity_update_button">Update quantity</string>
+
+	<!-- Loading indicators (form submit / waiting for result) -->
+	<string name="loading_signing_in">Signing in…</string>
+	<string name="loading_verifying">Verifying…</string>
+	<string name="loading_sending">Sending…</string>
+	<string name="loading_loading">Loading…</string>
+	<string name="loading_creating_order">Creating order…</string>
+
+</resources>

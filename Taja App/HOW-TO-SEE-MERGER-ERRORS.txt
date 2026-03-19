@@ -1,0 +1,17 @@
+If you still see "Manifest merger failed with multiple errors, see logs":
+
+1. In Android Studio / Cursor:
+   - Open the "Build" tool window (View -> Tool Windows -> Build).
+   - Run Build -> Make Project (or run the app).
+   - When it fails, in the Build output pane SCROLL UP.
+   - Look for lines starting with "Error:" or "Manifest merger" (often in red).
+   - Select and copy that whole block (all Error: and Suggestion: lines).
+
+2. Or from command line (in this folder):
+   - Run:  capture-build-log.bat
+   - Open build-output.txt, search for "Error:" or "Manifest merger".
+   - Copy that section.
+
+3. Paste the copied error text in your next message so we can fix the exact cause.
+
+The real error messages are always in the same build output, just above the final "Manifest merger failed" line.

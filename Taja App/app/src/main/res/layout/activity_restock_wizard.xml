@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/iphone_xxs04_activity_constraint_layout_constraint_layout_background_color">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/restock_nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <Button
+                android:id="@+id/back_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/restock_back"
+                android:textColor="@color/color_primary"
+                android:background="?attr/selectableItemBackground"
+                android:drawableStart="@drawable/ic_chevron_back"
+                android:drawablePadding="6dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="12dp"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/restock_wizard_title"
+                android:textColor="@color/color_primary"
+                android:textSize="20sp"
+                android:layout_marginBottom="12dp"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+                <TextView android:id="@+id/step1_dot" android:layout_width="24dp" android:layout_height="24dp" android:background="@drawable/restock_step_active_bg" android:gravity="center" android:text="1" android:textColor="@color/restock_step_active_text" android:textSize="12sp"/>
+                <View android:id="@+id/connector_1_2" android:layout_width="24dp" android:layout_height="2dp" android:background="@drawable/restock_step_connector_inactive" android:layout_marginHorizontal="4dp"/>
+                <TextView android:id="@+id/step2_dot" android:layout_width="24dp" android:layout_height="24dp" android:background="@drawable/restock_step_inactive_bg" android:gravity="center" android:text="2" android:textColor="@color/restock_step_inactive_text" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                <View android:id="@+id/connector_2_3" android:layout_width="24dp" android:layout_height="2dp" android:background="@drawable/restock_step_connector_inactive" android:layout_marginHorizontal="4dp"/>
+                <TextView android:id="@+id/step3_dot" android:layout_width="24dp" android:layout_height="24dp" android:background="@drawable/restock_step_inactive_bg" android:gravity="center" android:text="3" android:textColor="@color/restock_step_inactive_text" android:textSize="12sp" android:layout_marginStart="4dp"/>
+            </LinearLayout>
+
+            <!-- Step 1 -->
+            <LinearLayout
+                android:id="@+id/step1_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/restock_step1" android:textColor="@color/color_primary" android:fontFamily="sans-serif-medium" android:textSize="14sp" android:layout_marginBottom="8dp"/>
+                <LinearLayout android:id="@+id/restock_branch_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:layout_marginBottom="8dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/restock_branch" android:textSize="12sp" android:textColor="#666666" android:layout_marginBottom="4dp"/>
+                    <Spinner android:id="@+id/restock_branch_spinner" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:background="@drawable/restock_input_background"/>
+                </LinearLayout>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/restock_reference" android:textSize="12sp" android:textColor="#666666" android:layout_marginBottom="4dp"/>
+                <EditText
+                    android:id="@+id/restock_reference"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:hint="@string/restock_reference"
+                    android:padding="12dp"
+                    android:background="@drawable/restock_input_background"
+                    android:fontFamily="sans-serif"
+                    android:gravity="start|center_vertical"
+                    android:maxLines="1"
+                    android:textColor="@color/restock_input_text"
+                    android:textColorHint="@color/restock_input_hint"
+                    android:textSize="@dimen/iphone_xxs04_activity_username_edit_text_text_size"
+                    android:layout_marginBottom="8dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/restock_dealership" android:textSize="12sp" android:textColor="#666666" android:layout_marginBottom="4dp"/>
+                <EditText
+                    android:id="@+id/restock_dealership"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:hint="@string/restock_dealership"
+                    android:padding="12dp"
+                    android:background="@drawable/restock_input_background"
+                    android:fontFamily="sans-serif"
+                    android:gravity="start|center_vertical"
+                    android:maxLines="1"
+                    android:textColor="@color/restock_input_text"
+                    android:textColorHint="@color/restock_input_hint"
+                    android:textSize="@dimen/iphone_xxs04_activity_username_edit_text_text_size"
+                    android:layout_marginBottom="8dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/restock_expected_date" android:textSize="12sp" android:textColor="#666666" android:layout_marginBottom="4dp"/>
+                <EditText
+                    android:id="@+id/restock_expected_at"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="YYYY-MM-DD"
+                    android:padding="12dp"
+                    android:background="@drawable/restock_input_background"
+                    android:fontFamily="sans-serif"
+                    android:gravity="start|center_vertical"
+                    android:maxLines="1"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:textColor="@color/restock_input_text"
+                    android:textColorHint="@color/restock_input_hint"
+                    android:textSize="@dimen/iphone_xxs04_activity_username_edit_text_text_size"/>
+            </LinearLayout>
+
+            <!-- Step 2 -->
+            <LinearLayout
+                android:id="@+id/step2_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/restock_step2" android:textColor="@color/color_primary" android:fontFamily="sans-serif-medium" android:textSize="14sp" android:layout_marginBottom="8dp"/>
+                <LinearLayout android:id="@+id/restock_product_rows" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"/>
+                <Button android:id="@+id/restock_add_product" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/restock_add_product" android:textColor="@color/color_primary" android:background="?attr/selectableItemBackground" android:textSize="14sp" android:layout_marginTop="8dp"/>
+            </LinearLayout>
+
+            <!-- Step 3 Review -->
+            <LinearLayout
+                android:id="@+id/step3_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/restock_step3" android:textColor="@color/color_primary" android:fontFamily="sans-serif-medium" android:textSize="14sp" android:layout_marginBottom="12dp"/>
+                <!-- Order details card -->
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/restock_review_order_details" android:textColor="@color/color_primary" android:fontFamily="sans-serif-medium" android:textSize="12sp" android:layout_marginBottom="6dp"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/restock_input_background" android:padding="12dp" android:layout_marginBottom="16dp">
+                    <TextView android:id="@+id/restock_summary_order" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="@color/restock_input_text" android:lineSpacingExtra="4dp"/>
+                </LinearLayout>
+                <!-- Products card -->
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/restock_review_products" android:textColor="@color/color_primary" android:fontFamily="sans-serif-medium" android:textSize="12sp" android:layout_marginBottom="6dp"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/restock_input_background" android:padding="12dp">
+                    <TextView android:id="@+id/restock_summary_products" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="@color/restock_input_text" android:lineSpacingExtra="4dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/restock_nav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+        <Button android:id="@+id/restock_back" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/restock_back" android:visibility="gone" android:background="?attr/selectableItemBackground" android:textColor="@color/color_primary" android:layout_marginEnd="8dp"/>
+        <Button android:id="@+id/restock_next" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/restock_next" android:background="@drawable/logout_button_background" android:textColor="#FFFFFF" android:layout_marginStart="8dp"/>
+        <Button android:id="@+id/restock_submit" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/restock_submit" android:visibility="gone" android:background="@drawable/logout_button_background" android:textColor="#FFFFFF" android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/restock_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/color_primary"
+        android:visibility="gone"
+        android:elevation="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/restock_loading_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/loading_loading"
+        android:textColor="@color/color_primary"
+        android:textSize="14sp"
+        android:visibility="gone"
+        android:elevation="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/restock_progress"
+        tools:visibility="visible"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
