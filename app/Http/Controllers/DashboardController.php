@@ -467,6 +467,10 @@ class DashboardController extends Controller
             $distributionTodayDone = CheckIn::whereDate('check_in_at', $today)->count();
         }
 
+        $currencySymbol = config('app.currency_symbol');
+        $currencyCode = config('app.currency_code');
+        $currencyName = config('app.currency_name');
+
         return view('dashboard.index', compact(
             'period',
             'periodLabel',
@@ -517,7 +521,10 @@ class DashboardController extends Controller
             'canAccessRestockWizard',
             'canViewDistribution',
             'distributionTodayPlanned',
-            'distributionTodayDone'
+            'distributionTodayDone',
+            'currencySymbol',
+            'currencyCode',
+            'currencyName'
         ));
     }
 

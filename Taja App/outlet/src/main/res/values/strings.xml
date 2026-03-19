@@ -2,7 +2,8 @@
 <resources>
     <string name="app_name">Taja Outlet</string>
 
-    <!-- Login -->
+    <!-- Login (match com.taja.app UI) -->
+    <string name="iphone_xxs04_activity_login_text_view_text">LOGIN</string>
     <string name="login_logo_text">Taja Outlet</string>
     <string name="login_username_hint">Username or email</string>
     <string name="login_password_hint">Password</string>
@@ -10,7 +11,9 @@
     <string name="error_username_required">Please enter your username or email</string>
     <string name="error_password_required">Please enter your password</string>
 
-    <!-- OTP -->
+    <!-- OTP (restock_back matches com.taja.app for back button) -->
+    <string name="restock_back">Back</string>
+    <string name="otp_message_placeholder">Enter the code sent to your email or phone.</string>
     <string name="otp_title">VERIFY OTP</string>
     <string name="otp_hint">Enter 6-digit code</string>
     <string name="otp_verify">VERIFY</string>

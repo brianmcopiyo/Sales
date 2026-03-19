@@ -34,6 +34,7 @@ class OtpActivity : AppCompatActivity() {
         }
         progressBar = findViewById(R.id.otp_progress)
         val editOtp = findViewById<TextInputEditText>(R.id.edit_otp)
+        findViewById<Button>(R.id.back_button).setOnClickListener { finish() }
         findViewById<Button>(R.id.button_verify).setOnClickListener {
             val otp = editOtp.text?.toString()?.trim()
             if (otp.isNullOrEmpty() || otp.length != 6) {

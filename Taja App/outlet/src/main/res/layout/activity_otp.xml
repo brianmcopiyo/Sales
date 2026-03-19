@@ -5,59 +5,189 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/outlet_primary_dark">
+    android:background="@color/iphone_xxs04_activity_constraint_layout_constraint_layout_background_color">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/iphone_xxs04_activity_group89_constraint_layout_background_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:src="@drawable/rectangle_5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/iphone_xxs04_activity_rectangle47_constraint_layout_height"
+            android:background="#1A1A1A"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <TextView
             android:id="@+id/otp_title_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/iphone_xxs04_activity_login_text_view_margin_start"
+            android:layout_marginTop="@dimen/iphone_xxs04_activity_login_text_view_margin_top"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="start"
             android:text="@string/otp_title"
-            android:textColor="@android:color/white"
-            android:textSize="20sp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp" />
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/iphone_xxs04_activity_login_text_view_text_size"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edit_otp"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/otp_message_text"
+            android:layout_width="@dimen/iphone_xxs04_activity_group21_constraint_layout_width"
             android:layout_height="wrap_content"
-            android:hint="@string/otp_hint"
-            android:inputType="number"
-            android:maxLength="6"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginStart="@dimen/iphone_xxs04_activity_login_text_view_margin_start"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif"
+            android:text="@string/otp_message_placeholder"
+            android:textColor="@color/color_hint_text"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/otp_title_text"/>
 
-        <Button
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/otp_input_container"
+            android:layout_width="@dimen/iphone_xxs04_activity_group21_constraint_layout_width"
+            android:layout_height="@dimen/iphone_xxs04_activity_group21_constraint_layout_height"
+            android:layout_marginTop="@dimen/iphone_xxs04_activity_group21_constraint_layout_margin_top"
+            android:background="@drawable/iphone_xxs04_activity_group21_constraint_layout_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/otp_message_text">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_otp"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/iphone_xxs04_activity_username_edit_text_height"
+                android:layout_marginStart="@dimen/iphone_xxs04_activity_username_edit_text_margin_start"
+                android:background="@color/iphone_xxs04_activity_username_edit_text_background_color"
+                android:fontFamily="sans-serif"
+                android:gravity="start|center_vertical"
+                android:hint="@string/otp_hint"
+                android:inputType="number"
+                android:maxLength="6"
+                android:maxLines="1"
+                android:textColor="#FFFFFF"
+                android:textColorHint="@color/color_hint_text"
+                android:textSize="@dimen/iphone_xxs04_activity_username_edit_text_text_size"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_verify"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            style="@style/Widget.Outlet.Login.PrimaryButton"
+            android:layout_width="@dimen/iphone_xxs04_activity_group89_button_width"
+            android:layout_height="@dimen/iphone_xxs04_activity_group89_button_height"
+            android:layout_marginTop="@dimen/iphone_xxs04_activity_group89_button_margin_top"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
             android:text="@string/otp_verify"
-            android:textColor="@android:color/white"
-            android:layout_marginBottom="8dp" />
+            android:textSize="@dimen/iphone_xxs04_activity_group89_button_text_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/otp_input_container"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_resend"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            style="@style/Widget.Outlet.Login.SecondaryButton"
+            android:layout_width="@dimen/iphone_xxs04_activity_forgot_password_button_width"
+            android:layout_height="@dimen/iphone_xxs04_activity_forgot_password_button_height"
+            android:layout_marginEnd="@dimen/iphone_xxs04_activity_forgot_password_button_margin_end"
+            android:layout_marginTop="@dimen/iphone_xxs04_activity_forgot_password_button_margin_top"
+            android:background="?attr/selectableItemBackground"
+            android:fontFamily="sans-serif"
+            android:gravity="end"
             android:text="@string/otp_resend"
-            android:textColor="@android:color/white" />
+            android:textSize="@dimen/iphone_xxs04_activity_forgot_password_button_text_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button_verify"/>
 
         <ProgressBar
             android:id="@+id/otp_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:visibility="gone" />
-    </LinearLayout>
+            android:indeterminateTint="#FFFFFF"
+            android:visibility="gone"
+            android:elevation="10dp"
+            app:layout_constraintBottom_toBottomOf="@id/button_verify"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/button_verify"
+            tools:visibility="visible"/>
+
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/restock_back"
+            android:textColor="#FFFFFF"
+            android:background="?attr/selectableItemBackground"
+            android:drawableStart="@drawable/ic_chevron_back_white"
+            android:drawablePadding="6dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="16dp"
+            android:textSize="14sp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:elevation="2dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/iphone_xxs04_activity_rc_logo_constraint_layout_width"
+        android:layout_height="@dimen/iphone_xxs04_activity_rc_logo_constraint_layout_height"
+        android:layout_marginEnd="@dimen/iphone_xxs04_activity_rc_logo_constraint_layout_margin_end"
+        android:layout_marginTop="@dimen/iphone_xxs04_activity_rc_logo_constraint_layout_margin_top"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/path2035_image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="center"
+            android:src="@drawable/path_2035_4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/iphone_xxs04_activity_subtraction1_image_view_margin_top"
+            android:scaleType="centerCrop"
+            android:src="@drawable/subtraction_1_4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/login_logo_margin_start"
+            android:layout_marginTop="@dimen/login_logo_margin_top"
+            android:gravity="center"
+            android:text="@string/login_logo_text"
+            android:textColor="@color/login_logo_text_color"
+            android:textSize="@dimen/login_logo_text_size"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/path2035_image_view"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

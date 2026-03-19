@@ -5,66 +5,174 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/outlet_primary_dark">
+    android:background="@color/iphone_xxs04_activity_constraint_layout_constraint_layout_background_color">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/iphone_xxs04_activity_group89_constraint_layout_background_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <ImageView
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/login_logo_text"
-            android:textColor="@android:color/white"
-            android:textSize="24sp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="32dp" />
+            android:scaleType="centerCrop"
+            android:src="@drawable/rectangle_5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/login_username_hint"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_marginBottom="12dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edit_username"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text" />
-        </com.google.android.material.textfield.TextInputLayout>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/iphone_xxs04_activity_rectangle47_constraint_layout_height"
+            android:background="#1A1A1A"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/login_password_hint"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_marginBottom="20dp">
+        <!-- Password field (group16 style) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/group16_constraint_layout"
+            android:layout_width="@dimen/iphone_xxs04_activity_group16_constraint_layout_width"
+            android:layout_height="@dimen/iphone_xxs04_activity_group16_constraint_layout_height"
+            android:layout_marginTop="@dimen/iphone_xxs04_activity_group16_constraint_layout_margin_top"
+            android:background="@drawable/iphone_xxs04_activity_group16_constraint_layout_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/group21_constraint_layout">
+
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPassword" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_width="@dimen/iphone_xxs04_activity_password_edit_text_width"
+                android:layout_height="@dimen/iphone_xxs04_activity_password_edit_text_height"
+                android:layout_marginStart="@dimen/iphone_xxs04_activity_password_edit_text_margin_start"
+                android:background="@color/iphone_xxs04_activity_password_edit_text_background_color"
+                android:fontFamily="sans-serif"
+                android:gravity="start|center_vertical"
+                android:hint="@string/login_password_hint"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:textColor="#FFFFFF"
+                android:textColorHint="@color/color_hint_text"
+                android:textSize="@dimen/iphone_xxs04_activity_password_edit_text_text_size"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <Button
-            android:id="@+id/button_login"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/login_button"
-            android:textColor="@android:color/white" />
+        <!-- Username field (group21 style) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/group21_constraint_layout"
+            android:layout_width="@dimen/iphone_xxs04_activity_group21_constraint_layout_width"
+            android:layout_height="@dimen/iphone_xxs04_activity_group21_constraint_layout_height"
+            android:layout_marginTop="@dimen/iphone_xxs04_activity_group21_constraint_layout_margin_top"
+            android:background="@drawable/iphone_xxs04_activity_group21_constraint_layout_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/login_text_view">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_username"
+                android:layout_width="@dimen/iphone_xxs04_activity_username_edit_text_width"
+                android:layout_height="@dimen/iphone_xxs04_activity_username_edit_text_height"
+                android:layout_marginStart="@dimen/iphone_xxs04_activity_username_edit_text_margin_start"
+                android:background="@color/iphone_xxs04_activity_username_edit_text_background_color"
+                android:fontFamily="sans-serif"
+                android:gravity="start|center_vertical"
+                android:hint="@string/login_username_hint"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="#FFFFFF"
+                android:textColorHint="@color/color_hint_text"
+                android:textSize="@dimen/iphone_xxs04_activity_username_edit_text_text_size"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ProgressBar
             android:id="@+id/login_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:visibility="gone" />
-    </LinearLayout>
+            android:indeterminateTint="#FFFFFF"
+            android:visibility="gone"
+            android:elevation="10dp"
+            app:layout_constraintBottom_toBottomOf="@+id/button_login"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/button_login"
+            tools:visibility="visible"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_login"
+            style="@style/Widget.Outlet.Login.PrimaryButton"
+            android:layout_width="@dimen/iphone_xxs04_activity_group89_button_width"
+            android:layout_height="@dimen/iphone_xxs04_activity_group89_button_height"
+            android:layout_marginTop="@dimen/iphone_xxs04_activity_group89_button_margin_top"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:text="@string/login_button"
+            android:textSize="@dimen/iphone_xxs04_activity_group89_button_text_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/group16_constraint_layout"/>
+
+        <TextView
+            android:id="@+id/login_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/iphone_xxs04_activity_login_text_view_margin_start"
+            android:layout_marginTop="@dimen/iphone_xxs04_activity_login_text_view_margin_top"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="start"
+            android:text="@string/iphone_xxs04_activity_login_text_view_text"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/iphone_xxs04_activity_login_text_view_text_size"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Logo (same as com.taja.app) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rc_logo_constraint_layout"
+        android:layout_width="@dimen/iphone_xxs04_activity_rc_logo_constraint_layout_width"
+        android:layout_height="@dimen/iphone_xxs04_activity_rc_logo_constraint_layout_height"
+        android:layout_marginEnd="@dimen/iphone_xxs04_activity_rc_logo_constraint_layout_margin_end"
+        android:layout_marginTop="@dimen/iphone_xxs04_activity_rc_logo_constraint_layout_margin_top"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/path2035_image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="center"
+            android:src="@drawable/path_2035_4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/iphone_xxs04_activity_subtraction1_image_view_margin_top"
+            android:scaleType="centerCrop"
+            android:src="@drawable/subtraction_1_4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/login_logo_margin_start"
+            android:layout_marginTop="@dimen/login_logo_margin_top"
+            android:gravity="center"
+            android:text="@string/login_logo_text"
+            android:textColor="@color/login_logo_text_color"
+            android:textSize="@dimen/login_logo_text_size"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/path2035_image_view"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -17,10 +17,9 @@ use App\Http\Controllers\Api\SyncApiController;
 
 Route::post('/login', [AuthApiController::class, 'login']);
 
-Route::middleware(['auth:sanctum', 'ability:otp-pending'])->group(function () {
-    Route::post('/verify-otp', [AuthApiController::class, 'verifyOtp']);
-    Route::post('/resend-otp', [AuthApiController::class, 'resendOtp']);
-});
+// Verify/resend OTP: public routes; controller validates Bearer or body pending_token (avoids 404 when auth middleware runs before route)
+Route::post('/verify-otp', [AuthApiController::class, 'verifyOtp']);
+Route::post('/resend-otp', [AuthApiController::class, 'resendOtp']);
 
 Route::middleware(['auth:sanctum', 'ability:full'])->group(function () {
     Route::get('/user', [AuthApiController::class, 'user']);

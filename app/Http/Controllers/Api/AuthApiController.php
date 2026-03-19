@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Helpers\SmsHelper;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthApiController extends Controller
 {
@@ -83,17 +84,22 @@ class AuthApiController extends Controller
     }
 
     /**
-     * Verify OTP and exchange pending_token for full token. Requires Bearer pending_token.
+     * Verify OTP and exchange pending_token for full token.
+     * Accepts Bearer token or body field "pending_token" (route is public so apps always reach it).
      */
     public function verifyOtp(Request $request)
     {
-        if (!$request->user()->currentAccessToken()?->can('otp-pending')) {
-            return response()->json(['message' => 'Invalid or expired session. Please login again.'], 403);
+        $user = $this->resolveOtpPendingUser($request);
+        if (!$user) {
+            return response()->json(['message' => 'Invalid or expired session. Please login again.'], 401);
         }
 
         $request->validate(['otp' => 'required|string|size:6']);
 
-        $user = $request->user();
+        $accessToken = $this->resolveOtpPendingToken($request);
+        if (!$accessToken) {
+            return response()->json(['message' => 'Invalid or expired session. Please login again.'], 401);
+        }
         $loginValue = $user->email ?: $user->phone;
         if (empty($loginValue)) {
             return response()->json(['message' => 'Account has no email or phone for OTP.'], 400);
@@ -105,7 +111,7 @@ class AuthApiController extends Controller
         }
 
         $otpRecord->markAsUsed();
-        $request->user()->currentAccessToken()->delete();
+        $accessToken->delete();
         $token = $user->createToken('distribution-mobile', ['full'])->plainTextToken;
 
         return response()->json([
@@ -115,15 +121,15 @@ class AuthApiController extends Controller
     }
 
     /**
-     * Resend OTP. Requires Bearer pending_token.
+     * Resend OTP. Accepts Bearer token or body "pending_token".
      */
     public function resendOtp(Request $request)
     {
-        if (!$request->user()->currentAccessToken()?->can('otp-pending')) {
-            return response()->json(['message' => 'Invalid or expired session. Please login again.'], 403);
+        $user = $this->resolveOtpPendingUser($request);
+        if (!$user) {
+            return response()->json(['message' => 'Invalid or expired session. Please login again.'], 401);
         }
 
-        $user = $request->user();
         $otp = Otp::createForUser($user, 'login', 10);
         $expiryMinutes = 10;
         $email = trim((string) ($user->email ?? ''));
@@ -136,6 +142,29 @@ class AuthApiController extends Controller
         }
 
         return response()->json(['message' => 'OTP sent.']);
+    }
+
+    /**
+     * Resolve user from pending token (Bearer or body pending_token). Token must have ability otp-pending.
+     */
+    private function resolveOtpPendingUser(Request $request): ?User
+    {
+        $accessToken = $this->resolveOtpPendingToken($request);
+        if (!$accessToken || !$accessToken->can('otp-pending')) {
+            return null;
+        }
+        $user = $accessToken->tokenable;
+        return $user instanceof User ? $user : null;
+    }
+
+    private function resolveOtpPendingToken(Request $request): ?PersonalAccessToken
+    {
+        $raw = $request->bearerToken() ?? $request->input('pending_token');
+        if (empty($raw) || !is_string($raw)) {
+            return null;
+        }
+        $accessToken = PersonalAccessToken::findToken(trim($raw));
+        return $accessToken ?: null;
     }
 
     /**

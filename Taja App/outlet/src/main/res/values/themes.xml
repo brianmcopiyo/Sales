@@ -4,4 +4,16 @@
         <item name="colorPrimary">@color/outlet_primary</item>
         <item name="colorPrimaryDark">@color/outlet_primary_dark</item>
     </style>
+
+    <!-- Login/OTP primary: white bg + teal text (match com.taja.app); disable Material tint so background drawable shows -->
+    <style name="Widget.Outlet.Login.PrimaryButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:background">@drawable/iphone_xxs04_activity_group89_button_background</item>
+        <item name="android:textColor">@color/iphone_xxs04_activity_group89_button_text_color</item>
+        <item name="backgroundTint">@null</item>
+    </style>
+    <!-- Login/OTP secondary: no fill, white text (e.g. Resend, Back) -->
+    <style name="Widget.Outlet.Login.SecondaryButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/login_secondary_button_text_color</item>
+        <item name="backgroundTint">@null</item>
+    </style>
 </resources>
