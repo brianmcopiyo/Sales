@@ -1,6 +1,8 @@
 package com.taja.outlet.activity
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
 import android.view.View
@@ -9,7 +11,9 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.taja.outlet.ApiClient
 import com.taja.outlet.R
 import com.taja.outlet.SessionManager
@@ -30,6 +34,15 @@ class OutletFormActivity : AppCompatActivity() {
     private lateinit var locationDisplay: TextView
     private lateinit var saveButton: Button
     private var formProgress: ProgressBar? = null
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            tryGetLastLocation()
+        } else {
+            Toast.makeText(this, R.string.error_location_permission, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +71,10 @@ class OutletFormActivity : AppCompatActivity() {
     }
 
     private fun tryGetLastLocation() {
+        if (!hasLocationPermission()) {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            return
+        }
         try {
             val lm = getSystemService(Context.LOCATION_SERVICE) as? LocationManager
             val provider = lm?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
@@ -68,6 +85,13 @@ class OutletFormActivity : AppCompatActivity() {
                 updateLocationDisplay()
             }
         } catch (_: Exception) { }
+    }
+
+    private fun hasLocationPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun updateLocationDisplay() {

@@ -32,6 +32,8 @@
     <!-- Outlet map/list/form -->
     <string name="outlet_map_title">Outlets map</string>
     <string name="outlet_list_title">Outlets</string>
+    <string name="outlet_detail_title">Outlet details</string>
+    <string name="outlet_geofence_title">Outlet geo-fence</string>
     <string name="outlet_form_title">Add / Edit outlet</string>
     <string name="outlets_empty">No outlets</string>
     <string name="outlet_name_hint">Name</string>
@@ -46,6 +48,14 @@
     <string name="error_loading_outlets">Failed to load outlets</string>
     <string name="error_save_outlet">Failed to save outlet</string>
     <string name="outlet_saved">Outlet saved</string>
+    <string name="edit">Edit</string>
+    <string name="outlet_geofence">Geo-fence</string>
+    <string name="outlet_geofence_use_current">Use current location</string>
+    <string name="outlet_geofence_radius_label">Geo-fence radius (metres)</string>
+    <string name="outlet_geofence_radius_hint">e.g. 100</string>
+    <string name="outlet_geofence_radius_error">Enter a valid radius (minimum 10m)</string>
+    <string name="outlet_geofence_saved">Geo-fence saved</string>
+    <string name="error_location_permission">Location permission is required</string>
     <string name="nav_dashboard">Dashboard</string>
     <string name="nav_stock">Stock</string>
     <string name="nav_profile">Profile</string>

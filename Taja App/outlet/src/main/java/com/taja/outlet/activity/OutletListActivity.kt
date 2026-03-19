@@ -94,8 +94,8 @@ class OutletListActivity : AppCompatActivity() {
                                 addressText.text = if (address.isNotEmpty()) address else "—"
                                 row.setOnClickListener {
                                     outletFormLauncher.launch(
-                                        Intent(this, OutletFormActivity::class.java)
-                                            .putExtra(OutletFormActivity.EXTRA_OUTLET_ID, outlet.id)
+                                        Intent(this, OutletDetailActivity::class.java)
+                                            .putExtra(OutletDetailActivity.EXTRA_OUTLET_ID, outlet.id)
                                     )
                                 }
                                 listContainer.addView(row)

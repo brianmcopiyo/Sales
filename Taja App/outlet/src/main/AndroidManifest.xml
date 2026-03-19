@@ -34,6 +34,14 @@
             android:label="@string/outlet_list_title"
             android:exported="false"/>
         <activity
+            android:name=".activity.OutletDetailActivity"
+            android:label="@string/outlet_detail_title"
+            android:exported="false"/>
+        <activity
+            android:name=".activity.OutletGeoFenceActivity"
+            android:label="@string/outlet_geofence_title"
+            android:exported="false"/>
+        <activity
             android:name=".activity.OutletFormActivity"
             android:label="@string/outlet_form_title"
             android:exported="false"/>

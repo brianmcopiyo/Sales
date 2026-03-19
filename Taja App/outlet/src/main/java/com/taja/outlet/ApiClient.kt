@@ -170,7 +170,9 @@ object ApiClient {
         code: String?,
         address: String?,
         lat: Double?,
-        lng: Double?
+        lng: Double?,
+        geoFenceType: String? = null,
+        geoFenceRadiusMetres: Int? = null
     ): ApiResult<Outlet> {
         val body = JSONObject().apply {
             put("name", name)
@@ -178,6 +180,8 @@ object ApiClient {
             if (address != null) put("address", address) else put("address", "")
             lat?.let { put("lat", it) }
             lng?.let { put("lng", it) }
+            geoFenceType?.let { put("geo_fence_type", it) }
+            geoFenceRadiusMetres?.let { put("geo_fence_radius_metres", it) }
         }.toString().toRequestBody(jsonType)
         val request = Request.Builder()
             .url("${baseUrl()}/api/outlets/$outletId")
