@@ -1,4 +1,4 @@
-package com.kimaro.activity
+package com.taja.app.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,9 +13,9 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import com.kimaro.ApiClient
-import com.kimaro.R
-import com.kimaro.SessionManager
+import com.taja.app.ApiClient
+import com.taja.app.R
+import com.taja.app.SessionManager
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -436,7 +436,6 @@ class PendingOrdersActivity : AppCompatActivity() {
                 when (result) {
                     is ApiClient.ApiResult.Success -> {
                         Toast.makeText(this, result.data, Toast.LENGTH_SHORT).show()
-                        // Reload list so quantities and outstanding values are updated.
                         loadOrders()
                     }
                     is ApiClient.ApiResult.Error -> {

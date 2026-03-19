@@ -1,4 +1,4 @@
-package com.kimaro
+package com.taja.app
 
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -19,7 +19,7 @@ object ApiClient {
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 
-    private fun baseUrl(): String = com.kimaro.BuildConfig.API_BASE_URL.trimEnd('/')
+    private fun baseUrl(): String = com.taja.app.BuildConfig.API_BASE_URL.trimEnd('/')
 
     /** Result of login: either OTP required (pending_token) or direct success (token + user). */
     sealed class LoginResult {

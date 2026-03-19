@@ -1,4 +1,4 @@
-package com.kimaro.activity
+package com.taja.app.activity
 
 import android.app.DatePickerDialog
 import android.content.Intent
@@ -12,9 +12,9 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.Toast
-import com.kimaro.ApiClient
-import com.kimaro.R
-import com.kimaro.SessionManager
+import com.taja.app.ApiClient
+import com.taja.app.R
+import com.taja.app.SessionManager
 import java.util.Calendar
 
 class StockTakeCreateActivity : AppCompatActivity() {

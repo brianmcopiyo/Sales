@@ -1,10 +1,10 @@
-package com.kimaro.activity
+package com.taja.app.activity
 
 import android.app.Activity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import com.kimaro.R
+import com.taja.app.R
 
 class ReviewScannedImeisActivity : Activity() {
 

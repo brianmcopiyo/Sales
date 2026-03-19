@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.kimaro">
+    package="com.taja.app">
 
     <uses-sdk
         android:minSdkVersion="21"
@@ -31,7 +31,7 @@
             tools:node="merge"
             tools:replace="android:exported" />
         <activity
-            android:name="com.kimaro.activity.LoginActivity"
+            android:name="com.taja.app.activity.LoginActivity"
             android:label=""
             android:theme="@style/IPhoneXXS04ActivityTheme"
             android:exported="true">
@@ -41,50 +41,50 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.kimaro.activity.DashboardActivity"
+            android:name="com.taja.app.activity.DashboardActivity"
             android:label="@string/dashboard_title"
             android:theme="@style/AppTheme"
             android:exported="false"/>
         <activity
-            android:name="com.kimaro.activity.ProfileActivity"
+            android:name="com.taja.app.activity.ProfileActivity"
             android:label="@string/nav_profile"
             android:theme="@style/AppTheme"
             android:exported="false"/>
         <activity
-            android:name="com.kimaro.activity.OtpActivity"
+            android:name="com.taja.app.activity.OtpActivity"
             android:label=""
             android:theme="@style/IPhoneXXS04ActivityTheme"
             android:exported="false"/>
         <activity
-            android:name="com.kimaro.activity.RestockWizardActivity"
+            android:name="com.taja.app.activity.RestockWizardActivity"
             android:label="@string/restock_wizard_title"
             android:theme="@style/AppTheme"
             android:exported="false"/>
         <activity
-            android:name="com.kimaro.activity.PendingOrdersActivity"
+            android:name="com.taja.app.activity.PendingOrdersActivity"
             android:label="@string/orders_awaiting_approval_title"
             android:theme="@style/AppTheme"
             android:exported="false"/>
         <activity
-            android:name="com.kimaro.activity.ScanImeiActivity"
+            android:name="com.taja.app.activity.ScanImeiActivity"
             android:screenOrientation="portrait"
             android:exported="false"/>
         <activity
-            android:name="com.kimaro.activity.ReviewScannedImeisActivity"
+            android:name="com.taja.app.activity.ReviewScannedImeisActivity"
             android:screenOrientation="portrait"
             android:exported="false"/>
         <activity
-            android:name="com.kimaro.activity.StockTakeListActivity"
+            android:name="com.taja.app.activity.StockTakeListActivity"
             android:label="@string/stocktake_list_title"
             android:theme="@style/AppTheme"
             android:exported="false"/>
         <activity
-            android:name="com.kimaro.activity.StockTakeCreateActivity"
+            android:name="com.taja.app.activity.StockTakeCreateActivity"
             android:label="@string/stocktake_create_title"
             android:theme="@style/AppTheme"
             android:exported="false"/>
         <activity
-            android:name="com.kimaro.activity.StockTakeEditActivity"
+            android:name="com.taja.app.activity.StockTakeEditActivity"
             android:label="@string/stocktake_edit"
             android:theme="@style/AppTheme"
             android:exported="false"/>

@@ -1,12 +1,12 @@
 <resources>
 
 	<!-- Project level resources -->
-	<string name="app_name">Kimaro</string>
+	<string name="app_name">Taja App</string>
 
 	<!-- Resources for IPhoneXXS04Activity (four_activity layout) -->
 	<string name="iphone_xxs04_activity_keep_me_logged_in_text_view_text">Keep me logged in</string>
 	<string name="iphone_xxs04_activity_password_edit_text_hint">Password</string>
-	<string name="login_logo_text">Kimaro</string>
+	<string name="login_logo_text">Taja App</string>
 	<string name="iphone_xxs04_activity_username_edit_text_hint">Username</string>
 	<string name="iphone_xxs04_activity_forgot_password_button_text">Forgot password?</string>
 	<string name="iphone_xxs04_activity_group89_button_text">LOGIN</string>

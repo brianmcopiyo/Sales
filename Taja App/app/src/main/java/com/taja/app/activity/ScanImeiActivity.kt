@@ -1,4 +1,4 @@
-package com.kimaro.activity
+package com.taja.app.activity
 
 import android.app.Activity
 import android.Manifest
@@ -18,7 +18,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import com.kimaro.R
+import com.taja.app.R
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry

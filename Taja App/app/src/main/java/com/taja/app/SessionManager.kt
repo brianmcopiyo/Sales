@@ -1,4 +1,4 @@
-package com.kimaro
+package com.taja.app
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -35,7 +35,7 @@ class SessionManager(context: Context) {
     }
 
     companion object {
-        private const val PREFS_NAME = "kimaro_session"
+        private const val PREFS_NAME = "taja_app_session"
         private const val KEY_TOKEN = "auth_token"
         private const val KEY_USER_NAME = "user_name"
         private const val KEY_BRANCH_NAME = "branch_name"
