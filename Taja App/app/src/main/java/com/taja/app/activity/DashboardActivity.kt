@@ -108,19 +108,31 @@ class DashboardActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
         loadingMessage.visibility = View.VISIBLE
         Thread {
+            val userResult = ApiClient.getUser(token)
             val result = ApiClient.getDashboardSummary(token)
             runOnUiThread {
                 progressBar.visibility = View.GONE
                 loadingMessage.visibility = View.GONE
+                if (userResult is ApiClient.ApiResult.Success) {
+                    val user = userResult.data
+                    if (user.name.isNotBlank()) sessionManager.userName = user.name
+                    sessionManager.branchName = user.branch?.name
+                    welcomeText.text = getString(R.string.dashboard_hello, user.name.ifBlank { name })
+                    val branchName = user.branch?.name
+                    if (!branchName.isNullOrBlank()) {
+                        branchText.text = getString(R.string.dashboard_branch, branchName)
+                        branchText.visibility = View.VISIBLE
+                    } else {
+                        branchText.visibility = View.GONE
+                    }
+                }
                 when (result) {
                     is ApiClient.ApiResult.Success -> {
                         val d = result.data
                         statOutlets.text = d.outletsCount.toString()
                         statCheckInsToday.text = d.checkInsToday.toString()
                         statCheckInsWeek.text = d.checkInsThisWeek.toString()
-                        statCoverage.text = if (d.outletsCount > 0) {
-                            "${(d.checkInsThisWeek * 100 / d.outletsCount)}%"
-                        } else "—"
+                        statCoverage.text = if (d.outletsCount > 0) "${d.coverageTodayPercent}%" else "—"
                     }
                     is ApiClient.ApiResult.Error -> {
                         statOutlets.text = "0"

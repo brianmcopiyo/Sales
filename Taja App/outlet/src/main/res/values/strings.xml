@@ -31,7 +31,9 @@
 
     <!-- Outlet map/list/form -->
     <string name="outlet_map_title">Outlets map</string>
+    <string name="outlet_map_empty">No outlets with coordinates found.</string>
     <string name="outlet_list_title">Outlets</string>
+    <string name="outlet_filter_hint">Filter outlets by name/code/address</string>
     <string name="outlet_detail_title">Outlet details</string>
     <string name="outlet_geofence_title">Outlet geo-fence</string>
     <string name="outlet_form_title">Add / Edit outlet</string>
@@ -65,7 +67,6 @@
     <string name="outlet_geofence_clear_points">Clear</string>
     <string name="outlet_geofence_saved">Geo-fence saved</string>
     <string name="error_location_permission">Location permission is required</string>
-    <string name="nav_dashboard">Dashboard</string>
-    <string name="nav_stock">Stock</string>
+    <string name="nav_map">Map</string>
     <string name="nav_profile">Profile</string>
 </resources>

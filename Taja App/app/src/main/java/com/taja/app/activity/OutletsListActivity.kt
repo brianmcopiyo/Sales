@@ -1,12 +1,15 @@
 package com.taja.app.activity
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Base64
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -16,6 +19,8 @@ import com.taja.app.CheckInQueue
 import com.taja.app.R
 import com.taja.app.SessionManager
 import com.taja.app.adapter.OutletsAdapter
+import java.io.File
+import java.io.FileOutputStream
 
 class OutletsListActivity : AppCompatActivity() {
 
@@ -28,6 +33,13 @@ class OutletsListActivity : AppCompatActivity() {
     private lateinit var checkInQueue: CheckInQueue
     private var permissionCheckInCallback: ((Boolean) -> Unit)? = null
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private var selectedPhotoFile: File? = null
+    private var selectedPhotoBase64: String? = null
+    private var selectedPhotoName: String? = null
+    private var photoNameViewInSheet: TextView? = null
+    private val photoPickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        handleSelectedPhoto(uri)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,6 +142,14 @@ class OutletsListActivity : AppCompatActivity() {
         view.findViewById<TextView>(R.id.bottomsheet_checkin_outlet_name).text = outlet.name
         val locationValue = view.findViewById<TextView>(R.id.bottomsheet_checkin_location_value)
         val notesEdit = view.findViewById<android.widget.EditText>(R.id.bottomsheet_checkin_notes)
+        val pickPhotoButton = view.findViewById<Button>(R.id.bottomsheet_checkin_photo_pick)
+        val photoNameView = view.findViewById<TextView>(R.id.bottomsheet_checkin_photo_name)
+        photoNameViewInSheet = photoNameView
+        selectedPhotoFile = null
+        selectedPhotoBase64 = null
+        selectedPhotoName = null
+        photoNameView.text = getString(R.string.check_in_photo_none)
+        pickPhotoButton.setOnClickListener { photoPickerLauncher.launch("image/*") }
         locationValue.text = getString(R.string.check_in_location_getting)
         var lastLat: Double? = null
         var lastLng: Double? = null
@@ -157,7 +177,7 @@ class OutletsListActivity : AppCompatActivity() {
             }
             val notes = notesEdit.text?.toString()?.takeIf { it.isNotBlank() }
             sheet.dismiss()
-            submitCheckIn(token, outlet.id, lat, lng, notes)
+            submitCheckIn(token, outlet.id, lat, lng, notes, selectedPhotoFile, selectedPhotoBase64)
         }
         sheet.window?.setBackgroundDrawableResource(android.R.color.transparent)
         sheet.show()
@@ -200,35 +220,61 @@ class OutletsListActivity : AppCompatActivity() {
         // If no update arrives, onUnavailable is never called; user can still try submit (will show "location required" if null)
     }
 
-    private fun submitCheckIn(token: String, outletId: String, lat: Double, lng: Double, notes: String?) {
+    private fun submitCheckIn(
+        token: String,
+        outletId: String,
+        lat: Double,
+        lng: Double,
+        notes: String?,
+        photoFile: File?,
+        photoBase64: String?
+    ) {
         progressBar.visibility = View.VISIBLE
         Thread {
             val online = CheckInQueue.isNetworkAvailable(this)
             if (online) {
-                val result = ApiClient.createCheckIn(token, outletId, lat, lng, notes, null)
+                val result = ApiClient.createCheckIn(token, outletId, lat, lng, notes, photoFile)
                 runOnUiThread {
                     progressBar.visibility = View.GONE
                     when (result) {
                         is ApiClient.ApiResult.Success -> {
                             android.widget.Toast.makeText(this, getString(R.string.check_in_success), android.widget.Toast.LENGTH_SHORT).show()
-                            // Reload outlets after successful check-in from bottom sheet
                             loadOutlets(showSwipeSpinner = false)
                         }
                         is ApiClient.ApiResult.Error -> {
-                            // Network or server error: queue for later sync
-                            checkInQueue.add(outletId, lat, lng, notes, null)
+                            checkInQueue.add(outletId, lat, lng, notes, photoBase64)
                             android.widget.Toast.makeText(this, getString(R.string.check_in_saved_offline), android.widget.Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             } else {
-                checkInQueue.add(outletId, lat, lng, notes, null)
+                checkInQueue.add(outletId, lat, lng, notes, photoBase64)
                 runOnUiThread {
                     progressBar.visibility = View.GONE
                     android.widget.Toast.makeText(this, getString(R.string.check_in_saved_offline), android.widget.Toast.LENGTH_SHORT).show()
                 }
             }
         }.start()
+    }
+
+    private fun handleSelectedPhoto(uri: Uri?) {
+        if (uri == null) return
+        try {
+            val input = contentResolver.openInputStream(uri) ?: return
+            val bytes = input.use { it.readBytes() }
+            if (bytes.isEmpty()) return
+            selectedPhotoBase64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+            val photoFile = File(cacheDir, "checkin_${System.currentTimeMillis()}.jpg")
+            FileOutputStream(photoFile).use { it.write(bytes) }
+            selectedPhotoFile = photoFile
+            selectedPhotoName = photoFile.name
+            photoNameViewInSheet?.text = selectedPhotoName
+        } catch (_: Exception) {
+            photoNameViewInSheet?.text = getString(R.string.check_in_photo_none)
+            selectedPhotoFile = null
+            selectedPhotoBase64 = null
+            selectedPhotoName = null
+        }
     }
 
     private fun trySyncPendingCheckIns() {

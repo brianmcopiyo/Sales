@@ -77,7 +77,7 @@ class LoginActivity : AppCompatActivity() {
                         is ApiClient.LoginResult.Success -> {
                             sessionManager.token = data.token
                             sessionManager.userName = data.user.name
-                            startActivity(Intent(this, OutletListActivity::class.java))
+                            startActivity(Intent(this, OutletMapActivity::class.java))
                             finish()
                         }
                     }

@@ -75,6 +75,15 @@ class LoginActivity : AppCompatActivity() {
                         is ApiClient.LoginResult.Success -> {
                             sessionManager.token = data.token
                             sessionManager.userName = data.user.name
+                            Thread {
+                                val userResult = ApiClient.getUser(data.token)
+                                if (userResult is ApiClient.ApiResult.Success) {
+                                    sessionManager.branchName = userResult.data.branch?.name
+                                    if (userResult.data.name.isNotBlank()) {
+                                        sessionManager.userName = userResult.data.name
+                                    }
+                                }
+                            }.start()
                             startDashboardAndFinish()
                         }
                     }

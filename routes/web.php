@@ -45,6 +45,8 @@ use App\Http\Controllers\DcrController;
 use App\Http\Controllers\AuditTemplateController;
 use App\Http\Controllers\AuditRunController;
 use App\Http\Controllers\AuditReportController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\FieldExpenseController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -352,6 +354,24 @@ Route::middleware('auth')->group(function () {
     Route::get('dcr/export', [DcrController::class, 'export'])
         ->name('dcr.export')
         ->middleware('permission:distribution.reports');
+    Route::get('attendance', [AttendanceController::class, 'index'])
+        ->name('attendance.index')
+        ->middleware('permission:attendance.view|attendance.manage|distribution.reports');
+    Route::get('attendance/create', [AttendanceController::class, 'create'])
+        ->name('attendance.create')
+        ->middleware('permission:attendance.manage');
+    Route::post('attendance', [AttendanceController::class, 'store'])
+        ->name('attendance.store')
+        ->middleware('permission:attendance.manage');
+    Route::get('field-expenses', [FieldExpenseController::class, 'index'])
+        ->name('field-expenses.index')
+        ->middleware('permission:expenses.view|expenses.approve|distribution.reports');
+    Route::get('field-expenses/create', [FieldExpenseController::class, 'create'])
+        ->name('field-expenses.create')
+        ->middleware('permission:expenses.create');
+    Route::post('field-expenses', [FieldExpenseController::class, 'store'])
+        ->name('field-expenses.store')
+        ->middleware('permission:expenses.create');
 
     // Outlet audits (templates, runs, reporting)
     Route::get('audit-templates', [AuditTemplateController::class, 'index'])

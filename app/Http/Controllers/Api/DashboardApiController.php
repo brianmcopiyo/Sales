@@ -37,10 +37,26 @@ class DashboardApiController extends Controller
             ->where('check_in_at', '>=', $weekStart)
             ->count();
 
+        $visitedOutletsToday = CheckIn::where('user_id', $user->id)
+            ->where('check_in_at', '>=', $todayStart)
+            ->distinct('outlet_id')
+            ->count('outlet_id');
+
+        $openCheckIns = CheckIn::where('user_id', $user->id)
+            ->whereNull('check_out_at')
+            ->count();
+
+        $coverageTodayPercent = $outletsCount > 0
+            ? round(($visitedOutletsToday / $outletsCount) * 100, 1)
+            : 0.0;
+
         return response()->json([
             'outlets_count' => $outletsCount,
             'check_ins_today' => $checkInsToday,
             'check_ins_this_week' => $checkInsThisWeek,
+            'visited_outlets_today' => $visitedOutletsToday,
+            'coverage_today_percent' => $coverageTodayPercent,
+            'open_check_ins' => $openCheckIns,
         ]);
     }
 }

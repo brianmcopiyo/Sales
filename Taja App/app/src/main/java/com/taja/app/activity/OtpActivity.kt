@@ -67,6 +67,15 @@ class OtpActivity : AppCompatActivity() {
                     is ApiClient.ApiResult.Success -> {
                         sessionManager.token = result.data.token
                         sessionManager.userName = result.data.user.name
+                        Thread {
+                            val userResult = ApiClient.getUser(result.data.token)
+                            if (userResult is ApiClient.ApiResult.Success) {
+                                sessionManager.branchName = userResult.data.branch?.name
+                                if (userResult.data.name.isNotBlank()) {
+                                    sessionManager.userName = userResult.data.name
+                                }
+                            }
+                        }.start()
                         startActivity(Intent(this, DashboardActivity::class.java))
                         finish()
                     }

@@ -8,6 +8,7 @@ use App\Models\Outlet;
 use App\Services\GeoFenceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 
 class SyncApiController extends Controller
 {
@@ -33,6 +34,19 @@ class SyncApiController extends Controller
 
         foreach ($request->input('items') as $item) {
             $clientId = $item['client_id'];
+
+            // Idempotent sync: if this client payload was already processed, return existing mapping.
+            if (Schema::hasColumn('check_ins', 'client_ref')) {
+                $existing = CheckIn::query()
+                    ->where('user_id', $request->user()->id)
+                    ->where('client_ref', $clientId)
+                    ->first();
+                if ($existing) {
+                    $synced[] = ['client_id' => $clientId, 'server_id' => $existing->id];
+                    continue;
+                }
+            }
+
             $outlet = Outlet::find($item['outlet_id']);
             if (!$outlet) {
                 $failed[] = ['client_id' => $clientId, 'message' => 'Outlet not found.'];
@@ -72,6 +86,7 @@ class SyncApiController extends Controller
                 'lng_in' => $item['lng'],
                 'photo_path' => $photoPath,
                 'notes' => $item['notes'] ?? null,
+                'client_ref' => Schema::hasColumn('check_ins', 'client_ref') ? $clientId : null,
             ]);
 
             $synced[] = ['client_id' => $clientId, 'server_id' => $checkIn->id];

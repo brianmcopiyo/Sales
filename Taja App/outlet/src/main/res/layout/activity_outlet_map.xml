@@ -54,12 +54,44 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/outlet_map_back"/>
 
-    <FrameLayout
-        android:id="@+id/outlet_map_fragment_container"
+    <org.osmdroid.views.MapView
+        android:id="@+id/outlet_map_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/outlet_map_back"/>
+
+    <TextView
+        android:id="@+id/outlet_map_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/outlet_map_empty"
+        android:textColor="@color/restock_input_hint"
+        android:textSize="13sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/outlet_map_view"
+        app:layout_constraintEnd_toEndOf="@id/outlet_map_view"
+        app:layout_constraintStart_toStartOf="@id/outlet_map_view"
+        app:layout_constraintTop_toTopOf="@id/outlet_map_view"/>
+
+    <ProgressBar
+        android:id="@+id/outlet_map_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/outlet_map_view"
+        app:layout_constraintEnd_toEndOf="@id/outlet_map_view"
+        app:layout_constraintStart_toStartOf="@id/outlet_map_view"
+        app:layout_constraintTop_toTopOf="@id/outlet_map_view"/>
+
+    <include
+        android:id="@+id/bottom_navigation"
+        layout="@layout/bottom_navigation_include"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

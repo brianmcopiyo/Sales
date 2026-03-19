@@ -83,6 +83,9 @@
 	<string name="check_in_location_required">Location is required for check-in</string>
 	<string name="check_in_notes_hint">Notes (optional)</string>
 	<string name="check_in_notes_placeholder">Add notes about this visit…</string>
+	<string name="check_in_photo_optional">Photo (optional)</string>
+	<string name="check_in_photo_pick">Choose photo</string>
+	<string name="check_in_photo_none">No photo selected</string>
 	<string name="check_in_submit">Check in</string>
 	<string name="check_in_success">Check-in recorded</string>
 	<string name="check_in_error">Could not record check-in</string>

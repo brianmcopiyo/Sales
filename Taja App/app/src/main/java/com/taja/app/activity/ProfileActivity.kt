@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.navigation.NavigationBarView
+import com.taja.app.ApiClient
 import com.taja.app.R
 import com.taja.app.SessionManager
 
@@ -46,6 +47,32 @@ class ProfileActivity : AppCompatActivity() {
 
         logoutButton.setOnClickListener { onLogoutPressed() }
         setupBottomNav()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val token = sessionManager.token ?: return
+        Thread {
+            val result = ApiClient.getUser(token)
+            runOnUiThread {
+                if (result is ApiClient.ApiResult.Success) {
+                    if (result.data.name.isNotBlank()) {
+                        sessionManager.userName = result.data.name
+                        nameText.text = result.data.name
+                    }
+                    val branch = result.data.branch?.name
+                    sessionManager.branchName = branch
+                    if (!branch.isNullOrBlank()) {
+                        branchLabel.visibility = android.view.View.VISIBLE
+                        branchText.visibility = android.view.View.VISIBLE
+                        branchText.text = branch
+                    } else {
+                        branchLabel.visibility = android.view.View.GONE
+                        branchText.visibility = android.view.View.GONE
+                    }
+                }
+            }
+        }.start()
     }
 
     private fun setupBottomNav() {
