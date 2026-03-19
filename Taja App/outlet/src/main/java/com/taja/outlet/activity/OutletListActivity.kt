@@ -3,6 +3,7 @@ package com.taja.outlet.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -20,6 +21,7 @@ class OutletListActivity : AppCompatActivity() {
     private lateinit var adapter: OutletListAdapter
     private lateinit var progressBar: ProgressBar
     private lateinit var emptyText: TextView
+    private lateinit var recycler: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,9 +32,10 @@ class OutletListActivity : AppCompatActivity() {
             finish()
             return
         }
+        findViewById<Button>(R.id.outlet_list_back).setOnClickListener { finish() }
         progressBar = findViewById(R.id.outlet_list_progress)
         emptyText = findViewById(R.id.outlet_list_empty)
-        val recycler = findViewById<RecyclerView>(R.id.outlet_list_recycler)
+        recycler = findViewById(R.id.outlet_list_recycler)
         recycler.layoutManager = LinearLayoutManager(this)
         adapter = OutletListAdapter(emptyList()) { outlet ->
             startActivity(Intent(this, OutletFormActivity::class.java).putExtra(OutletFormActivity.EXTRA_OUTLET_ID, outlet.id))
@@ -47,6 +50,7 @@ class OutletListActivity : AppCompatActivity() {
     private fun loadOutlets() {
         progressBar.visibility = View.VISIBLE
         emptyText.visibility = View.GONE
+        recycler.visibility = View.VISIBLE
         Thread {
             val result = ApiClient.getOutlets(sessionManager.token ?: "")
             runOnUiThread {
@@ -54,10 +58,15 @@ class OutletListActivity : AppCompatActivity() {
                 when (result) {
                     is ApiClient.ApiResult.Success -> {
                         adapter.setOutlets(result.data)
-                        emptyText.visibility = if (result.data.isEmpty()) View.VISIBLE else View.GONE
+                        val empty = result.data.isEmpty()
+                        emptyText.visibility = if (empty) View.VISIBLE else View.GONE
+                        recycler.visibility = if (empty) View.GONE else View.VISIBLE
                     }
-                    is ApiClient.ApiResult.Error ->
+                    is ApiClient.ApiResult.Error -> {
                         Toast.makeText(this, result.message, Toast.LENGTH_LONG).show()
+                        emptyText.visibility = View.VISIBLE
+                        recycler.visibility = View.GONE
+                    }
                 }
             }
         }.start()

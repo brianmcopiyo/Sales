@@ -3,6 +3,24 @@
     <style name="Theme.OutletApp" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/outlet_primary</item>
         <item name="colorPrimaryDark">@color/outlet_primary_dark</item>
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+    </style>
+
+    <style name="AppBottomSheetDialogTheme" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/AppBottomSheetModalStyle</item>
+    </style>
+    <style name="AppBottomSheetModalStyle" parent="Widget.MaterialComponents.BottomSheet.Modal">
+        <item name="android:background">@drawable/bottomsheet_background</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.Outlet.BottomSheet</item>
+    </style>
+    <style name="ShapeAppearanceOverlay.Outlet.BottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerFamilyBottomLeft">cut</item>
+        <item name="cornerFamilyBottomRight">cut</item>
+        <item name="cornerSizeTopLeft">20dp</item>
+        <item name="cornerSizeTopRight">20dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
     </style>
 
     <!-- Login/OTP primary: white bg + teal text (match com.taja.app); disable Material tint so background drawable shows -->
@@ -14,6 +32,12 @@
     <!-- Login/OTP secondary: no fill, white text (e.g. Resend, Back) -->
     <style name="Widget.Outlet.Login.SecondaryButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">@color/login_secondary_button_text_color</item>
+        <item name="backgroundTint">@null</item>
+    </style>
+    <!-- Filled primary button for white screens (form Save, etc.): teal bg + white text for contrast -->
+    <style name="Widget.Outlet.FilledButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:background">@drawable/button_primary_filled</item>
+        <item name="android:textColor">@android:color/white</item>
         <item name="backgroundTint">@null</item>
     </style>
 </resources>

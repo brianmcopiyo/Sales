@@ -5,11 +5,11 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.textfield.TextInputEditText
 import com.taja.outlet.ApiClient
 import com.taja.outlet.R
 import com.taja.outlet.SessionManager
@@ -24,10 +24,9 @@ class OutletFormActivity : AppCompatActivity() {
     private var outletId: String? = null
     private var currentLat: Double = 0.0
     private var currentLng: Double = 0.0
-    private var loadedOutlet: ApiClient.Outlet? = null
-    private lateinit var nameEdit: TextInputEditText
-    private lateinit var codeEdit: TextInputEditText
-    private lateinit var addressEdit: TextInputEditText
+    private lateinit var nameEdit: EditText
+    private lateinit var codeEdit: EditText
+    private lateinit var addressEdit: EditText
     private lateinit var locationDisplay: TextView
     private lateinit var saveButton: Button
     private var formProgress: ProgressBar? = null
@@ -42,6 +41,7 @@ class OutletFormActivity : AppCompatActivity() {
             return
         }
         outletId = intent.getStringExtra(EXTRA_OUTLET_ID)
+        findViewById<Button>(R.id.outlet_form_back).setOnClickListener { finish() }
         nameEdit = findViewById(R.id.outlet_form_name)
         codeEdit = findViewById(R.id.outlet_form_code)
         addressEdit = findViewById(R.id.outlet_form_address)
@@ -89,7 +89,6 @@ class OutletFormActivity : AppCompatActivity() {
                 saveButton.isEnabled = true
                 when (result) {
                     is ApiClient.ApiResult.Success -> {
-                        loadedOutlet = result.data
                         nameEdit.setText(result.data.name)
                         codeEdit.setText(result.data.code ?: "")
                         addressEdit.setText(result.data.address ?: "")

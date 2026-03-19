@@ -15,4 +15,12 @@
     <color name="iphone_xxs04_activity_group21_constraint_layout_border_color">#98FFFFFF</color>
     <!-- Explicit white for secondary buttons (Back, Resend) - match com.taja.app -->
     <color name="login_secondary_button_text_color">#FFFFFF</color>
+
+    <!-- List/form/map (match com.taja.app dashboard & outlets UI) -->
+    <color name="color_primary">#006F78</color>
+    <color name="color_primary_dark">#005a62</color>
+    <color name="restock_input_bg">#E8F4F5</color>
+    <color name="restock_input_text">#333333</color>
+    <color name="restock_input_hint">#757575</color>
+    <color name="dashboard_card_bg">#F5F6F8</color>
 </resources>

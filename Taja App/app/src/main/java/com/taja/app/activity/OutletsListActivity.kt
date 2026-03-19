@@ -3,6 +3,7 @@ package com.taja.app.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -38,6 +39,7 @@ class OutletsListActivity : AppCompatActivity() {
         recycler = findViewById(R.id.outlets_recycler)
         progressBar = findViewById(R.id.outlets_progress)
         emptyText = findViewById(R.id.outlets_empty_text)
+        findViewById<Button>(R.id.outlets_list_back).setOnClickListener { finish() }
         bottomNavigation = findViewById(R.id.bottom_navigation)
         recycler.layoutManager = LinearLayoutManager(this)
         adapter = OutletsAdapter(emptyList()) { outlet -> openCheckInSheet(outlet) }
