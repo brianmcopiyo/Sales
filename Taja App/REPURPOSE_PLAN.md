@@ -20,44 +20,47 @@ This document contains: **(1)** deep research on FMCG distribution app best prac
 
 Use this table to track progress. Update the **Status** column as work moves from **To do** → **In progress** → **Done**.
 
+- **Backend** = Laravel API (PHP) + **Blade** views (web admin). Paths: `routes/api.php`, `app/Http/Controllers/Api/`, `resources/views/`.
+- **Frontend** = Android **XML** layouts + Kotlin (com.taja.app / com.taja.outlet). Paths: `app/src/main/res/layout/*.xml`, `res/values/strings.xml`, `app/src/main/java/`.
+
 | # | Area | Item | Already have | In progress | To do |
 |---|------|------|:------------:|:-----------:|:-----:|
-| 1 | **Backend** | Login (email/phone + password → token + user) | ✅ | | |
-| 2 | **Backend** | GET /api/user | ✅ | | |
-| 3 | **Backend** | Outlets CRUD (GET/POST/PUT /api/outlets) | ✅ | | |
-| 4 | **Backend** | POST /api/check-ins (outlet_id, lat, lng, photo, notes) | ✅ | | |
-| 5 | **Backend** | POST /api/sync/check-ins (offline queue) | ✅ | | |
-| 6 | **Backend** | GeoFenceService (validate check-in location) | ✅ | | |
-| 7 | **Backend** | OTP: requires_otp, pending_token, verify-otp, resend-otp | | | ☐ |
-| 8 | **Backend** | Optional: dashboard summary (outlet count, check-in counts) | | | ☐ |
-| 9 | **com.taja.app** | Login screen + flow | ✅ | | |
-| 10 | **com.taja.app** | OTP screen (verify + resend) | ✅ | | |
-| 11 | **com.taja.app** | SessionManager (token, user) | ✅ | | |
-| 12 | **com.taja.app** | Profile screen (name, logout) | ✅ | | |
-| 13 | **com.taja.app** | Dashboard screen (current stats UI) | ✅ | | |
-| 14 | **com.taja.app** | App design & resources (themes, login/OTP/profile layouts) | ✅ | | |
-| 15 | **com.taja.app** | Package renamed to com.taja.app | ✅ | | |
-| 16 | **com.taja.app** | ApiClient: login + verifyOtp + resendOtp only | | | ☐ |
-| 17 | **com.taja.app** | ApiClient: getUser, getOutlets, createCheckIn, syncCheckIns | | | ☐ |
-| 18 | **com.taja.app** | ApiClient: remove restock, stock-take, dashboard (old) methods | | | ☐ |
-| 19 | **com.taja.app** | Dashboard refactor: distribution KPIs (outlets, visits, check-ins, coverage) | | | ☐ |
-| 20 | **com.taja.app** | activity_dashboard.xml: new KPI cards + bottom nav (Dashboard, Outlets, Profile) | | | ☐ |
-| 21 | **com.taja.app** | Outlets list screen (from GET /api/outlets) | | | ☐ |
-| 22 | **com.taja.app** | Check-in flow (select outlet → location + optional photo + notes → submit) | | | ☐ |
-| 23 | **com.taja.app** | Offline check-in queue + sync when online | | | ☐ |
-| 24 | **com.taja.app** | Remove: PendingOrders, RestockWizard, StockTake×3, ScanImei, ReviewScannedImeis | | | ☐ |
-| 25 | **com.taja.app** | Remove: their layouts + related strings | | | ☐ |
-| 26 | **com.taja.app** | AndroidManifest: update activities (remove 8, add OutletsList/CheckIn if needed) | | | ☐ |
-| 27 | **com.taja.app** | strings.xml: distribution + outlet + check-in strings; remove restock/stock-take/IMEI | | | ☐ |
-| 28 | **com.taja.app** | build.gradle: location permission, camera if needed; remove Maps/ML Kit/CameraX if unused | | | ☐ |
-| 29 | **com.taja.outlet** | New Android module/repo (package com.taja.outlet) | | | ☐ |
-| 30 | **com.taja.outlet** | Login + OTP (reuse pattern from com.taja.app) | | | ☐ |
-| 31 | **com.taja.outlet** | Map view of outlets | | | ☐ |
-| 32 | **com.taja.outlet** | List + filter outlets | | | ☐ |
-| 33 | **com.taja.outlet** | Create / Edit outlet (name, code, lat, lng, address, geo_fence when backend ready) | | | ☐ |
-| 34 | **Testing** | Login (with and without OTP) → Dashboard → Outlets → Check-in → Profile | | | ☐ |
-| 35 | **Testing** | Offline check-in → sync when online | | | ☐ |
-| 36 | **Testing** | com.taja.outlet: login → map → CRUD outlets | | | ☐ |
+| 1 | Backend API | Login (email/phone + password → token + user) | ✅ | | |
+| 2 | Backend API | GET /api/user | ✅ | | |
+| 3 | Backend API | Outlets CRUD (GET/POST/PUT /api/outlets) | ✅ | | |
+| 4 | Backend API | POST /api/check-ins (outlet_id, lat, lng, photo, notes) | ✅ | | |
+| 5 | Backend API | POST /api/sync/check-ins (offline queue) | ✅ | | |
+| 6 | Backend API | GeoFenceService (validate check-in location) | ✅ | | |
+| 7 | Backend API | OTP: login may return requires_otp + pending_token; POST verify-otp, resend-otp | | | ☐ |
+| 8 | Backend API | Dashboard summary: GET endpoint (outlet count, check-in counts today/week) for app | | | ☐ |
+| 9 | Backend API | GET /api/user response: include branch_id, phone for app profile/dashboard | | | ☐ |
+| 10 | Backend API | Outlets CRUD: request/response support geo_fence_type, geo_fence_radius_metres, geo_fence_polygon | | | ☐ |
+| 11 | Backend Blade | Distribution dashboard (Blade): web view of outlets count, check-ins summary, coverage | | | ☐ |
+| 12 | Backend Blade | Check-ins list (Blade): web view of check-ins by user/outlet/date for managers | | | ☐ |
+| 13 | Backend Blade | Outlets index/edit (Blade): ensure outlet forms support geo_fence fields for mapping | | | ☐ |
+| 14 | Frontend XML | activity_login.xml, activity_otp.xml, activity_profile.xml, bottomsheet_confirm.xml | ✅ | | |
+| 15 | Frontend XML | activity_dashboard.xml: refactor to distribution KPI cards + bottom nav (Dashboard, Outlets, Profile) | | | ☐ |
+| 16 | Frontend XML | activity_outlets_list.xml (new): outlets list layout, toolbar, bottom nav include | | | ☐ |
+| 17 | Frontend XML | item_outlet.xml (new): single outlet row/card for list | | | ☐ |
+| 18 | Frontend XML | bottomsheet_checkin.xml (new): check-in form (outlet name, location, photo, notes, submit/cancel) | | | ☐ |
+| 19 | Frontend XML | bottom_navigation_include.xml: only Outlets + Profile (update) | | | ☐ |
+| 20 | Frontend XML | strings.xml: add distribution/outlet/check-in strings; remove restock/stock-take/IMEI | | | ☐ |
+| 21 | Frontend Kotlin | LoginActivity, OtpActivity, SessionManager, Profile, Dashboard (current) | ✅ | | |
+| 22 | Frontend Kotlin | ApiClient: login + verifyOtp + resendOtp; getUser, getOutlets, createCheckIn, syncCheckIns; remove restock/stock-take | | | ☐ |
+| 23 | Frontend Kotlin | DashboardActivity: refactor to distribution KPIs (outlets, visits, check-ins, coverage) | | | ☐ |
+| 24 | Frontend Kotlin | OutletsListActivity.kt (new): load outlets, list, tap → check-in bottom sheet | | | ☐ |
+| 25 | Frontend Kotlin | Check-in flow in OutletsListActivity (BottomSheetDialog + bottomsheet_checkin.xml) | | | ☐ |
+| 26 | Frontend Kotlin | Offline check-in queue + sync when online | | | ☐ |
+| 27 | Frontend Kotlin | Remove PendingOrders, RestockWizard, StockTake×3, ScanImei, ReviewScannedImeis + their XML | | | ☐ |
+| 28 | Frontend Kotlin | AndroidManifest: remove 7 activities, add OutletsListActivity; location permission | | | ☐ |
+| 29 | Frontend Kotlin | build.gradle: location, camera if needed; remove Maps/ML Kit/CameraX if unused | | | ☐ |
+| 30 | Frontend XML | activity_outlet_map.xml, activity_outlet_list.xml, activity_outlet_form.xml (outlet module) | | | ☐ |
+| 31 | Frontend XML | activity_login.xml, activity_otp.xml, strings.xml (outlet module, copy/adapt from app) | | | ☐ |
+| 32 | Frontend Kotlin | New module: Login, Otp, OutletMapActivity, OutletListActivity, OutletFormActivity, ApiClient, SessionManager | | | ☐ |
+| 33 | Testing | Login (with and without OTP) → Dashboard → Outlets → Check-in → Profile | | | ☐ |
+| 34 | Testing | Offline check-in → sync when online | | | ☐ |
+| 35 | Testing | com.taja.outlet: login → map → CRUD outlets | | | ☐ |
+| 36 | Testing | Backend Blade: distribution dashboard and check-ins list in browser | | | ☐ |
 
 **Legend**
 
@@ -69,9 +72,9 @@ Use this table to track progress. Update the **Status** column as work moves fro
 
 | Status | Count |
 |--------|-------|
-| **Already have** | 15 |
+| **Already have** | 8 |
 | **In progress** | 0 |
-| **To do** | 21 |
+| **To do** | 28 |
 
 **How to use**
 
