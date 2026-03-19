@@ -58,8 +58,17 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="w-44">
+                    <label for="category" class="block text-sm font-medium text-themeBody mb-2">Category</label>
+                    <select id="category" name="category" class="w-full px-4 py-2.5 border border-themeBorder rounded-xl text-themeHeading focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                        <option value="">All</option>
+                        @foreach ($categories as $val => $label)
+                            <option value="{{ $val }}" {{ request('category') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <button type="submit" class="bg-primary text-white px-5 py-2.5 rounded-xl font-medium hover:bg-primary-dark transition">Filter</button>
-                @if (request()->hasAny(['outlet_id', 'user_id', 'date_from', 'date_to', 'template_id']))
+                @if (request()->hasAny(['outlet_id', 'user_id', 'date_from', 'date_to', 'template_id', 'category']))
                     <a href="{{ route('audit-reports.index') }}" class="bg-themeHover text-themeBody px-5 py-2.5 rounded-xl font-medium hover:bg-themeBorder transition">Clear</a>
                 @endif
             </form>
@@ -74,6 +83,7 @@
                             <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase">Outlet</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase">Rep</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase">Template</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase">Category</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase">Score</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase">Actions</th>
                         </tr>
@@ -85,6 +95,12 @@
                                 <td class="px-4 py-3 text-sm text-themeBody">{{ $run->checkIn->outlet->name ?? '—' }}</td>
                                 <td class="px-4 py-3 text-sm text-themeBody">{{ $run->checkIn->user->name ?? '—' }}</td>
                                 <td class="px-4 py-3 text-sm text-themeBody">{{ $run->template->name ?? '—' }}</td>
+                                <td class="px-4 py-3 text-sm">
+                                    @php $cat = $run->template?->category ?? 'general'; @endphp
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium bg-themeHover text-themeBody">
+                                        {{ \App\Models\AuditTemplate::categories()[$cat] ?? ucfirst($cat) }}
+                                    </span>
+                                </td>
                                 <td class="px-4 py-3 text-sm">
                                     @if ($run->compliance_score !== null)
                                         <span class="font-medium {{ $run->compliance_score >= 80 ? 'text-emerald-600' : ($run->compliance_score >= 50 ? 'text-amber-600' : 'text-red-600') }}">{{ $run->compliance_score }}%</span>
@@ -98,7 +114,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-12 text-center text-themeMuted">No completed audits match the filters.</td>
+                                <td colspan="7" class="px-4 py-12 text-center text-themeMuted">No completed audits match the filters.</td>
                             </tr>
                         @endforelse
                     </tbody>

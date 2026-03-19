@@ -62,6 +62,9 @@ class SalesExport implements FromQuery, WithHeadings, WithMapping
         if ($this->request->filled('date_to')) {
             $query->whereDate('created_at', '<=', $this->request->get('date_to'));
         }
+        if ($this->request->filled('sale_type')) {
+            $query->where('sale_type', $this->request->get('sale_type'));
+        }
 
         return $query->latest();
     }
@@ -81,6 +84,7 @@ class SalesExport implements FromQuery, WithHeadings, WithMapping
             'License cost (' . config('app.currency_symbol') . ')',
             'Profit (' . config('app.currency_symbol') . ')',
             'Commission (' . config('app.currency_symbol') . ')',
+            'Sale Type',
             'Status',
             'Date',
         ];
@@ -110,6 +114,7 @@ class SalesExport implements FromQuery, WithHeadings, WithMapping
             number_format($licenseCost, 2),
             number_format($profit, 2),
             number_format($commission, 2),
+            ucfirst($sale->sale_type ?? 'primary'),
             ucfirst($sale->status ?? ''),
             $sale->created_at?->format('M d, Y') ?? '',
         ];

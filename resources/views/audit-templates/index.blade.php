@@ -25,12 +25,32 @@
             <div class="rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3">{{ session('success') }}</div>
         @endif
 
+        <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-sm">
+            <form method="GET" action="{{ route('audit-templates.index') }}" class="flex flex-wrap gap-4 items-end">
+                <div class="w-48">
+                    <label for="category" class="block text-sm font-medium text-themeBody mb-1">Category</label>
+                    <select id="category" name="category"
+                        class="w-full px-4 py-2.5 border border-themeBorder rounded-xl text-themeHeading focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                        <option value="">All categories</option>
+                        @foreach ($categories as $val => $label)
+                            <option value="{{ $val }}" {{ request('category') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="bg-primary text-white px-5 py-2.5 rounded-xl font-medium hover:bg-primary-dark transition shadow-sm">Filter</button>
+                @if (request('category'))
+                    <a href="{{ route('audit-templates.index') }}" class="bg-themeHover text-themeBody px-5 py-2.5 rounded-xl font-medium hover:bg-themeBorder transition">Clear</a>
+                @endif
+            </form>
+        </div>
+
         <div class="bg-themeCard rounded-2xl border border-themeBorder overflow-hidden shadow-sm">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-themeBorder">
                     <thead class="bg-themeInput/50">
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase">Name</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase">Category</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase">Sections</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase">Status</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-themeMuted uppercase">Actions</th>
@@ -41,6 +61,11 @@
                             <tr class="hover:bg-themeInput/30 transition">
                                 <td class="px-4 py-3">
                                     <a href="{{ route('audit-templates.show', $t) }}" class="font-medium text-primary hover:underline">{{ $t->name }}</a>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium bg-themeHover text-themeBody">
+                                        {{ $categories[$t->category ?? 'general'] ?? ucfirst($t->category ?? 'General') }}
+                                    </span>
                                 </td>
                                 <td class="px-4 py-3 text-sm text-themeBody">{{ $t->sections_count ?? 0 }}</td>
                                 <td class="px-4 py-3">
@@ -62,7 +87,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-4 py-12 text-center text-themeMuted">No audit templates yet. Create one to define checklists for outlet visits.</td>
+                                <td colspan="5" class="px-4 py-12 text-center text-themeMuted">No audit templates yet. Create one to define checklists for outlet visits.</td>
                             </tr>
                         @endforelse
                     </tbody>

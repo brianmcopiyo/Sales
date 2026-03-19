@@ -13,7 +13,7 @@
 
         <div class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-sm">
             <h2 class="text-lg font-semibold text-themeHeading mb-4">Template details</h2>
-            <form method="POST" action="{{ route('audit-templates.update', $auditTemplate) }}" class="space-y-4">
+            <form method="POST" action="{{ route('audit-templates.update', $auditTemplate) }}" class="space-y-4" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -30,6 +30,29 @@
                 <div>
                     <label for="description" class="block text-sm font-medium text-themeBody mb-1">Description</label>
                     <textarea id="description" name="description" rows="2" class="w-full px-4 py-2.5 border border-themeBorder rounded-xl text-themeHeading focus:ring-2 focus:ring-primary/20 focus:border-primary">{{ old('description', $auditTemplate->description) }}</textarea>
+                </div>
+                <div>
+                    <label for="category" class="block text-sm font-medium text-themeBody mb-1">Category *</label>
+                    <select id="category" name="category" required
+                        class="w-full px-4 py-2.5 border border-themeBorder rounded-xl text-themeHeading focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                        @foreach ($categories as $val => $label)
+                            <option value="{{ $val }}" {{ old('category', $auditTemplate->category ?? 'general') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="reference_image" class="block text-sm font-medium text-themeBody mb-1">Reference image (planogram)</label>
+                    @if ($auditTemplate->reference_image)
+                        <div class="mb-3">
+                            <img src="{{ asset('storage/' . $auditTemplate->reference_image) }}"
+                                alt="Current reference image"
+                                class="max-h-48 rounded-xl border border-themeBorder">
+                            <p class="text-xs text-themeMuted mt-1">Current planogram. Upload a new file to replace.</p>
+                        </div>
+                    @endif
+                    <input type="file" id="reference_image" name="reference_image" accept="image/*"
+                        class="w-full px-4 py-2.5 border border-themeBorder rounded-xl text-themeHeading focus:ring-2 focus:ring-primary/20 focus:border-primary file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:font-medium file:bg-primary/10 file:text-primary">
+                    <p class="text-xs text-themeMuted mt-1">Optional. JPG/PNG/WebP, max 4 MB.</p>
                 </div>
                 <button type="submit" class="bg-primary text-white px-5 py-2.5 rounded-xl font-medium hover:bg-primary-dark transition">Save template</button>
             </form>

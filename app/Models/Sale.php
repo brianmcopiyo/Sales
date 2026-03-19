@@ -24,6 +24,7 @@ class Sale extends Model
         'total',
         'total_license_cost',
         'status',
+        'sale_type',
         'notes',
         'returned_at',
         'commission_credited_at',
@@ -40,6 +41,7 @@ class Sale extends Model
             'discount' => 'decimal:2',
             'total' => 'decimal:2',
             'total_license_cost' => 'decimal:2',
+            'sale_type' => 'string',
         ];
     }
 
@@ -138,6 +140,23 @@ class Sale extends Model
     public function evidence()
     {
         return $this->hasMany(SaleAttachment::class, 'sale_id');
+    }
+
+    public function schemes()
+    {
+        return $this->belongsToMany(Scheme::class, 'sale_scheme')
+            ->withPivot('discount_applied')
+            ->withTimestamps();
+    }
+
+    public function scopePrimarySales($query)
+    {
+        return $query->where('sale_type', 'primary');
+    }
+
+    public function scopeSecondarySales($query)
+    {
+        return $query->where('sale_type', 'secondary');
     }
 
     /**

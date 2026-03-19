@@ -45,6 +45,7 @@ use App\Http\Controllers\DcrController;
 use App\Http\Controllers\AuditTemplateController;
 use App\Http\Controllers\AuditRunController;
 use App\Http\Controllers\AuditReportController;
+use App\Http\Controllers\SchemeController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -343,6 +344,9 @@ Route::middleware('auth')->group(function () {
     Route::post('planned-visits', [PlannedVisitController::class, 'store'])
         ->name('planned-visits.store')
         ->middleware('permission:outlets.view|outlets.manage|distribution.reports');
+    Route::post('planned-visits/{user}/{date}/optimize', [PlannedVisitController::class, 'optimize'])
+        ->name('planned-visits.optimize')
+        ->middleware('permission:outlets.view|outlets.manage|distribution.reports');
     Route::delete('planned-visits/{plannedVisit}', [PlannedVisitController::class, 'destroy'])
         ->name('planned-visits.destroy')
         ->middleware('permission:outlets.view|outlets.manage|distribution.reports');
@@ -413,6 +417,29 @@ Route::middleware('auth')->group(function () {
     Route::get('audit-reports', [AuditReportController::class, 'index'])
         ->name('audit-reports.index')
         ->middleware('permission:distribution.reports');
+
+    // Schemes & Promotions
+    Route::get('schemes', [SchemeController::class, 'index'])
+        ->name('schemes.index')
+        ->middleware('permission:schemes.view');
+    Route::get('schemes/create', [SchemeController::class, 'create'])
+        ->name('schemes.create')
+        ->middleware('permission:schemes.manage');
+    Route::post('schemes', [SchemeController::class, 'store'])
+        ->name('schemes.store')
+        ->middleware('permission:schemes.manage');
+    Route::get('schemes/{scheme}', [SchemeController::class, 'show'])
+        ->name('schemes.show')
+        ->middleware('permission:schemes.view');
+    Route::get('schemes/{scheme}/edit', [SchemeController::class, 'edit'])
+        ->name('schemes.edit')
+        ->middleware('permission:schemes.manage');
+    Route::put('schemes/{scheme}', [SchemeController::class, 'update'])
+        ->name('schemes.update')
+        ->middleware('permission:schemes.manage');
+    Route::delete('schemes/{scheme}', [SchemeController::class, 'destroy'])
+        ->name('schemes.destroy')
+        ->middleware('permission:schemes.manage');
 
     // Dealerships
     Route::get('dealerships', [DealershipController::class, 'index'])
@@ -576,6 +603,9 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:sales.create');
     Route::get('sales/export', [SaleController::class, 'export'])
         ->name('sales.export')
+        ->middleware('permission:sales.view');
+    Route::get('sales/secondary-report', [SaleController::class, 'secondaryReport'])
+        ->name('sales.secondary-report')
         ->middleware('permission:sales.view');
     Route::get('sales/stats', [SalesStatsController::class, 'index'])
         ->name('sales-stats.index')

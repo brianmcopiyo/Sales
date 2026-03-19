@@ -44,7 +44,7 @@
                                 <option value="{{ $o->id }}">{{ $o->name }}{{ $o->code ? ' (' . $o->code . ')' : '' }}</option>
                             @endforeach
                         </select>
-                        <p class="mt-1 text-xs text-themeMuted">Hold Ctrl/Cmd to select multiple. Order = sequence.</p>
+                        <p class="mt-1 text-xs text-themeMuted">Hold Ctrl/Cmd to select multiple. Order = sequence. After saving, use <strong>Optimize Route</strong> on the visits list to automatically reorder by GPS distance.</p>
                     </div>
                     <div class="md:col-span-2">
                         <label for="notes" class="block text-sm font-medium text-themeBody mb-1">Notes (optional)</label>
