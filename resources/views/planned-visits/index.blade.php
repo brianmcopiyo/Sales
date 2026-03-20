@@ -25,6 +25,25 @@
             <div class="rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3">{{ session('success') }}</div>
         @endif
 
+        @if (request('user_id') && request('planned_date'))
+            <div class="flex items-center gap-3">
+                <form method="POST"
+                    action="{{ route('planned-visits.optimize', [request('user_id'), request('planned_date')]) }}"
+                    onsubmit="return confirm('Reorder visits by nearest GPS route?');">
+                    @csrf
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 bg-amber-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-amber-700 transition shadow-sm text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                        </svg>
+                        Optimize Route
+                    </button>
+                </form>
+                <span class="text-sm text-themeMuted">Reorders visits by shortest GPS route using outlet coordinates.</span>
+            </div>
+        @endif
+
         <div class="bg-themeCard rounded-2xl border border-themeBorder p-4 shadow-sm">
             <form method="GET" action="{{ route('planned-visits.index') }}" class="flex flex-wrap gap-4 items-end">
                 <div class="w-48">

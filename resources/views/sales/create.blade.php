@@ -163,6 +163,24 @@
                 </script>
                 @endif
 
+                <div class="border-t border-themeBorder pt-6">
+                    <label class="block text-sm font-medium text-themeBody mb-2">Sale Type <span class="text-red-500">*</span></label>
+                    <div class="flex gap-6">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="sale_type" value="primary"
+                                {{ old('sale_type', 'primary') === 'primary' ? 'checked' : '' }}
+                                class="text-primary focus:ring-primary/20">
+                            <span class="text-sm text-themeBody">Primary <span class="text-themeMuted">(company → retailer)</span></span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="sale_type" value="secondary"
+                                {{ old('sale_type', 'primary') === 'secondary' ? 'checked' : '' }}
+                                class="text-primary focus:ring-primary/20">
+                            <span class="text-sm text-themeBody">Secondary <span class="text-themeMuted">(distributor → retailer)</span></span>
+                        </label>
+                    </div>
+                </div>
+
                 <div>
                     <h2 class="text-lg font-semibold text-primary tracking-tight mb-4">Items</h2>
                     <div id="items-container" class="space-y-4">

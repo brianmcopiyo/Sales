@@ -13,7 +13,9 @@ use App\Models\ProductRegionPrice;
 use App\Models\SaleAttachment;
 use App\Models\StockAdjustment;
 use App\Models\User;
+use App\Models\Region;
 use App\Services\InventoryMovementService;
+use App\Services\SchemeService;
 use App\Exports\SalesExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +23,8 @@ use Illuminate\Support\Facades\DB;
 
 class SaleController extends Controller
 {
+    public function __construct(protected SchemeService $schemeService) {}
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -63,6 +67,9 @@ class SaleController extends Controller
         if ($request->filled('date_to')) {
             $query->whereDate('created_at', '<=', $request->get('date_to'));
         }
+        if ($request->filled('sale_type')) {
+            $query->where('sale_type', $request->get('sale_type'));
+        }
 
         // Stats: derive from the same filtered set as the table (by sale IDs) so they always match applied filters
         $filteredIds = (clone $query)->pluck('id')->all();
@@ -84,7 +91,7 @@ class SaleController extends Controller
         $sales = $query->latest()->paginate(15)->withQueryString();
 
         // Preserve effective filters in pagination links and export URL (avoids reset to user branch)
-        $paginatorQuery = $request->only(['search', 'branch', 'customer_id', 'status', 'date_from', 'date_to']);
+        $paginatorQuery = $request->only(['search', 'branch', 'customer_id', 'status', 'sale_type', 'date_from', 'date_to']);
         if (!$request->has('branch') && $branchFilter !== null) {
             $paginatorQuery['branch'] = $branchFilter;
         }
@@ -99,6 +106,11 @@ class SaleController extends Controller
         $branches = $allowedBranchIds !== null
             ? Branch::whereIn('id', $allowedBranchIds)->where('is_active', true)->orderBy('name')->get(['id', 'name'])
             : Branch::where('is_active', true)->orderBy('name')->get(['id', 'name']);
+
+        $primaryRevenue = Sale::whereIn('id', $completedIds)->where('sale_type', 'primary')->sum('total');
+        $secondaryRevenue = Sale::whereIn('id', $completedIds)->where('sale_type', 'secondary')->sum('total');
+        $stats['primary_revenue'] = $primaryRevenue;
+        $stats['secondary_revenue'] = $secondaryRevenue;
 
         return view('sales.index', compact('sales', 'stats', 'customers', 'branches', 'branchFilter', 'exportQuery'));
     }
@@ -152,6 +164,7 @@ class SaleController extends Controller
             'items.*.unit_price' => 'required|numeric|min:0',
             'tax' => 'nullable|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
+            'sale_type' => 'nullable|in:primary,secondary',
             'notes' => 'nullable|string',
         ];
 
@@ -283,6 +296,7 @@ class SaleController extends Controller
                 'total' => $total,
                 'total_license_cost' => $totalLicenseCost,
                 'status' => 'pending',
+                'sale_type' => $validated['sale_type'] ?? 'primary',
                 'notes' => $validated['notes'] ?? null,
             ]);
 
@@ -318,6 +332,20 @@ class SaleController extends Controller
             }
 
             // Commission is credited to the seller when the sale is completed (see complete()).
+
+            // Apply best applicable promotion scheme
+            $schemeResult = $this->schemeService->applyBestScheme($sale);
+            if ($schemeResult['discount'] > 0 && $schemeResult['scheme_id']) {
+                $discount = $schemeResult['discount'];
+                $sale->update([
+                    'discount' => $discount,
+                    'total'    => max(0, $sale->total - $discount),
+                ]);
+                $sale->schemes()->attach($schemeResult['scheme_id'], [
+                    'id'               => \Illuminate\Support\Str::uuid()->toString(),
+                    'discount_applied' => $discount,
+                ]);
+            }
 
             // Store evidence attachments
             foreach ($evidenceFiles as $file) {
@@ -360,7 +388,7 @@ class SaleController extends Controller
         if (!$this->canAccessSale($user, $sale)) {
             abort(403, 'You do not have access to this sale. It belongs to another branch.');
         }
-        $sale->load(['customer', 'branch', 'outlet', 'checkIn', 'soldBy', 'items.product.regionPrices', 'items.fieldAgent', 'evidence.uploadedBy']);
+        $sale->load(['customer', 'branch', 'outlet', 'checkIn', 'soldBy', 'items.product.regionPrices', 'items.fieldAgent', 'evidence.uploadedBy', 'schemes']);
         if ($user instanceof User) {
             $user->loadMissing('roleModel');
         }
@@ -556,6 +584,60 @@ class SaleController extends Controller
         }
 
         return response()->download($filePath, $attachment->file_name);
+    }
+
+    /**
+     * Secondary Sales Report — shows secondary sales grouped by outlet.
+     */
+    public function secondaryReport(Request $request)
+    {
+        $user = Auth::user();
+        $allowedBranchIds = $user->branch_id ? Branch::selfAndDescendantIds($user->branch_id) : null;
+
+        $query = DB::table('sales')
+            ->join('outlets', 'sales.outlet_id', '=', 'outlets.id')
+            ->join('regions', 'outlets.region_id', '=', 'regions.id')
+            ->where('sales.sale_type', 'secondary')
+            ->when($allowedBranchIds !== null, fn($q) => $q->whereIn('sales.branch_id', $allowedBranchIds))
+            ->select(
+                'outlets.id',
+                'outlets.name as outlet_name',
+                'outlets.type as outlet_type',
+                'regions.name as region_name',
+                DB::raw('COUNT(*) as sale_count'),
+                DB::raw('SUM(sales.total) as total_revenue')
+            )
+            ->groupBy('outlets.id', 'outlets.name', 'outlets.type', 'regions.name');
+
+        if ($request->filled('outlet_id')) {
+            $query->where('outlets.id', $request->get('outlet_id'));
+        }
+        if ($request->filled('region_id')) {
+            $query->where('regions.id', $request->get('region_id'));
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('sales.created_at', '>=', $request->get('date_from'));
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('sales.created_at', '<=', $request->get('date_to'));
+        }
+
+        $rows = $query->orderByDesc('total_revenue')->paginate(20)->withQueryString();
+
+        $totalCount = Sale::where('sale_type', 'secondary')
+            ->when($allowedBranchIds !== null, fn($q) => $q->whereIn('branch_id', $allowedBranchIds))
+            ->count();
+        $totalRevenue = Sale::where('sale_type', 'secondary')
+            ->when($allowedBranchIds !== null, fn($q) => $q->whereIn('branch_id', $allowedBranchIds))
+            ->sum('total');
+        $avgOrder = $totalCount > 0 ? $totalRevenue / $totalCount : 0;
+
+        $outlets = \App\Models\Outlet::orderBy('name')->get(['id', 'name']);
+        $regions = \App\Models\Region::orderBy('name')->get(['id', 'name']);
+
+        $stats = compact('totalCount', 'totalRevenue', 'avgOrder');
+
+        return view('sales.secondary-report', compact('rows', 'stats', 'outlets', 'regions'));
     }
 
     /**

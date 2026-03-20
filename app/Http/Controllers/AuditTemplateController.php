@@ -9,25 +9,36 @@ use Illuminate\Http\Request;
 
 class AuditTemplateController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $templates = AuditTemplate::withCount('sections')->latest()->paginate(15);
-        return view('audit-templates.index', compact('templates'));
+        $templates = AuditTemplate::withCount('sections');
+        if ($request->filled('category')) {
+            $templates->where('category', $request->get('category'));
+        }
+        $templates = $templates->latest()->paginate(15)->withQueryString();
+        $categories = AuditTemplate::categories();
+        return view('audit-templates.index', compact('templates', 'categories'));
     }
 
     public function create()
     {
-        return view('audit-templates.create');
+        $categories = AuditTemplate::categories();
+        return view('audit-templates.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:5000',
-            'is_active' => 'boolean',
+            'name'             => 'required|string|max:255',
+            'description'      => 'nullable|string|max:5000',
+            'is_active'        => 'boolean',
+            'category'         => 'required|in:general,shelf,compliance,hygiene',
+            'reference_image'  => ['nullable', 'image', 'max:4096'],
         ]);
         $validated['is_active'] = $request->boolean('is_active', true);
+        if ($request->hasFile('reference_image')) {
+            $validated['reference_image'] = $request->file('reference_image')->store('audit-templates', 'public');
+        }
         AuditTemplate::create($validated);
         return redirect()->route('audit-templates.index')->with('success', 'Audit template created.');
     }
@@ -41,16 +52,25 @@ class AuditTemplateController extends Controller
     public function edit(AuditTemplate $auditTemplate)
     {
         $auditTemplate->load(['sections.questions']);
-        return view('audit-templates.edit', compact('auditTemplate'));
+        $categories = AuditTemplate::categories();
+        return view('audit-templates.edit', compact('auditTemplate', 'categories'));
     }
 
     public function update(Request $request, AuditTemplate $auditTemplate)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:5000',
-            'is_active' => 'boolean',
+            'name'            => 'required|string|max:255',
+            'description'     => 'nullable|string|max:5000',
+            'is_active'       => 'boolean',
+            'category'        => 'required|in:general,shelf,compliance,hygiene',
+            'reference_image' => ['nullable', 'image', 'max:4096'],
         ]);
+        if ($request->hasFile('reference_image')) {
+            if ($auditTemplate->reference_image) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($auditTemplate->reference_image);
+            }
+            $validated['reference_image'] = $request->file('reference_image')->store('audit-templates', 'public');
+        }
         $auditTemplate->update($validated);
         return redirect()->route('audit-templates.edit', $auditTemplate)->with('success', 'Template updated.');
     }

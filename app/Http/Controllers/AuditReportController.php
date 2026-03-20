@@ -29,12 +29,16 @@ class AuditReportController extends Controller
         if ($request->filled('template_id')) {
             $query->where('audit_template_id', $request->get('template_id'));
         }
+        if ($request->filled('category')) {
+            $query->whereHas('template', fn ($q) => $q->where('category', $request->get('category')));
+        }
 
         $runs = $query->latest('completed_at')->paginate(20)->withQueryString();
 
         $outlets = Outlet::where('is_active', true)->orderBy('name')->get(['id', 'name']);
         $reps = User::orderBy('name')->get(['id', 'name']);
-        $templates = \App\Models\AuditTemplate::where('is_active', true)->orderBy('name')->get(['id', 'name']);
+        $templates = \App\Models\AuditTemplate::where('is_active', true)->orderBy('name')->get(['id', 'name', 'category']);
+        $categories = \App\Models\AuditTemplate::categories();
 
         $statsQuery = clone $query;
         $stats = [
@@ -42,6 +46,6 @@ class AuditReportController extends Controller
             'total_runs' => $statsQuery->count(),
         ];
 
-        return view('audit-reports.index', compact('runs', 'outlets', 'reps', 'templates', 'stats'));
+        return view('audit-reports.index', compact('runs', 'outlets', 'reps', 'templates', 'stats', 'categories'));
     }
 }

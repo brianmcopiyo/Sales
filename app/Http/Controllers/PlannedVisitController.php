@@ -5,11 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\PlannedVisit;
 use App\Models\Outlet;
 use App\Models\User;
+use App\Services\BeatOptimizerService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class PlannedVisitController extends Controller
 {
+    public function __construct(protected BeatOptimizerService $optimizer) {}
+
     public function index(Request $request)
     {
         $query = PlannedVisit::with(['user', 'outlet']);
@@ -77,6 +81,38 @@ class PlannedVisitController extends Controller
             : 'No new visits added (outlets already planned for that day).';
 
         return redirect()->route('planned-visits.index', ['user_id' => $userId, 'planned_date' => $plannedDate])->with('success', $message);
+    }
+
+    public function optimize(Request $request, User $user, string $date)
+    {
+        $plannedDate = Carbon::parse($date)->toDateString();
+
+        $visits = PlannedVisit::where('user_id', $user->id)
+            ->whereDate('planned_date', $plannedDate)
+            ->with('outlet')
+            ->orderBy('sequence')
+            ->get();
+
+        if ($visits->isEmpty()) {
+            return redirect()
+                ->route('planned-visits.index', ['user_id' => $user->id, 'planned_date' => $plannedDate])
+                ->with('error', 'No planned visits found for this user on that date.');
+        }
+
+        $result = $this->optimizer->optimize($visits);
+        $reordered = $result['visits'];
+
+        DB::transaction(function () use ($reordered) {
+            foreach ($reordered->values() as $index => $visit) {
+                $visit->update(['sequence' => $index + 1]);
+            }
+        });
+
+        $km = number_format($result['total_distance_metres'] / 1000, 1);
+
+        return redirect()
+            ->route('planned-visits.index', ['user_id' => $user->id, 'planned_date' => $plannedDate])
+            ->with('success', "Route optimized. Estimated distance: {$km} km.");
     }
 
     public function destroy(PlannedVisit $plannedVisit)

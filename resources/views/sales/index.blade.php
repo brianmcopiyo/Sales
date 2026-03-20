@@ -75,11 +75,22 @@
                 <div class="text-sm font-medium text-themeMuted mb-1">Gross profit</div>
                 <div class="text-2xl font-semibold text-emerald-600">{{ $currencySymbol }} {{ number_format($stats['total_profit'] ?? 0, 2) }}</div>
             </a>
-            <a href="{{ route('sales.index', $baseQuery) }}" 
+            <a href="{{ route('sales.index', $baseQuery) }}"
                 class="filter-card bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] cursor-pointer transition-all hover:shadow-lg hover:border-primary/30"
                 data-filter="sales-all">
                 <div class="text-sm font-medium text-themeMuted mb-1">Total commission</div>
                 <div class="text-2xl font-semibold text-primary">{{ $currencySymbol }} {{ number_format($stats['total_commission'] ?? 0, 2) }}</div>
+            </a>
+            <a href="{{ route('sales.index', array_merge($baseQuery, ['sale_type' => 'primary'])) }}"
+                class="filter-card bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] cursor-pointer transition-all hover:shadow-lg hover:border-primary/30 {{ request('sale_type') === 'primary' ? 'ring-2 ring-primary border-primary' : '' }}">
+                <div class="text-sm font-medium text-themeMuted mb-1">Primary sales revenue</div>
+                <div class="text-2xl font-semibold text-primary">{{ $currencySymbol }} {{ number_format($stats['primary_revenue'] ?? 0, 2) }}</div>
+            </a>
+            <a href="{{ route('sales.secondary-report') }}"
+                class="filter-card bg-themeCard rounded-2xl border border-themeBorder p-5 shadow-[0_2px_15px_-3px_rgba(0,111,120,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] cursor-pointer transition-all hover:shadow-lg hover:border-amber-500/30 {{ request('sale_type') === 'secondary' ? 'ring-2 ring-amber-500 border-amber-500' : '' }}">
+                <div class="text-sm font-medium text-themeMuted mb-1">Secondary sales revenue</div>
+                <div class="text-2xl font-semibold text-amber-600">{{ $currencySymbol }} {{ number_format($stats['secondary_revenue'] ?? 0, 2) }}</div>
+                <div class="text-xs text-themeMuted mt-1">View report →</div>
             </a>
         </div>
 
@@ -127,6 +138,15 @@
                         <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                     </select>
                 </div>
+                <div class="w-36">
+                    <label for="sale_type" class="block text-sm font-medium text-themeBody mb-2">Sale Type</label>
+                    <select id="sale_type" name="sale_type"
+                        class="w-full px-4 py-2.5 border border-themeBorder rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-medium text-themeHeading">
+                        <option value="">All types</option>
+                        <option value="primary" {{ request('sale_type') === 'primary' ? 'selected' : '' }}>Primary</option>
+                        <option value="secondary" {{ request('sale_type') === 'secondary' ? 'selected' : '' }}>Secondary</option>
+                    </select>
+                </div>
                 <div>
                     <label for="date_from" class="block text-sm font-medium text-themeBody mb-2">From</label>
                     <input type="date" id="date_from" name="date_from" value="{{ request('date_from') }}"
@@ -139,7 +159,7 @@
                 </div>
                 <button type="submit"
                     class="bg-primary text-white px-5 py-2.5 rounded-xl font-medium hover:bg-primary-dark transition shadow-sm">Filter</button>
-                @if (request()->hasAny(['search', 'branch', 'customer_id', 'status', 'date_from', 'date_to']))
+                @if (request()->hasAny(['search', 'branch', 'customer_id', 'status', 'sale_type', 'date_from', 'date_to']))
                     <a href="{{ route('sales.index', $branchFilter === null ? ['branch' => ''] : []) }}"
                         class="bg-themeHover text-themeBody px-5 py-2.5 rounded-xl font-medium hover:bg-themeBorder transition">Clear</a>
                 @endif
@@ -207,6 +227,8 @@
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
                                 Commission</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
+                                Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
                                 Status</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-themeMuted uppercase tracking-wider">
                                 Date</th>
@@ -263,6 +285,11 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-primary">{{ $currencySymbol }}
                                         {{ number_format($sale->items->sum('commission_amount'), 2) }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium {{ ($sale->sale_type ?? 'primary') === 'secondary' ? 'bg-amber-100 text-amber-800' : 'bg-themeHover text-themeBody' }}">
+                                        {{ ucfirst($sale->sale_type ?? 'primary') }}
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span

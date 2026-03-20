@@ -12,8 +12,26 @@
             @endif
         </div>
 
+        <div class="flex items-center gap-2">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-themeHover text-themeBody">
+                {{ \App\Models\AuditTemplate::categories()[$auditTemplate->category ?? 'general'] ?? ucfirst($auditTemplate->category ?? 'General') }}
+            </span>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-medium {{ $auditTemplate->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-themeHover text-themeBody' }}">
+                {{ $auditTemplate->is_active ? 'Active' : 'Inactive' }}
+            </span>
+        </div>
+
         @if ($auditTemplate->description)
             <p class="text-themeBody">{{ $auditTemplate->description }}</p>
+        @endif
+
+        @if ($auditTemplate->reference_image)
+            <div class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-sm">
+                <h2 class="text-lg font-semibold text-themeHeading mb-4">Reference planogram</h2>
+                <img src="{{ asset('storage/' . $auditTemplate->reference_image) }}"
+                    alt="Reference planogram"
+                    class="max-w-full max-h-96 rounded-xl border border-themeBorder">
+            </div>
         @endif
 
         <div class="bg-themeCard rounded-2xl border border-themeBorder p-6 shadow-sm">

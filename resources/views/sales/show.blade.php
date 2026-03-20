@@ -72,10 +72,15 @@
                         </div>
                         <div>
                             <div class="text-sm font-medium text-themeMuted mb-1">Status</div>
-                            <span
-                                class="inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-medium {{ $sale->status === 'completed' ? 'bg-emerald-100 text-emerald-800' : ($sale->status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-themeHover text-themeBody') }}">
-                                {{ ucfirst($sale->status) }}
-                            </span>
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-medium {{ $sale->status === 'completed' ? 'bg-emerald-100 text-emerald-800' : ($sale->status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-themeHover text-themeBody') }}">
+                                    {{ ucfirst($sale->status) }}
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-medium {{ ($sale->sale_type ?? 'primary') === 'secondary' ? 'bg-amber-100 text-amber-800' : 'bg-themeHover text-themeBody' }}">
+                                    {{ ucfirst($sale->sale_type ?? 'primary') }}
+                                </span>
+                            </div>
                         </div>
                         <div>
                             <div class="text-sm font-medium text-themeMuted mb-1">Customer</div>
@@ -99,6 +104,17 @@
                         <div>
                             <div class="text-sm font-medium text-themeMuted mb-1">Check-in (visit)</div>
                             <div class="text-base font-medium text-themeHeading">{{ $sale->checkIn->check_in_at->format('d M Y H:i') }} at {{ $sale->checkIn->outlet?->name ?? '—' }}</div>
+                        </div>
+                        @endif
+                        @if ($sale->relationLoaded('schemes') && $sale->schemes->isNotEmpty())
+                        <div class="md:col-span-2">
+                            <div class="text-sm font-medium text-themeMuted mb-1">Applied Scheme</div>
+                            @foreach ($sale->schemes as $scheme)
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-medium bg-emerald-100 text-emerald-800">{{ $scheme->name }}</span>
+                                    <span class="text-sm text-themeMuted">Discount: {{ $currencySymbol ?? '' }} {{ number_format($scheme->pivot->discount_applied, 2) }}</span>
+                                </div>
+                            @endforeach
                         </div>
                         @endif
                         <div>
