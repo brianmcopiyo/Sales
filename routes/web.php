@@ -46,6 +46,15 @@ use App\Http\Controllers\AuditTemplateController;
 use App\Http\Controllers\AuditRunController;
 use App\Http\Controllers\AuditReportController;
 use App\Http\Controllers\SchemeController;
+use App\Http\Controllers\Portal\PortalDashboardController;
+use App\Http\Controllers\Portal\PortalOrderController;
+use App\Http\Controllers\Portal\PortalSchemeController;
+use App\Http\Controllers\Portal\PortalInventoryController;
+use App\Http\Controllers\Portal\PortalReportController;
+use App\Http\Controllers\Portal\PortalClaimController;
+use App\Http\Controllers\Admin\AdminDistributorPortalController;
+use App\Http\Controllers\Admin\AdminDistributorClaimController;
+use App\Http\Controllers\Admin\AdminDistributorTargetController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -1022,3 +1031,71 @@ Route::middleware('auth')->group(function () {
         ->name('roles.destroy')
         ->middleware('permission:roles.delete');
 });
+
+// ============================================================
+// Distributor Self-Service Portal
+// ============================================================
+Route::prefix('portal')
+    ->name('portal.')
+    ->middleware(['auth', 'distributor'])
+    ->group(function () {
+        Route::get('dashboard', [PortalDashboardController::class, 'index'])->name('dashboard');
+
+        // Orders / Invoices
+        Route::get('orders/export', [PortalOrderController::class, 'export'])->name('orders.export');
+        Route::get('orders/{sale}', [PortalOrderController::class, 'show'])->name('orders.show');
+        Route::get('orders', [PortalOrderController::class, 'index'])->name('orders.index');
+
+        // Schemes
+        Route::get('schemes', [PortalSchemeController::class, 'index'])->name('schemes.index');
+
+        // Inventory
+        Route::get('inventory', [PortalInventoryController::class, 'index'])->name('inventory.index');
+
+        // Reports
+        Route::get('reports/export', [PortalReportController::class, 'export'])->name('reports.export');
+        Route::get('reports', [PortalReportController::class, 'index'])->name('reports.index');
+
+        // Claims
+        Route::get('claims', [PortalClaimController::class, 'index'])->name('claims.index');
+        Route::get('claims/create', [PortalClaimController::class, 'create'])->name('claims.create');
+        Route::post('claims', [PortalClaimController::class, 'store'])->name('claims.store');
+        Route::get('claims/{claim}', [PortalClaimController::class, 'show'])->name('claims.show');
+    });
+
+// ============================================================
+// Admin: Distributor Portal Management
+// ============================================================
+Route::prefix('distributor-portal')
+    ->name('admin.distributor-portal.')
+    ->middleware(['auth', 'permission:distributor-portal.manage'])
+    ->group(function () {
+        Route::get('/', [AdminDistributorPortalController::class, 'index'])->name('index');
+        Route::get('create', [AdminDistributorPortalController::class, 'create'])->name('create');
+        Route::post('/', [AdminDistributorPortalController::class, 'store'])->name('store');
+        Route::get('{profile}', [AdminDistributorPortalController::class, 'show'])->name('show');
+        Route::get('{profile}/edit', [AdminDistributorPortalController::class, 'edit'])->name('edit');
+        Route::put('{profile}', [AdminDistributorPortalController::class, 'update'])->name('update');
+
+        // Targets
+        Route::post('{profile}/targets', [AdminDistributorTargetController::class, 'store'])
+            ->name('targets.store')
+            ->middleware('permission:distributor-portal.targets.manage');
+        Route::delete('{profile}/targets/{target}', [AdminDistributorTargetController::class, 'destroy'])
+            ->name('targets.destroy')
+            ->middleware('permission:distributor-portal.targets.manage');
+
+        // Claims (admin side)
+        Route::get('claims/all', [AdminDistributorClaimController::class, 'index'])
+            ->name('claims.index')
+            ->middleware('permission:distributor-portal.claims.approve');
+        Route::get('claims/{claim}', [AdminDistributorClaimController::class, 'show'])
+            ->name('claims.show')
+            ->middleware('permission:distributor-portal.claims.approve');
+        Route::post('claims/{claim}/approve', [AdminDistributorClaimController::class, 'approve'])
+            ->name('claims.approve')
+            ->middleware('permission:distributor-portal.claims.approve');
+        Route::post('claims/{claim}/reject', [AdminDistributorClaimController::class, 'reject'])
+            ->name('claims.reject')
+            ->middleware('permission:distributor-portal.claims.approve');
+    });

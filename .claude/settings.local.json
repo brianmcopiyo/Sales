@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan:*)",
+      "Bash(php -l app/Models/DistributorProfile.php app/Models/DistributorClaim.php app/Models/DistributorTarget.php app/Models/DistributorClaimAttachment.php app/Http/Middleware/EnsureDistributor.php app/Http/Controllers/Portal/PortalDashboardController.php app/Http/Controllers/Portal/PortalOrderController.php app/Http/Controllers/Portal/PortalSchemeController.php app/Http/Controllers/Portal/PortalInventoryController.php app/Http/Controllers/Portal/PortalReportController.php app/Http/Controllers/Portal/PortalClaimController.php app/Http/Controllers/Admin/AdminDistributorPortalController.php app/Http/Controllers/Admin/AdminDistributorClaimController.php app/Http/Controllers/Admin/AdminDistributorTargetController.php app/Exports/Portal/PortalSalesExport.php app/Exports/Portal/PortalReportExport.php app/Notifications/NewDistributorClaim.php app/Helpers/PeriodHelper.php)",
+      "Bash(php -l database/migrations/2026_03_20_000001_create_distributor_profiles_table.php database/migrations/2026_03_20_000002_create_distributor_targets_table.php database/migrations/2026_03_20_000003_create_distributor_claims_table.php database/migrations/2026_03_20_000004_create_distributor_claim_attachments_table.php database/migrations/2026_03_20_000005_add_distributor_role_and_permissions.php)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:8000/)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(find /c/Users/HP/Documents/GitHub/Sales/app/Http/Controllers/Portal /c/Users/HP/Documents/GitHub/Sales/app/Http/Controllers/Admin/AdminDistributor* /c/Users/HP/Documents/GitHub/Sales/app/Models/Distributor* /c/Users/HP/Documents/GitHub/Sales/app/Exports/Portal /c/Users/HP/Documents/GitHub/Sales/app/Helpers/PeriodHelper.php /c/Users/HP/Documents/GitHub/Sales/app/Http/Middleware/EnsureDistributor.php /c/Users/HP/Documents/GitHub/Sales/app/Notifications/NewDistributorClaim.php -name *.php)",
+      "Bash(xargs php:*)"
+    ]
+  }
+}

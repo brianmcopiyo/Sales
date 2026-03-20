@@ -52,6 +52,11 @@ class Customer extends Model
         return $this->hasMany(Ticket::class, 'customer_id');
     }
 
+    public function distributorProfile()
+    {
+        return $this->hasOne(DistributorProfile::class);
+    }
+
     /**
      * Scope to customers that have at least one sale in the given branch IDs.
      */

@@ -218,6 +218,16 @@ class User extends Authenticatable
         return $this->hasOne(FieldAgent::class, 'user_id');
     }
 
+    public function distributorProfile()
+    {
+        return $this->hasOne(DistributorProfile::class);
+    }
+
+    public function isDistributor(): bool
+    {
+        return $this->roleModel && $this->roleModel->slug === 'distributor';
+    }
+
     public function commissionDisbursements()
     {
         return $this->hasMany(CommissionDisbursement::class, 'user_id');

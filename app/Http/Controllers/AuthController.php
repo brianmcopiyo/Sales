@@ -301,6 +301,11 @@ class AuthController extends Controller
         // Clear pending login session
         $request->session()->forget('pending_login');
 
+        // Distributors go to their self-service portal, not the main dashboard
+        if ($user->isDistributor()) {
+            return redirect()->route('portal.dashboard');
+        }
+
         return redirect()->intended('/dashboard');
     }
 

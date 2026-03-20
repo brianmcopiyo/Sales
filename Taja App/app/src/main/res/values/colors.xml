@@ -22,6 +22,10 @@
 	<color name="dashboard_card_bg">#F5F6F8</color>
 	<color name="dashboard_highlight_bg">#E0F2F3</color>
 
+	<!-- Common named colors -->
+	<color name="white">#FFFFFF</color>
+	<color name="login_overlay">#1A1A1A</color>
+
 	<!-- Login screen (four_activity) - uses Stock primary -->
 	<color name="iphone_xxs04_activity_indicator_constraint_layout_background_color">#E2E8ED</color>
 	<color name="iphone_xxs04_activity_group16_constraint_layout_border_color">#98FFFFFF</color>

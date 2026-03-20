@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth' => \App\Http\Middleware\Authenticate::class,
             'field-agent' => \App\Http\Middleware\EnsureFieldAgent::class,
+            'distributor' => \App\Http\Middleware\EnsureDistributor::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'agent_stock_request' => \App\Http\Middleware\AgentStockRequestAccess::class,
             'ability' => \Laravel\Sanctum\Http\Middleware\CheckForAnyAbility::class,
